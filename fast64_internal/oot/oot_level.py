@@ -5,8 +5,14 @@ from ..utility import prop_split, gammaInverse
 from .oot_collision import OOTWaterBoxProperty, drawWaterBoxProperty
 from .oot_constants import ootRegisterQueue, ootEnumEmptyType
 from .oot_actor.oot_actor_classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
-from .oot_actor.oot_actor import drawActorProperty, drawTransitionActorProperty, drawEntranceProperty
 from .oot_utility import getSceneObj, getRoomObj
+
+from .oot_actor.oot_actor_draw import (
+    drawActorProperty,
+    drawTransitionActorProperty,
+    drawEntranceProperty,
+    drawActorHeaderProperty
+)
 
 from .oot_scene_room import (
     OOTRoomHeaderProperty,
@@ -87,15 +93,20 @@ class OOTObjectPanel(bpy.types.Panel):
         altRoomProp = roomObj.ootAlternateRoomHeaders if roomObj is not None else None
 
         if obj.ootEmptyType == "Actor":
-            drawActorProperty(box, obj.ootActorProperty, altRoomProp, objName)
+            actorProp = obj.ootActorProperty
+            drawActorProperty(box, actorProp, objName)
+            drawActorHeaderProperty(box.column(), actorProp.headerSettings, "Actor", altRoomProp, objName)
 
         elif obj.ootEmptyType == "Transition Actor":
+            transLayout = box.column()
             if roomObj is None:
-                box.column().label(text="This must be part of a Room empty's hierarchy.", icon="OUTLINER")
+                transLayout.label(text="This must be part of a Room empty's hierarchy.", icon="OUTLINER")
             else:
-                roomProp = obj.ootTransitionActorProperty
-                roomIndex = roomObj.ootRoomHeader.roomIndex
-                drawTransitionActorProperty(box, roomProp, altSceneProp, roomIndex, objName)
+                transActorProp = obj.ootTransitionActorProperty
+                drawTransitionActorProperty(transLayout, transActorProp, roomObj.ootRoomHeader.roomIndex, objName)
+                drawActorHeaderProperty(
+                    transLayout, transActorProp.actor.headerSettings, "Transition Actor", altSceneProp, objName
+                )
 
         elif obj.ootEmptyType == "Water Box":
             drawWaterBoxProperty(box, obj.ootWaterBoxProperty)
@@ -117,12 +128,16 @@ class OOTObjectPanel(bpy.types.Panel):
 
         elif obj.ootEmptyType == "Entrance":
             entranceLayout = box.column()
-            if roomObj is not None:
+            if roomObj is None:
+                entranceLayout.label(text="This must be part of a Room empty's hierarchy.", icon="OUTLINER")
+            else:
                 split = entranceLayout.split(factor=0.5)
                 split.label(text=f"Room Index: {roomObj.ootRoomHeader.roomIndex}")
-                drawEntranceProperty(entranceLayout, obj.ootEntranceProperty, altSceneProp, objName)
-            else:
-                entranceLayout.label(text="This must be part of a Room empty's hierarchy.", icon="OUTLINER")
+                entranceProp = obj.ootEntranceProperty
+                drawEntranceProperty(entranceLayout, entranceProp)
+                drawActorHeaderProperty(
+                    entranceLayout, entranceProp.actor.headerSettings, "Entrance", altSceneProp, objName
+                )
 
         elif obj.ootEmptyType == "Cull Group":
             drawCullGroupProperty(box, obj)
@@ -135,9 +150,6 @@ class OOTObjectPanel(bpy.types.Panel):
 
         elif obj.ootEmptyType == "None":
             box.label(text="Geometry can be parented to this.")
-
-        # if obj.ootEmptyType != "Scene" and obj.ootEmptyType != "Room":
-        # 	drawParentSceneRoom(box, context.object)
 
 
 def drawLODProperty(box, obj):
