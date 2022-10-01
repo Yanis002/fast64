@@ -2,7 +2,6 @@ import bpy
 from bpy.utils import register_class, unregister_class
 from ..utility import PluginError, toAlnum, prop_split
 
-
 class OOTPath:
 	def __init__(self, ownerName, splineIndex):
 		self.ownerName = toAlnum(ownerName)

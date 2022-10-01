@@ -1,9 +1,24 @@
 import bpy, os, math, mathutils
 from bpy.utils import register_class, unregister_class
 from ..panels import OOT_Panel
+from .oot_constants import ootEnumSceneID
 
-from ..utility import PluginError, CData, prop_split, unhideAllAndGetHiddenList, hideObjsInList, writeCData, raisePluginError
+from ..utility import (
+    PluginError,
+    CData,
+    prop_split,
+    unhideAllAndGetHiddenList,
+    hideObjsInList,
+    writeCData,
+    raisePluginError,
+)
+
 from .oot_collision_classes import (
+    OOTCollisionVertex,
+    OOTCollisionPolygon,
+    OOTCollision,
+    OOTCameraData,
+    getPolygonType,
     ootEnumFloorSetting,
     ootEnumWallSetting,
     ootEnumFloorProperty,
@@ -12,14 +27,19 @@ from .oot_collision_classes import (
     ootEnumCollisionTerrain,
     ootEnumCollisionSound,
     ootEnumCameraSType,
-    OOTCollisionVertex,
-    OOTCollisionPolygon,
-    OOTCollision,
-    OOTCameraData,
-    getPolygonType,
 )
-from .oot_utility import ootGetObjectPath, convertIntTo2sComplement, addIncludeFiles, drawCollectionOps, drawEnumWithCustom, ootDuplicateHierarchy, OOTObjectCategorizer, ootCleanupScene, ootGetPath
-from .oot_constants import ootEnumSceneID
+
+from .oot_utility import (
+    OOTObjectCategorizer,
+    ootGetObjectPath,
+    convertIntTo2sComplement,
+    addIncludeFiles,
+    drawCollectionOps,
+    drawEnumWithCustom,
+    ootDuplicateHierarchy,
+    ootCleanupScene,
+    ootGetPath,
+)
 
 
 class OOTCameraPositionProperty(bpy.types.PropertyGroup):

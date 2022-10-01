@@ -1,7 +1,8 @@
 import bpy, math, os
+from bpy.utils import register_class, unregister_class
 from ..utility import (
-    prop_split,
     PluginError,
+    prop_split,
     getDataFromFile,
     saveDataToFile,
     attemptModifierApply,
@@ -10,7 +11,6 @@ from ..utility import (
     cleanupDuplicatedObjects,
     ootGetSceneOrRoomHeader,
 )
-from bpy.utils import register_class, unregister_class
 
 # default indentation to use when writing to decomp files
 indent = " " * 4

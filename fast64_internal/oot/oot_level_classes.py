@@ -1,11 +1,10 @@
 from ..utility import PluginError, toAlnum
-from .oot_utility import CullGroup
 from .oot_collision_classes import OOTCollision
 from .oot_model_classes import OOTModel
 from .oot_spline import OOTPath
+from .oot_utility import CullGroup
 from .oot_actor.oot_actor_classes import OOTActorProperty
 from ..f3d.f3d_gbi import (
-    DLFormat,
     SPDisplayList,
     SPEndDisplayList,
     GfxListTag,

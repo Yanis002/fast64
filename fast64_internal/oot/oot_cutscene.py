@@ -1,8 +1,8 @@
 import os, bpy
 from bpy.utils import register_class, unregister_class
 from ..panels import OOT_Panel
-from ..utility import prop_split, PluginError, CData, writeCData, raisePluginError
-from .oot_utility import drawCollectionOps, getCollection, OOTCollectionAdd, getCutsceneName, getCustomProperty
+from ..utility import PluginError, CData, prop_split, writeCData, raisePluginError
+from .oot_utility import OOTCollectionAdd, drawCollectionOps, getCollection, getCutsceneName, getCustomProperty
 
 from .oot_constants import (
 	ootEnumCSTextboxType,

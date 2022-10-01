@@ -1,3 +1,6 @@
+import bpy
+from bpy.utils import register_class, unregister_class
+
 from .oot_anim import oot_anim_panel_register, oot_anim_panel_unregister, oot_anim_register, oot_anim_unregister
 from .oot_collision import oot_col_panel_register, oot_col_panel_unregister, oot_col_register, oot_col_unregister
 from .oot_f3d_writer import OOTDLExportSettings, OOTDLImportSettings, oot_dl_writer_panel_register, oot_dl_writer_panel_unregister, oot_dl_writer_register, oot_dl_writer_unregister
@@ -12,9 +15,6 @@ from .c_writer import OOTBootupSceneOptions
 from ..panels import OOT_Panel
 from ..utility import prop_split
 from ..render_settings import on_update_render_settings
-
-import bpy
-from bpy.utils import register_class, unregister_class
 
 
 class OOT_FileSettingsPanel(OOT_Panel):

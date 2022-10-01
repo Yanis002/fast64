@@ -2,6 +2,8 @@ import bpy
 from ..render_settings import on_update_oot_render_settings
 from ..utility import ootGetSceneOrRoomHeader, prop_split
 from .oot_utility import drawAddButton, drawCollectionOps, drawEnumWithCustom, getEnumName, getSceneObj, getRoomObj
+from .oot_cutscene import OOTCSListProperty, drawCSListProperty, drawCSAddButtons
+
 from .oot_constants import (
     ootEnumObjectID,
     ootEnumMusicSeq,
@@ -28,7 +30,6 @@ from .oot_constants import (
     ootEnumRoomShapeType,
     ootEnumHeaderMenu,
 )
-from .oot_cutscene import OOTCSListProperty, drawCSListProperty, drawCSAddButtons
 
 
 def onUpdateOoTLighting(self, context: bpy.types.Context):

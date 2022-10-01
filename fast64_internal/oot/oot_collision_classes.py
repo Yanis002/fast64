@@ -2,7 +2,6 @@ import math
 from ..utility import PluginError
 from .oot_utility import BoxEmpty, convertIntTo2sComplement, getCustomProperty
 
-
 ootEnumConveyer = [
     ("None", "None", "None"),
     ("Land", "Land", "Land"),

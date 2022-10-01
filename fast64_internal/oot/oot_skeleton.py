@@ -1,14 +1,41 @@
 import mathutils, bpy, math, os, re
-from bpy.utils import register_class, unregister_class
 from ..panels import OOT_Panel
-from ..utility import PluginError, CData, getDeclaration, hexOrDecInt, applyRotation, prop_split, getGroupIndexFromname, writeFile, readFile, raisePluginError, writeCData, toAlnum, setOrigin, getGroupNameFromIndex, attemptModifierApply, cleanupDuplicatedObjects
-from ..f3d.f3d_material import ootEnumDrawLayers
-from ..f3d.f3d_writer import getInfoDict
 from ..f3d.f3d_gbi import DLFormat, FMesh, TextureExportSettings, ScrollMethod, F3D
-from ..f3d.f3d_parser import getImportData, parseF3D
 from .oot_model_classes import OOTVertexGroupInfo, OOTModel, OOTGfxFormatter, OOTF3DContext, OOTDynamicTransformProperty
-from .oot_utility import ootGetObjectPath, checkEmptyName, checkForStartBone, getStartBone, getSortedChildren, ootGetPath, addIncludeFiles
+from bpy.utils import register_class, unregister_class
+from ..f3d.f3d_writer import getInfoDict
+from ..f3d.f3d_parser import getImportData, parseF3D
 from .oot_f3d_writer import ootProcessVertexGroup
+from ..f3d.f3d_material import ootEnumDrawLayers
+
+from ..utility import (
+    PluginError,
+    CData,
+    getDeclaration,
+    hexOrDecInt,
+    applyRotation,
+    prop_split,
+    getGroupIndexFromname,
+    writeFile,
+    readFile,
+    raisePluginError,
+    writeCData,
+    toAlnum,
+    setOrigin,
+    getGroupNameFromIndex,
+    attemptModifierApply,
+    cleanupDuplicatedObjects,
+)
+
+from .oot_utility import (
+    ootGetObjectPath,
+    checkEmptyName,
+    checkForStartBone,
+    getStartBone,
+    getSortedChildren,
+    ootGetPath,
+    addIncludeFiles,
+)
 
 
 class OOTSkeletonExportSettings(bpy.types.PropertyGroup):
