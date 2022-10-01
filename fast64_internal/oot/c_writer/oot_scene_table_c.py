@@ -1,22 +1,54 @@
 import os, bpy
 from ...utility import PluginError, writeFile
-from ..oot_constants import ootEnumSceneID, ootDrawConfigNames
+from ..oot_constants import ootEnumSceneID
+from ..oot_level_classes import OOTScene
+from ..oot_utility import ExportInfo
 
 
-def getSceneTable(exportPath):
+def getDrawConfigList(exportPath: str):
+    """Returns the list of available draw configs"""
+    configNames: list[str] = []
+    lines: list[str] = []
+
+    # get every lines until reaching the end of the draw config enum
+    try:
+        with open(os.path.join(exportPath, "include/z64scene.h")) as fileData:
+            for line in fileData:
+                if "SceneDrawConfig;" not in line:
+                    lines.append(line)
+                else:
+                    break
+    except:
+        raise PluginError("ERROR: Can't find z64scene.h!")
+
+    # keep the relevant lines
+    for line in reversed(lines):
+        if line != "\n":
+            if "MAX" not in line and "*/ " in line:
+                # split the string a first time to get rid of the comments
+                # then split the second element of the list to get rid of the index comment
+                # and only keep the config name
+                configNames.append(line.split(",")[0].split("*/ ")[1])
+        else:
+            break
+
+    return list(reversed(configNames))
+
+
+def getSceneTable(exportPath: str) -> tuple[list[str], str, list[str]]:
     """Read and remove unwanted stuff from ``scene_table.h``"""
-    dataList = []
+    sceneEntries = []
     sceneNames = []
-    fileHeader = ""
+    fileHeader = ""  # the comment at the beginning of the file
 
     # read the scene table
     try:
         with open(os.path.join(exportPath, "include/tables/scene_table.h")) as fileData:
             # keep the relevant data and do some formatting
-            for i, line in enumerate(fileData):
+            for line in fileData:
                 if not line.startswith("// "):
                     if not (line.startswith("/**") or line.startswith(" *")):
-                        dataList.append(line[(line.find("(") + 1) :].rstrip(")\n").replace(" ", "").split(","))
+                        sceneEntries.append(line[(line.find("(") + 1) :].rstrip(")\n").replace(" ", "").split(","))
                     else:
                         fileHeader += line
                 if line.startswith("/* 0x"):
@@ -25,42 +57,38 @@ def getSceneTable(exportPath):
     except FileNotFoundError:
         raise PluginError("ERROR: Can't find scene_table.h!")
 
-    # return the parsed data, the header comment and the comment mentionning debug scenes
-    return dataList, fileHeader, sceneNames
+    # return the parsed data, the header comment and the scene's names
+    return sceneEntries, fileHeader, sceneNames
 
 
-def getSceneIndex(sceneNameList, sceneName):
+def getSceneIndex(sceneNames: list[str], sceneName: str):
     """Returns the index (int) of the chosen scene, returns None if ``Custom`` is chosen"""
     if sceneName == "Custom":
         return None
 
-    if sceneNameList is not None:
-        for i in range(len(sceneNameList)):
-            if sceneNameList[i] == sceneName:
-                return i
+    for scnName in sceneNames:
+        if scnName == sceneName:
+            return sceneNames.index(scnName)
 
-    # intended return value to check if the chosen scene was removed
-    return None
+    # if the scene isn't a custom one and the index wasn't returned
+    raise NotImplementedError
 
 
-def getOriginalIndex(sceneName):
+def getOriginalIndex(sceneName: str):
     """
     Returns the index of a specific scene defined by which one the user chose
-	or by the ``sceneName`` parameter if it's not set to ``None``
+        or by the ``sceneName`` parameter if it's not set to ``None``
     """
-    i = 0
-
-    if sceneName != "Custom":
+    if sceneName is not None and sceneName != "Custom":
         for elem in ootEnumSceneID:
             if elem[0] == sceneName:
-                # returns i - 1 because the first entry is the ``Custom`` option
-                return i - 1
-            i += 1
+                # -1 because the first entry is the ``Custom`` option
+                return ootEnumSceneID.index(elem) - 1
 
     raise PluginError("ERROR: Scene Index not found!")
 
 
-def getInsertionIndex(sceneNames, sceneName, index, mode):
+def getInsertionIndex(sceneNames: list[str], sceneName: str, index: int, mode: str) -> int:
     """Returns the index to know where to insert data"""
     # special case where the scene is "Inside the Great Deku Tree"
     # since it's the first scene simply return 0
@@ -92,7 +120,7 @@ def getInsertionIndex(sceneNames, sceneName, index, mode):
     return getInsertionIndex(sceneNames, sceneName, currentIndex - 1, mode)
 
 
-def getSceneParams(scene, exportInfo, sceneNames):
+def getSceneParams(scene: OOTScene, exportInfo: ExportInfo, sceneNames: list[str]):
     """Returns the parameters that needs to be set in ``DEFINE_SCENE()``"""
     # in order to replace the values of ``unk10``, ``unk12`` and basically every parameters from ``DEFINE_SCENE``,
     # you just have to make it return something other than None, not necessarily a string
@@ -101,7 +129,7 @@ def getSceneParams(scene, exportInfo, sceneNames):
 
     # if the index is None then this is a custom scene
     if sceneIndex is None and scene is not None:
-        sceneName = scene.name.lower() + "_scene"
+        sceneName = scene.sceneName()
         sceneTitle = "none"
         sceneID = "SCENE_" + (scene.name.upper() if scene is not None else exportInfo.name.upper())
         sceneUnk10 = sceneUnk12 = 0
@@ -109,7 +137,7 @@ def getSceneParams(scene, exportInfo, sceneNames):
     return sceneName, sceneTitle, sceneID, sceneUnk10, sceneUnk12, sceneIndex
 
 
-def sceneTableToC(data, header, sceneNames, scene):
+def sceneTableToC(sceneEntries: list[str], header: str, sceneNames: list[str], scene: OOTScene):
     """Converts the Scene Table to C code"""
     # start the data with the header comment explaining the format of the file
     fileData = header
@@ -122,7 +150,8 @@ def sceneTableToC(data, header, sceneNames, scene):
     lastSceneIdx = getInsertionIndex(sceneNames, "SCENE_TESTROOM", None, mode)
 
     # add the actual lines with the same formatting
-    for i in range(len(data)):
+    for sceneEntry in sceneEntries:
+        i = sceneEntries.index(sceneEntry)
         # adds the "// Debug-only scenes"
         # if both lastScene indexes are the same values this means there's no debug scene
         if ((i - 1) == lastNonDebugSceneIdx) and (lastSceneIdx != lastNonDebugSceneIdx):
@@ -132,26 +161,24 @@ def sceneTableToC(data, header, sceneNames, scene):
         if (i - 1) == lastSceneIdx:
             fileData += "// Added scenes\n"
 
-        fileData += f"/* 0x{i:02X} */ DEFINE_SCENE("
-        fileData += ", ".join(str(d) for d in data[i])
-
-        fileData += ")\n"
+        fileData += f"/* 0x{i:02X} */ DEFINE_SCENE({', '.join(f'{sceneArg}' for sceneArg in sceneEntry)})\n"
 
     # return the string containing the file data to write
     return fileData
 
 
-def modifySceneTable(scene, exportInfo):
+def modifySceneTable(scene: OOTScene, exportInfo: ExportInfo):
     """Edit the scene table with the new data"""
     exportPath = exportInfo.exportPath
     # the list ``sceneNames`` needs to be synced with ``fileData``
     fileData, header, sceneNames = getSceneTable(exportPath)
     sceneName, sceneTitle, sceneID, sceneUnk10, sceneUnk12, sceneIndex = getSceneParams(scene, exportInfo, sceneNames)
+    drawConfigNames = getDrawConfigList(exportPath)
 
     if scene is None:
         sceneDrawConfig = None
-    elif scene.sceneTableEntry.drawConfig < len(ootDrawConfigNames):
-        sceneDrawConfig = ootDrawConfigNames[scene.sceneTableEntry.drawConfig]
+    elif scene.sceneTableEntry.drawConfig < len(drawConfigNames):
+        sceneDrawConfig = drawConfigNames[scene.sceneTableEntry.drawConfig]
     else:
         sceneDrawConfig = scene.sceneTableEntry.drawConfig
 
