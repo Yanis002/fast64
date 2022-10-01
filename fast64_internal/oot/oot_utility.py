@@ -1,5 +1,15 @@
-from ..utility import *
-import bpy, math, mathutils, os, re
+import bpy, math, os
+from ..utility import (
+    prop_split,
+    PluginError,
+    getDataFromFile,
+    saveDataToFile,
+    attemptModifierApply,
+    setOrigin,
+    applyRotation,
+    cleanupDuplicatedObjects,
+    ootGetSceneOrRoomHeader,
+)
 from bpy.utils import register_class, unregister_class
 
 # default indentation to use when writing to decomp files

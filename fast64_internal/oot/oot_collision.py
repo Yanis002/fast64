@@ -1,14 +1,25 @@
-import bpy, bmesh, os, math, re, shutil, mathutils
+import bpy, os, math, mathutils
 from bpy.utils import register_class, unregister_class
-from io import BytesIO
-
-from ..utility import *
-from .oot_utility import *
-from .oot_constants import *
 from ..panels import OOT_Panel
 
-from .oot_collision_classes import *
-from .oot_scene_room import *
+from ..utility import PluginError, CData, prop_split, unhideAllAndGetHiddenList, hideObjsInList, writeCData, raisePluginError
+from .oot_collision_classes import (
+    ootEnumFloorSetting,
+    ootEnumWallSetting,
+    ootEnumFloorProperty,
+    ootEnumConveyer,
+    ootEnumConveyorSpeed,
+    ootEnumCollisionTerrain,
+    ootEnumCollisionSound,
+    ootEnumCameraSType,
+    OOTCollisionVertex,
+    OOTCollisionPolygon,
+    OOTCollision,
+    OOTCameraData,
+    getPolygonType,
+)
+from .oot_utility import ootGetObjectPath, convertIntTo2sComplement, addIncludeFiles, drawCollectionOps, drawEnumWithCustom, ootDuplicateHierarchy, OOTObjectCategorizer, ootCleanupScene, ootGetPath
+from .oot_constants import ootEnumSceneID
 
 
 class OOTCameraPositionProperty(bpy.types.PropertyGroup):

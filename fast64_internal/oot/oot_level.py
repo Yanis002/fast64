@@ -1,16 +1,48 @@
-import math, os, bpy, bmesh, mathutils
+import bpy
 from bpy.utils import register_class, unregister_class
-from io import BytesIO
 
-from ..f3d.f3d_gbi import *
-from .oot_constants import *
-from .oot_utility import *
-from .oot_scene_room import *
-from .oot_actor import *
-from .oot_collision import *
-from .oot_spline import *
-from ..utility import *
+from ..utility import prop_split, gammaInverse
+from .oot_collision import OOTWaterBoxProperty, drawWaterBoxProperty
+from .oot_constants import ootRegisterQueue, ootEnumEmptyType
+from .oot_actor.oot_actor_classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
+from .oot_actor.oot_actor import drawActorProperty, drawTransitionActorProperty, drawEntranceProperty
+from .oot_utility import getSceneObj, getRoomObj
 
+from .oot_scene_room import (
+    OOTRoomHeaderProperty,
+    OOTSceneHeaderProperty,
+    OOTAlternateSceneHeaderProperty,
+    OOTAlternateRoomHeaderProperty,
+    OOTSceneProperties,
+    OOT_SearchMusicSeqEnumOperator,
+    OOT_SearchObjectEnumOperator,
+    OOT_SearchSceneEnumOperator,
+    OOTLightProperty,
+    OOTLightGroupProperty,
+    OOTObjectProperty,
+    OOTExitProperty,
+    OOTSceneTableEntryProperty,
+    OOTExtraCutsceneProperty,
+    drawSceneHeaderProperty,
+    drawAlternateSceneHeaderProperty,
+    drawRoomHeaderProperty,
+    drawAlternateRoomHeaderProperty,
+)
+
+from .oot_cutscene import (
+    OOTCutsceneProperty,
+    OOTCSTextboxProperty,
+    OOTCSTextboxAdd,
+    OOTCSLightingProperty,
+    OOTCSTimeProperty,
+    OOTCSBGMProperty,
+    OOTCSMiscProperty,
+    OOTCS0x09Property,
+    OOTCSUnkProperty,
+    OOTCSListProperty,
+    OOTCSListAdd,
+    drawCutsceneProperty,
+)
 
 def headerSettingsToIndices(headerSettings):
     headers = set()
@@ -58,7 +90,12 @@ class OOTObjectPanel(bpy.types.Panel):
             drawActorProperty(box, obj.ootActorProperty, altRoomProp, objName)
 
         elif obj.ootEmptyType == "Transition Actor":
-            drawTransitionActorProperty(box, obj.ootTransitionActorProperty, altSceneProp, roomObj, objName)
+            if roomObj is None:
+                box.column().label(text="This must be part of a Room empty's hierarchy.", icon="OUTLINER")
+            else:
+                roomProp = obj.ootTransitionActorProperty
+                roomIndex = roomObj.ootRoomHeader.roomIndex
+                drawTransitionActorProperty(box, roomProp, altSceneProp, roomIndex, objName)
 
         elif obj.ootEmptyType == "Water Box":
             drawWaterBoxProperty(box, obj.ootWaterBoxProperty)
@@ -79,7 +116,13 @@ class OOTObjectPanel(bpy.types.Panel):
                 drawAlternateRoomHeaderProperty(box, obj.ootAlternateRoomHeaders, objName)
 
         elif obj.ootEmptyType == "Entrance":
-            drawEntranceProperty(box, obj, altSceneProp, objName)
+            entranceLayout = box.column()
+            if roomObj is not None:
+                split = entranceLayout.split(factor=0.5)
+                split.label(text=f"Room Index: {roomObj.ootRoomHeader.roomIndex}")
+                drawEntranceProperty(entranceLayout, obj.ootEntranceProperty, altSceneProp, objName)
+            else:
+                entranceLayout.label(text="This must be part of a Room empty's hierarchy.", icon="OUTLINER")
 
         elif obj.ootEmptyType == "Cull Group":
             drawCullGroupProperty(box, obj)
@@ -158,10 +201,9 @@ class OOT_ObjectProperties(bpy.types.PropertyGroup):
     scene: bpy.props.PointerProperty(type=OOTSceneProperties)
 
 
-oot_obj_classes = (
+oot_obj_classes = [
     OOTSceneProperties,
     OOT_ObjectProperties,
-    OOT_SearchActorIDEnumOperator,
     OOT_SearchMusicSeqEnumOperator,
     OOT_SearchObjectEnumOperator,
     OOT_SearchSceneEnumOperator,
@@ -182,16 +224,11 @@ oot_obj_classes = (
     OOTCSListAdd,
     OOTCutsceneProperty,
     OOTExtraCutsceneProperty,
-    OOTActorHeaderItemProperty,
-    OOTActorHeaderProperty,
-    OOTActorProperty,
-    OOTTransitionActorProperty,
-    OOTEntranceProperty,
     OOTSceneHeaderProperty,
     OOTAlternateSceneHeaderProperty,
     OOTRoomHeaderProperty,
     OOTAlternateRoomHeaderProperty,
-)
+]
 
 oot_obj_panel_classes = (OOTObjectPanel,)
 
@@ -207,6 +244,8 @@ def oot_obj_panel_unregister():
 
 
 def oot_obj_register():
+    oot_obj_classes.extend(ootRegisterQueue)
+
     for cls in oot_obj_classes:
         register_class(cls)
 

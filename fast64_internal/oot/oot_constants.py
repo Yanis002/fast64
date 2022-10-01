@@ -1,3 +1,5 @@
+ootRegisterQueue = []
+
 ootEnumRoomShapeType = [
     # ("Custom", "Custom", "Custom"),
     ("ROOM_SHAPE_TYPE_NORMAL", "Normal", "Normal"),
