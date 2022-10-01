@@ -1,4 +1,4 @@
-from bpy import data
+import bpy
 from bpy.types import Operator
 from bpy.props import EnumProperty, StringProperty
 from ..oot_constants import ootEnumActorID, ootRegisterQueue
@@ -16,7 +16,7 @@ class OOT_SearchActorIDEnumOperator(Operator):
     objName: StringProperty()
 
     def execute(self, context):
-        obj = data.objects[self.objName]
+        obj = bpy.data.objects[self.objName]
 
         match self.actorUser:
             case "Transition Actor":
