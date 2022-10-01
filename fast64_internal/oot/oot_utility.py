@@ -170,7 +170,7 @@ def getSceneDirFromLevelName(name):
 
 
 class ExportInfo:
-    def __init__(self, isCustomExport, exportPath, customSubPath, name):
+    def __init__(self, isCustomExport: bool, exportPath: str, customSubPath: str, name: str):
         self.isCustomExportPath = isCustomExport
         self.exportPath = exportPath
         self.customSubPath = customSubPath
