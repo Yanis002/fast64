@@ -1,5 +1,5 @@
 from ..oot_utility import getSceneDirFromLevelName, ExportInfo
-from ..oot_level_classes import OOTScene
+from ..export.scene.classes import OOTScene
 from os import path, listdir, remove
 from re import match as reMatch
 from shutil import rmtree

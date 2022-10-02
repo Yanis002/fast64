@@ -15,7 +15,7 @@ from .oot_constants import (
 	ootEnumCSListTypeEntryC,
 )
 
-from .oot_level_classes import (
+from .export.cutscene.classes import (
 	OOTCSList,
 	OOTCSTextbox,
 	OOTCSLighting,

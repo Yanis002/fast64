@@ -210,7 +210,7 @@ def drawAlternateSceneHeaderProperty(layout: UILayout, headerProp: OOTAlternateS
         ("Adult Night", "adultNightHeader"),
     ]
 
-    for i, tabName, prop in enumerate(altLayers, 1):
+    for i, (tabName, prop) in enumerate(altLayers, 1):
         if headerProp.headerMenuTab == tabName:
             drawSceneHeaderProperty(headerSetup, getattr(headerProp, prop), None, i, objName)
 

@@ -20,11 +20,6 @@ from .actor.draw import (
     drawActorHeaderProperty
 )
 
-from .oot_scene_room import (
-    drawRoomHeaderProperty,
-    drawAlternateRoomHeaderProperty,
-)
-
 from .oot_cutscene import (
     OOTCutsceneProperty,
     OOTCSTextboxProperty,

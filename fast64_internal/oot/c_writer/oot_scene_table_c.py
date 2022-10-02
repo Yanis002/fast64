@@ -1,7 +1,7 @@
 import os, bpy
 from ...utility import PluginError, writeFile
 from ..oot_constants import ootEnumSceneID
-from ..oot_level_classes import OOTScene
+from ..export.scene.classes import OOTScene
 from ..oot_utility import ExportInfo
 
 

@@ -1,6 +1,5 @@
 from ....utility import CData
-
-from ...oot_level_classes import OOTScene, OOTLight
+from ...export.scene.classes import OOTScene, OOTLight
 from ...oot_utility import indent
 
 

@@ -110,7 +110,7 @@ def drawAlternateRoomHeaderProperty(layout: UILayout, headerProp: OOTAlternateRo
         ("Adult Night", "adultNightHeader"),
     ]
 
-    for i, tabName, prop in enumerate(altLayers, 1):
+    for i, (tabName, prop) in enumerate(altLayers, 1):
         if headerProp.headerMenuTab == tabName:
             drawRoomHeaderProperty(headerSetup, getattr(headerProp, prop), None, i, objName)
 

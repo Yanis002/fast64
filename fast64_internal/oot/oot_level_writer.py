@@ -8,14 +8,16 @@ from .c_writer.oot_scene_table_c import modifySceneTable
 from .c_writer.oot_spec import modifySegmentDefinition
 from .c_writer.oot_scene_folder import modifySceneFiles, deleteSceneFiles
 from .oot_constants import ootSceneIDToName, ootEnumSceneID
-from .room.classes import OOTRoomHeaderProperty
 from .scene.operators import OOT_SearchSceneEnumOperator
 from .oot_cutscene import convertCutsceneObject, readCutsceneData
 from .oot_spline import assertCurveValid, ootConvertPath
 from .oot_model_classes import OOTModel
 from .oot_collision import OOTCameraData, exportCollisionCommon
 from .oot_collision_classes import OOTCameraPosData, OOTWaterBox, decomp_compat_map_CameraSType
-from .actor.classes import OOTEntranceProperty
+from .actor.classes import OOTActorProperty, OOTEntranceProperty, OOTTransitionActorProperty
+from .export.scene.classes import OOTScene, OOTExit, OOTLight
+from .export.room.classes import OOTRoom, OOTDLGroup
+from .export.actor.classes import OOTActor, OOTTransitionActor, OOTEntrance
 
 from ..utility import (
     PluginError,
@@ -55,18 +57,6 @@ from .oot_utility import (
     ootConvertTranslation,
     ootConvertRotation,
     ootSceneDirs,
-)
-
-from .oot_level_classes import (
-    OOTLight,
-    OOTExit,
-    OOTScene,
-    OOTActor,
-    OOTTransitionActor,
-    OOTEntrance,
-    OOTDLGroup,
-    addActor,
-    addStartPosition,
 )
 
 
@@ -562,14 +552,13 @@ def ootProcessLOD(roomMesh, DLGroup, sceneObj, obj, transformMatrix, convertText
     DLGroup.addDLCall(transparentLOD.draw, "Transparent")
 
 
-def ootProcessEmpties(scene, room: OOTRoomHeaderProperty, sceneObj, obj, transformMatrix):
+def ootProcessEmpties(scene: OOTScene, room: OOTRoom, sceneObj, obj, transformMatrix):
     translation, rotation, scale, orientedRotation = getConvertedTransform(transformMatrix, sceneObj, obj, True)
 
     if obj.data is None:
         if obj.ootEmptyType == "Actor":
-            actorProp = obj.ootActorProperty
-            addActor(
-                room,
+            actorProp: OOTActorProperty = obj.ootActorProperty
+            room.addActor(
                 OOTActor(
                     getCustomProperty(actorProp, "actorID"),
                     translation,
@@ -579,17 +568,15 @@ def ootProcessEmpties(scene, room: OOTRoomHeaderProperty, sceneObj, obj, transfo
                     if not actorProp.rotOverride
                     else (actorProp.rotOverrideX, actorProp.rotOverrideY, actorProp.rotOverrideZ),
                 ),
-                actorProp,
-                "actorList",
-                obj.name,
+                actorProp.headerSettings,
+                obj.name
             )
         elif obj.ootEmptyType == "Transition Actor":
-            transActorProp = obj.ootTransitionActorProperty
-            addActor(
-                scene,
+            transActorProp: OOTTransitionActorProperty = obj.ootTransitionActorProperty
+            scene.addActor(
                 OOTTransitionActor(
                     getCustomProperty(transActorProp.actor, "actorID"),
-                    room.roomIndex,
+                    room.index,
                     transActorProp.roomIndex,
                     getCustomProperty(transActorProp, "cameraTransitionFront"),
                     getCustomProperty(transActorProp, "cameraTransitionBack"),
@@ -597,16 +584,17 @@ def ootProcessEmpties(scene, room: OOTRoomHeaderProperty, sceneObj, obj, transfo
                     rotation[1],  # TODO: Correct axis?
                     transActorProp.actor.actorParam,
                 ),
-                transActorProp.actor,
-                "transitionActorList",
+                transActorProp.actor.headerSettings,
                 obj.name,
+                "transitionActorList"
             )
         elif obj.ootEmptyType == "Entrance":
             entranceProp: OOTEntranceProperty = obj.ootEntranceProperty
             spawnIndex = entranceProp.spawnIndex
-            addActor(scene, OOTEntrance(room.roomIndex, spawnIndex), entranceProp.actor, "entranceList", obj.name)
-            addStartPosition(
-                scene,
+            scene.addActor(
+                OOTEntrance(room.index, spawnIndex), entranceProp.actor.headerSettings, obj.name, "entranceList"
+            )
+            scene.addStartPosition(
                 spawnIndex,
                 OOTActor(
                     "ACTOR_PLAYER" if not entranceProp.customActor else entranceProp.actor.actorIDCustom,

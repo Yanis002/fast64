@@ -1,6 +1,8 @@
 from ....utility import CData, PluginError
-from ...oot_level_classes import OOTScene, OOTRoom, OOTActor
 from ...oot_utility import indent
+from ...export.scene.classes import OOTScene
+from ...export.room.classes import OOTRoom
+from ...export.actor.classes import OOTActor
 
 
 def ootGetActorEntry(actor: OOTActor):

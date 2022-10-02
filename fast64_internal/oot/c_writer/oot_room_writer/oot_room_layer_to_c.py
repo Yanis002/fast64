@@ -1,5 +1,5 @@
 from ....utility import CData
-from ...oot_level_classes import OOTRoom
+from ...export.room.classes import OOTRoom
 from ...oot_utility import indent
 
 from .oot_room_cmds import ootRoomCommandsToC

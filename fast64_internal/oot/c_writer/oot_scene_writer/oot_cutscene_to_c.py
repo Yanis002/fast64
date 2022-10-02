@@ -1,5 +1,5 @@
 from ....utility import CData
-from ...oot_level_classes import OOTScene
+from ...export.scene.classes import OOTScene
 from ...oot_cutscene import ootCutsceneDataToC
 
 

@@ -1,7 +1,7 @@
 from ...utility import CData
 from ...f3d.f3d_gbi import ScrollMethod, TextureExportSettings
 from ..oot_model_classes import OOTGfxFormatter
-from ..oot_level_classes import OOTScene
+from ..export.scene.classes import OOTScene
 
 from ..oot_collision import ootCollisionToC
 from .oot_room_writer.oot_room_shape_to_c import ootGetRoomShapeHeaderData, ootRoomModelToC
