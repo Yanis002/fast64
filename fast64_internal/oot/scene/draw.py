@@ -1,14 +1,24 @@
+from bpy.types import UILayout
 from ...utility import prop_split
 from ..oot_utility import drawAddButton, drawCollectionOps, drawEnumWithCustom
 from ..oot_cutscene import drawCSListProperty, drawCSAddButtons
 from .operators import OOT_SearchMusicSeqEnumOperator
+from .classes import (
+    OOTExitProperty,
+    OOTLightProperty,
+    OOTLightGroupProperty,
+    OOTSceneTableEntryProperty,
+    OOTSceneHeaderProperty,
+    OOTAlternateSceneHeaderProperty,
+)
 
 
-def drawExitProperty(layout, exitProp, index, headerIndex, objName):
+def drawExitProperty(layout: UILayout, exitProp: OOTExitProperty, index: int, headerIndex: int, objName: str):
     box = layout.box()
     box.prop(
         exitProp, "expandTab", text="Exit " + str(index + 1), icon="TRIA_DOWN" if exitProp.expandTab else "TRIA_RIGHT"
     )
+
     if exitProp.expandTab:
         drawCollectionOps(box, index, "Exit", headerIndex, objName)
         drawEnumWithCustom(box, exitProp, "exitIndex", "Exit Index", "")
@@ -23,7 +33,15 @@ def drawExitProperty(layout, exitProp, index, headerIndex, objName):
             drawEnumWithCustom(exitGroup, exitProp, "fadeOutAnim", "Fade Out Animation", "")
 
 
-def drawLightProperty(layout, lightProp, name, showExpandTab, index, sceneHeaderIndex, objName):
+def drawLightProperty(
+    layout: UILayout,
+    lightProp: OOTLightProperty,
+    name: str,
+    showExpandTab: bool,
+    index: int,
+    sceneHeaderIndex: int,
+    objName: str,
+):
     if showExpandTab:
         box = layout.box().column()
         box.prop(lightProp, "expandTab", text=name, icon="TRIA_DOWN" if lightProp.expandTab else "TRIA_RIGHT")
@@ -57,30 +75,30 @@ def drawLightProperty(layout, lightProp, name, showExpandTab, index, sceneHeader
         prop_split(box, lightProp, "transitionSpeed", "Transition Speed")
 
 
-def drawLightGroupProperty(layout, lightGroupProp):
+def drawLightGroupProperty(layout: UILayout, lightGroupProp: OOTLightGroupProperty):
     box = layout.column()
     box.row().prop(lightGroupProp, "menuTab", expand=True)
-    if lightGroupProp.menuTab == "Dawn":
-        drawLightProperty(box, lightGroupProp.dawn, "Dawn", False, None, None, None)
-    if lightGroupProp.menuTab == "Day":
-        drawLightProperty(box, lightGroupProp.day, "Day", False, None, None, None)
-    if lightGroupProp.menuTab == "Dusk":
-        drawLightProperty(box, lightGroupProp.dusk, "Dusk", False, None, None, None)
-    if lightGroupProp.menuTab == "Night":
-        drawLightProperty(box, lightGroupProp.night, "Night", False, None, None, None)
+    todNames = [("Dawn", "dawn"), ("Day", "day"), ("Dusk", "dusk"), ("Night", "night")]
+
+    for tabName, prop in todNames:
+        if lightGroupProp.menuTab == tabName:
+            drawLightProperty(box, getattr(lightGroupProp, prop), tabName, False, None, None, None)
 
 
-def drawSceneTableEntryProperty(layout, sceneTableEntryProp):
+def drawSceneTableEntryProperty(layout: UILayout, sceneTableEntryProp: OOTSceneTableEntryProperty):
     prop_split(layout, sceneTableEntryProp, "drawConfig", "Draw Config")
 
 
-def drawSceneHeaderProperty(layout, sceneProp, dropdownLabel, headerIndex, objName):
+def drawSceneHeaderProperty(
+    layout: UILayout, sceneProp: OOTSceneHeaderProperty, dropdownLabel: str, headerIndex: int, objName: str
+):
     if dropdownLabel is not None:
         layout.prop(
             sceneProp, "expandTab", text=dropdownLabel, icon="TRIA_DOWN" if sceneProp.expandTab else "TRIA_RIGHT"
         )
         if not sceneProp.expandTab:
             return
+
     if headerIndex is not None and headerIndex > 3:
         drawCollectionOps(layout, headerIndex - 4, "Scene", None, objName)
 
@@ -99,8 +117,10 @@ def drawSceneHeaderProperty(layout, sceneProp, dropdownLabel, headerIndex, objNa
     if menuTab == "General":
         general = layout.column()
         general.box().label(text="General")
+
         if headerIndex is None or headerIndex == 0:
             drawSceneTableEntryProperty(layout, sceneProp.sceneTableEntry)
+
         drawEnumWithCustom(general, sceneProp, "globalObject", "Global Object", "")
         drawEnumWithCustom(general, sceneProp, "naviCup", "Navi Hints", "")
 
@@ -109,6 +129,7 @@ def drawSceneHeaderProperty(layout, sceneProp, dropdownLabel, headerIndex, objNa
         drawEnumWithCustom(skyboxAndSound, sceneProp, "skyboxID", "Skybox", "")
         drawEnumWithCustom(skyboxAndSound, sceneProp, "skyboxCloudiness", "Cloudiness", "")
         drawEnumWithCustom(skyboxAndSound, sceneProp, "musicSeq", "Music Sequence", "")
+
         musicSearch = skyboxAndSound.operator(OOT_SearchMusicSeqEnumOperator.bl_idname, icon="VIEWZOOM")
         musicSearch.objName = objName
         musicSearch.headerIndex = headerIndex if headerIndex is not None else 0
@@ -124,6 +145,7 @@ def drawSceneHeaderProperty(layout, sceneProp, dropdownLabel, headerIndex, objNa
         lighting = layout.column()
         lighting.box().label(text="Lighting List")
         drawEnumWithCustom(lighting, sceneProp, "skyboxLighting", "Lighting Mode", "")
+
         if sceneProp.skyboxLighting == "0x00":  # Time of Day
             drawLightGroupProperty(lighting, sceneProp.timeOfDayLights)
         else:
@@ -137,6 +159,7 @@ def drawSceneHeaderProperty(layout, sceneProp, dropdownLabel, headerIndex, objNa
         r.prop(sceneProp, "writeCutscene", text="Write Cutscene")
         if sceneProp.writeCutscene:
             r.prop(sceneProp, "csWriteType", text="Data")
+
             if sceneProp.csWriteType == "Custom":
                 cutscene.prop(sceneProp, "csWriteCustom")
             elif sceneProp.csWriteType == "Object":
@@ -179,22 +202,23 @@ def drawSceneHeaderProperty(layout, sceneProp, dropdownLabel, headerIndex, objNa
             layout.label(text="Exits are edited in main header.")
 
 
-def drawAlternateSceneHeaderProperty(layout, headerProp, objName):
+def drawAlternateSceneHeaderProperty(layout: UILayout, headerProp: OOTAlternateSceneHeaderProperty, objName: str):
     headerSetup = layout.column()
-    # headerSetup.box().label(text = "Alternate Headers")
-    headerSetupBox = headerSetup.column()
+    altLayers = [
+        ("Child Night", "childNightHeader"),
+        ("Adult Day", "adultDayHeader"),
+        ("Adult Night", "adultNightHeader"),
+    ]
 
-    headerSetupBox.row().prop(headerProp, "headerMenuTab", expand=True)
-    if headerProp.headerMenuTab == "Child Night":
-        drawSceneHeaderProperty(headerSetupBox, headerProp.childNightHeader, None, 1, objName)
-    elif headerProp.headerMenuTab == "Adult Day":
-        drawSceneHeaderProperty(headerSetupBox, headerProp.adultDayHeader, None, 2, objName)
-    elif headerProp.headerMenuTab == "Adult Night":
-        drawSceneHeaderProperty(headerSetupBox, headerProp.adultNightHeader, None, 3, objName)
-    elif headerProp.headerMenuTab == "Cutscene":
+    for i, tabName, prop in enumerate(altLayers, 1):
+        if headerProp.headerMenuTab == tabName:
+            drawSceneHeaderProperty(headerSetup, getattr(headerProp, prop), None, i, objName)
+
+    if headerProp.headerMenuTab == "Cutscene":
         prop_split(headerSetup, headerProp, "currentCutsceneIndex", "Cutscene Index")
         drawAddButton(headerSetup, len(headerProp.cutsceneHeaders), "Scene", None, objName)
         index = headerProp.currentCutsceneIndex
+
         if index - 4 < len(headerProp.cutsceneHeaders):
             drawSceneHeaderProperty(headerSetup, headerProp.cutsceneHeaders[index - 4], None, index, objName)
         else:

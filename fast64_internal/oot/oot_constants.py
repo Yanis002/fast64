@@ -1,4 +1,4 @@
-ootRegisterQueue = []
+ootRegisterQueue = []  # is this a good idea?
 
 ootEnumRoomShapeType = [
     # ("Custom", "Custom", "Custom"),

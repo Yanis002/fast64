@@ -1,10 +1,12 @@
+from bpy.types import UILayout
 from ...utility import prop_split
 from ..oot_utility import drawAddButton, drawCollectionOps, drawEnumWithCustom, getEnumName
-from .operators import OOT_SearchObjectEnumOperator
 from ..oot_constants import ootEnumObjectID
+from .operators import OOT_SearchObjectEnumOperator
+from .classes import OOTObjectProperty, OOTRoomHeaderProperty, OOTAlternateRoomHeaderProperty
 
 
-def drawObjectProperty(layout, objectProp, headerIndex, index, objName):
+def drawObjectProperty(layout: UILayout, objectProp: OOTObjectProperty, headerIndex: int, index: int, objName: str):
     objItemBox = layout.box()
     objectName = getEnumName(ootEnumObjectID, objectProp.objectID)
     objItemBox.prop(
@@ -12,23 +14,25 @@ def drawObjectProperty(layout, objectProp, headerIndex, index, objName):
     )
     if objectProp.expandTab:
         drawCollectionOps(objItemBox, index, "Object", headerIndex, objName)
-
         objSearch = objItemBox.operator(OOT_SearchObjectEnumOperator.bl_idname, icon="VIEWZOOM")
         objSearch.objName = objName
         objItemBox.column().label(text="ID: " + objectName)
-        # prop_split(objItemBox, objectProp, "objectID", name = "ID")
+
         if objectProp.objectID == "Custom":
             prop_split(objItemBox, objectProp, "objectIDCustom", "Object ID Custom")
+
         objSearch.headerIndex = headerIndex if headerIndex is not None else 0
         objSearch.index = index
 
 
-def drawRoomHeaderProperty(layout, roomProp, dropdownLabel, headerIndex, objName):
-
+def drawRoomHeaderProperty(
+    layout: UILayout, roomProp: OOTRoomHeaderProperty, dropdownLabel: str, headerIndex: int, objName: str
+):
     if dropdownLabel is not None:
         layout.prop(roomProp, "expandTab", text=dropdownLabel, icon="TRIA_DOWN" if roomProp.expandTab else "TRIA_RIGHT")
         if not roomProp.expandTab:
             return
+
     if headerIndex is not None and headerIndex > 3:
         drawCollectionOps(layout, headerIndex - 4, "Room", None, objName)
 
@@ -71,12 +75,13 @@ def drawRoomHeaderProperty(layout, roomProp, dropdownLabel, headerIndex, objName
         skyboxAndTime.prop(roomProp, "disableSkybox", text="Disable Skybox")
         skyboxAndTime.prop(roomProp, "disableSunMoon", text="Disable Sun/Moon")
         skyboxAndTime.prop(roomProp, "leaveTimeUnchanged", text="Leave Time Unchanged")
+
         if not roomProp.leaveTimeUnchanged:
             skyboxAndTime.label(text="Time")
             timeRow = skyboxAndTime.row()
             timeRow.prop(roomProp, "timeHours", text="Hours")
             timeRow.prop(roomProp, "timeMinutes", text="Minutes")
-            # prop_split(skyboxAndTime, roomProp, "timeValue", "Time Of Day")
+
         prop_split(skyboxAndTime, roomProp, "timeSpeed", "Time Speed")
 
         # Echo
@@ -88,7 +93,6 @@ def drawRoomHeaderProperty(layout, roomProp, dropdownLabel, headerIndex, objName
         windBox.prop(roomProp, "setWind", text="Set Wind")
         if roomProp.setWind:
             windBox.row().prop(roomProp, "windVector", text="")
-            # prop_split(windBox, roomProp, "windVector", "Wind Vector")
 
     elif menuTab == "Objects":
         objBox = layout.column()
@@ -98,22 +102,23 @@ def drawRoomHeaderProperty(layout, roomProp, dropdownLabel, headerIndex, objName
         drawAddButton(objBox, len(roomProp.objectList), "Object", headerIndex, objName)
 
 
-def drawAlternateRoomHeaderProperty(layout, headerProp, objName):
+def drawAlternateRoomHeaderProperty(layout: UILayout, headerProp: OOTAlternateRoomHeaderProperty, objName: str):
     headerSetup = layout.column()
-    # headerSetup.box().label(text = "Alternate Headers")
-    headerSetupBox = headerSetup.column()
+    altLayers = [
+        ("Child Night", "childNightHeader"),
+        ("Adult Day", "adultDayHeader"),
+        ("Adult Night", "adultNightHeader"),
+    ]
 
-    headerSetupBox.row().prop(headerProp, "headerMenuTab", expand=True)
-    if headerProp.headerMenuTab == "Child Night":
-        drawRoomHeaderProperty(headerSetupBox, headerProp.childNightHeader, None, 1, objName)
-    elif headerProp.headerMenuTab == "Adult Day":
-        drawRoomHeaderProperty(headerSetupBox, headerProp.adultDayHeader, None, 2, objName)
-    elif headerProp.headerMenuTab == "Adult Night":
-        drawRoomHeaderProperty(headerSetupBox, headerProp.adultNightHeader, None, 3, objName)
-    elif headerProp.headerMenuTab == "Cutscene":
+    for i, tabName, prop in enumerate(altLayers, 1):
+        if headerProp.headerMenuTab == tabName:
+            drawRoomHeaderProperty(headerSetup, getattr(headerProp, prop), None, i, objName)
+
+    if headerProp.headerMenuTab == "Cutscene":
         prop_split(headerSetup, headerProp, "currentCutsceneIndex", "Cutscene Index")
         drawAddButton(headerSetup, len(headerProp.cutsceneHeaders), "Room", None, objName)
         index = headerProp.currentCutsceneIndex
+
         if index - 4 < len(headerProp.cutsceneHeaders):
             drawRoomHeaderProperty(headerSetup, headerProp.cutsceneHeaders[index - 4], None, index, objName)
         else:
