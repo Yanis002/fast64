@@ -4,10 +4,16 @@ from bpy.utils import register_class, unregister_class
 from ..utility import prop_split, gammaInverse
 from .oot_collision import OOTWaterBoxProperty, drawWaterBoxProperty
 from .oot_constants import ootRegisterQueue, ootEnumEmptyType
-from .oot_actor.oot_actor_classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
+from .actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
 from .oot_utility import getSceneObj, getRoomObj
+from .scene.operators import OOT_SearchSceneEnumOperator, OOT_SearchMusicSeqEnumOperator
+from .scene.classes import OOTSceneProperties, OOTSceneHeaderProperty, OOTAlternateSceneHeaderProperty
+from .scene.draw import drawSceneHeaderProperty, drawAlternateSceneHeaderProperty
+from .room.operators import OOT_SearchObjectEnumOperator
+from .room.classes import OOTRoomHeaderProperty, OOTAlternateRoomHeaderProperty
+from .room.draw import drawRoomHeaderProperty, drawAlternateRoomHeaderProperty
 
-from .oot_actor.oot_actor_draw import (
+from .actor.draw import (
     drawActorProperty,
     drawTransitionActorProperty,
     drawEntranceProperty,
@@ -15,22 +21,6 @@ from .oot_actor.oot_actor_draw import (
 )
 
 from .oot_scene_room import (
-    OOTRoomHeaderProperty,
-    OOTSceneHeaderProperty,
-    OOTAlternateSceneHeaderProperty,
-    OOTAlternateRoomHeaderProperty,
-    OOTSceneProperties,
-    OOT_SearchMusicSeqEnumOperator,
-    OOT_SearchObjectEnumOperator,
-    OOT_SearchSceneEnumOperator,
-    OOTLightProperty,
-    OOTLightGroupProperty,
-    OOTObjectProperty,
-    OOTExitProperty,
-    OOTSceneTableEntryProperty,
-    OOTExtraCutsceneProperty,
-    drawSceneHeaderProperty,
-    drawAlternateSceneHeaderProperty,
     drawRoomHeaderProperty,
     drawAlternateRoomHeaderProperty,
 )
@@ -219,11 +209,6 @@ oot_obj_classes = [
     OOT_SearchMusicSeqEnumOperator,
     OOT_SearchObjectEnumOperator,
     OOT_SearchSceneEnumOperator,
-    OOTLightProperty,
-    OOTLightGroupProperty,
-    OOTObjectProperty,
-    OOTExitProperty,
-    OOTSceneTableEntryProperty,
     OOTCSTextboxProperty,
     OOTCSTextboxAdd,
     OOTCSLightingProperty,
@@ -235,11 +220,6 @@ oot_obj_classes = [
     OOTCSListProperty,
     OOTCSListAdd,
     OOTCutsceneProperty,
-    OOTExtraCutsceneProperty,
-    OOTSceneHeaderProperty,
-    OOTAlternateSceneHeaderProperty,
-    OOTRoomHeaderProperty,
-    OOTAlternateRoomHeaderProperty,
 ]
 
 oot_obj_panel_classes = (OOTObjectPanel,)

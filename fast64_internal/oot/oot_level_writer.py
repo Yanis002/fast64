@@ -8,13 +8,14 @@ from .c_writer.oot_scene_table_c import modifySceneTable
 from .c_writer.oot_spec import modifySegmentDefinition
 from .c_writer.oot_scene_folder import modifySceneFiles, deleteSceneFiles
 from .oot_constants import ootSceneIDToName, ootEnumSceneID
-from .oot_scene_room import OOTRoomHeaderProperty, OOT_SearchSceneEnumOperator
+from .room.classes import OOTRoomHeaderProperty
+from .scene.operators import OOT_SearchSceneEnumOperator
 from .oot_cutscene import convertCutsceneObject, readCutsceneData
 from .oot_spline import assertCurveValid, ootConvertPath
 from .oot_model_classes import OOTModel
 from .oot_collision import OOTCameraData, exportCollisionCommon
 from .oot_collision_classes import OOTCameraPosData, OOTWaterBox, decomp_compat_map_CameraSType
-from .oot_actor.oot_actor_classes import OOTEntranceProperty
+from .actor.classes import OOTEntranceProperty
 
 from ..utility import (
     PluginError,

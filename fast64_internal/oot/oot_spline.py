@@ -47,7 +47,6 @@ class OOTSplinePanel(bpy.types.Panel):
 		else:
 			prop_split(box, context.object.ootSplineProperty, "index", "Index")
 
-		#drawParentSceneRoom(box, context.object)
 
 class OOTSplineProperty(bpy.types.PropertyGroup):
 	index : bpy.props.IntProperty(default = 0, min = 0)

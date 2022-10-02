@@ -2,9 +2,9 @@ from bpy.types import UILayout
 from ...utility import prop_split, label_split
 from ..oot_utility import drawAddButton, drawCollectionOps, getEnumName, drawEnumWithCustom
 from ..oot_constants import ootEnumActorID
-from ..oot_scene_room import OOTAlternateRoomHeaderProperty
-from .oot_actor_operators import OOT_SearchActorIDEnumOperator
-from .oot_actor_classes import (
+from ..room.classes import OOTAlternateRoomHeaderProperty
+from .operators import OOT_SearchActorIDEnumOperator
+from .classes import (
     OOTActorHeaderItemProperty,
     OOTActorHeaderProperty,
     OOTActorProperty,
