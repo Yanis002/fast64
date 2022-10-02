@@ -32,6 +32,13 @@ from .panel.tools import (
     oot_operator_unregister,
 )
 
+from .panel.cutscene import (
+    oot_cutscene_panel_register,
+    oot_cutscene_panel_unregister,
+    oot_cutscene_register,
+    oot_cutscene_unregister,
+)
+
 from .oot_skeleton import (
     oot_skeleton_panel_register,
     oot_skeleton_panel_unregister,
@@ -44,13 +51,6 @@ from .oot_spline import (
     oot_spline_panel_unregister,
     oot_spline_register,
     oot_spline_unregister,
-)
-
-from .oot_cutscene import (
-    oot_cutscene_panel_register,
-    oot_cutscene_panel_unregister,
-    oot_cutscene_register,
-    oot_cutscene_unregister,
 )
 
 

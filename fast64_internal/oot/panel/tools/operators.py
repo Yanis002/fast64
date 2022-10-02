@@ -181,13 +181,3 @@ class OOT_AddPath(Operator):
         pathObj.select_set(True)
         context.view_layer.objects.active = pathObj
         return {"FINISHED"}
-
-
-toolOpsToRegister = [
-    OOT_AddWaterBox,
-    OOT_AddDoor,
-    OOT_AddScene,
-    OOT_AddRoom,
-    OOT_AddCutscene,
-    OOT_AddPath,
-]
