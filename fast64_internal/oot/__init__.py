@@ -8,14 +8,20 @@ from .oot_collision import oot_col_panel_register, oot_col_panel_unregister, oot
 from .oot_utility import oot_utility_register, oot_utility_unregister
 from ..utility import prop_split
 from ..render_settings import on_update_render_settings
+from .panel.display_list.classes import OOTDLExportSettings, OOTDLImportSettings
 
 from .oot_f3d_writer import (
-    OOTDLExportSettings,
-    OOTDLImportSettings,
     oot_dl_writer_panel_register,
     oot_dl_writer_panel_unregister,
     oot_dl_writer_register,
     oot_dl_writer_unregister,
+)
+
+from .panel.display_list import (
+    dl_writer_panel_register,
+    dl_writer_panel_unregister,
+    dl_writer_register,
+    dl_writer_unregister,
 )
 
 from .panel.collision import (
@@ -121,6 +127,7 @@ def oot_panel_register():
     oot_cutscene_panel_register()
     skeletonPanelRegister()
     collision_panel_register()
+    dl_writer_panel_register()
 
 
 
@@ -136,6 +143,7 @@ def oot_panel_unregister():
     oot_cutscene_panel_unregister()
     skeletonPanelUnregister()
     collision_panel_unregister()
+    dl_writer_panel_unregister()
 
 
 def oot_register(registerPanels):
@@ -151,6 +159,7 @@ def oot_register(registerPanels):
     oot_cutscene_register()
     skeletonRegister()
     collision_register()
+    dl_writer_register()
 
     for cls in oot_classes:
         register_class(cls)
@@ -181,6 +190,7 @@ def oot_unregister(unregisterPanels):
     oot_cutscene_unregister()
     skeletonUnregister()
     collision_unregister()
+    dl_writer_unregister()
 
     if unregisterPanels:
         oot_panel_unregister()
