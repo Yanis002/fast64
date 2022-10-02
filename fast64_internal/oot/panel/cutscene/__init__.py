@@ -29,6 +29,7 @@ oot_cutscene_classes = [
     OOT_ExportAllCutscenes,
 ]
 
+
 def oot_cutscene_panel_register():
     for cls in oot_cutscene_panel_classes:
         register_class(cls)
