@@ -4,7 +4,6 @@ from .panel import OOT_Panel
 from bpy.utils import register_class, unregister_class
 from .oot_level import oot_obj_panel_register, oot_obj_panel_unregister, oot_obj_register, oot_obj_unregister
 from .panel.skeleton.classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
-from .oot_anim import oot_anim_panel_register, oot_anim_panel_unregister, oot_anim_register, oot_anim_unregister
 from .oot_collision import oot_col_panel_register, oot_col_panel_unregister, oot_col_register, oot_col_unregister
 from .oot_utility import oot_utility_register, oot_utility_unregister
 from ..utility import prop_split
@@ -24,6 +23,13 @@ from .oot_level_writer import (
     oot_level_panel_unregister,
     oot_level_register,
     oot_level_unregister,
+)
+
+from .panel.animation import (
+    oot_anim_panel_register,
+    oot_anim_panel_unregister,
+    oot_anim_register,
+    oot_anim_unregister,
 )
 
 from .panel.tools import (
