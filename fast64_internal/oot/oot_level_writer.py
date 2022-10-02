@@ -1,6 +1,6 @@
 import bpy, os, math, mathutils
 from bpy.utils import register_class, unregister_class
-from ..panels import OOT_Panel
+from .panel import OOT_Panel
 from ..f3d.f3d_gbi import TextureExportSettings, DLFormat
 from ..f3d.f3d_writer import TriangleConverterInfo, saveStaticModel, getInfoDict
 from .c_writer.oot_level_c import ootSceneIncludes, ootLevelToC

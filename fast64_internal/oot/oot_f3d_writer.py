@@ -1,6 +1,6 @@
 import bpy, os, mathutils
 from bpy.utils import register_class, unregister_class
-from ..panels import OOT_Panel
+from .panel import OOT_Panel
 from ..utility import PluginError, CData, prop_split, writeCData, raisePluginError, getGroupIndexFromname, toAlnum
 from ..f3d.f3d_parser import importMeshC, ootEnumDrawLayers
 from ..f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod, F3D

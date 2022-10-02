@@ -1,6 +1,6 @@
 import bpy, os, math, mathutils
 from bpy.utils import register_class, unregister_class
-from ..panels import OOT_Panel
+from .panel import OOT_Panel
 from .oot_constants import ootEnumSceneID
 
 from ..utility import (

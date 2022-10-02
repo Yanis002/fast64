@@ -1,6 +1,6 @@
 import bpy
 from .c_writer import OOTBootupSceneOptions
-from ..panels import OOT_Panel
+from .panel import OOT_Panel
 from bpy.utils import register_class, unregister_class
 from .oot_level import oot_obj_panel_register, oot_obj_panel_unregister, oot_obj_register, oot_obj_unregister
 from .oot_anim import oot_anim_panel_register, oot_anim_panel_unregister, oot_anim_register, oot_anim_unregister
@@ -25,7 +25,7 @@ from .oot_level_writer import (
     oot_level_unregister,
 )
 
-from .oot_operators import (
+from .panel.tools import (
     oot_operator_panel_register,
     oot_operator_panel_unregister,
     oot_operator_register,
