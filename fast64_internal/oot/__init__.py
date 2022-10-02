@@ -1,14 +1,12 @@
 import bpy
 from .c_writer import OOTBootupSceneOptions
-from .panel import OOT_Panel
 from bpy.utils import register_class, unregister_class
 from .oot_level import oot_obj_panel_register, oot_obj_panel_unregister, oot_obj_register, oot_obj_unregister
 from .panel.skeleton.classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
 from .oot_collision import oot_col_panel_register, oot_col_panel_unregister, oot_col_register, oot_col_unregister
 from .oot_utility import oot_utility_register, oot_utility_unregister
-from ..utility import prop_split
-from ..render_settings import on_update_render_settings
 from .panel.display_list.classes import OOTDLExportSettings, OOTDLImportSettings
+from .panel.file_settings import file_register, file_unregister
 
 from .oot_f3d_writer import (
     oot_dl_writer_panel_register,
@@ -81,22 +79,6 @@ from .oot_spline import (
 )
 
 
-class OOT_FileSettingsPanel(OOT_Panel):
-    bl_idname = "OOT_PT_file_settings"
-    bl_label = "OOT File Settings"
-    bl_options = set()  # default to being open
-
-    # called every frame
-    def draw(self, context):
-        col = self.layout.column()
-        col.scale_y = 1.1  # extra padding, makes it easier to see these main settings
-        prop_split(col, context.scene, "ootBlenderScale", "OOT Scene Scale")
-        prop_split(col, context.scene, "ootActorBlenderScale", "OOT Actor Scale")
-
-        prop_split(col, context.scene, "ootDecompPath", "Decomp Path")
-        col.prop(context.scene.fast64.oot, "hackerFeaturesEnabled")
-
-
 class OOT_Properties(bpy.types.PropertyGroup):
     """Global OOT Scene Properties found under scene.fast64.oot"""
 
@@ -110,7 +92,6 @@ class OOT_Properties(bpy.types.PropertyGroup):
 
 
 oot_classes = (
-    OOT_FileSettingsPanel,
     OOT_Properties,
 )
 
@@ -160,18 +141,13 @@ def oot_register(registerPanels):
     skeletonRegister()
     collision_register()
     dl_writer_register()
+    file_register()
 
     for cls in oot_classes:
         register_class(cls)
 
     if registerPanels:
         oot_panel_register()
-
-    bpy.types.Scene.ootBlenderScale = bpy.props.FloatProperty(
-        name="Blender To OOT Scale", default=10, update=on_update_render_settings
-    )
-    bpy.types.Scene.ootActorBlenderScale = bpy.props.FloatProperty(name="Blender To OOT Actor Scale", default=1000)
-    bpy.types.Scene.ootDecompPath = bpy.props.StringProperty(name="Decomp Folder", subtype="FILE_PATH")
 
 
 def oot_unregister(unregisterPanels):
@@ -191,10 +167,7 @@ def oot_unregister(unregisterPanels):
     skeletonUnregister()
     collision_unregister()
     dl_writer_unregister()
+    file_unregister()
 
     if unregisterPanels:
         oot_panel_unregister()
-
-    del bpy.types.Scene.ootBlenderScale
-    del bpy.types.Scene.ootActorBlenderScale
-    del bpy.types.Scene.ootDecompPath
