@@ -18,7 +18,7 @@ from .oot_f3d_writer import (
     oot_dl_writer_unregister,
 )
 
-from .oot_level_writer import (
+from .panel.scene import (
     oot_level_panel_register,
     oot_level_panel_unregister,
     oot_level_register,
