@@ -18,6 +18,13 @@ from .oot_f3d_writer import (
     oot_dl_writer_unregister,
 )
 
+from .panel.collision import (
+    collision_panel_register,
+    collision_panel_unregister,
+    collision_register,
+    collision_unregister,
+)
+
 from .panel.scene import (
     oot_level_panel_register,
     oot_level_panel_unregister,
@@ -113,6 +120,7 @@ def oot_panel_register():
     oot_skeleton_panel_register()
     oot_cutscene_panel_register()
     skeletonPanelRegister()
+    collision_panel_register()
 
 
 
@@ -127,6 +135,7 @@ def oot_panel_unregister():
     oot_skeleton_panel_unregister()
     oot_cutscene_panel_unregister()
     skeletonPanelUnregister()
+    collision_panel_unregister()
 
 
 def oot_register(registerPanels):
@@ -141,6 +150,7 @@ def oot_register(registerPanels):
     oot_skeleton_register()
     oot_cutscene_register()
     skeletonRegister()
+    collision_register()
 
     for cls in oot_classes:
         register_class(cls)
@@ -170,6 +180,7 @@ def oot_unregister(unregisterPanels):
     oot_skeleton_unregister()
     oot_cutscene_unregister()
     skeletonUnregister()
+    collision_unregister()
 
     if unregisterPanels:
         oot_panel_unregister()
