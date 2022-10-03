@@ -3,7 +3,8 @@ from bpy.path import abspath
 from bpy.ops import object
 from bpy.types import Operator, Context
 from ....utility import PluginError, writeCData, raisePluginError
-from ...oot_cutscene import ootCutsceneIncludes, convertCutsceneObject, ootCutsceneDataToC
+from ...oot_cutscene import ootCutsceneIncludes, ootCutsceneDataToC
+from ...export.cutscene import convertCutsceneObject
 
 
 def checkGetFilePaths(context: Context):

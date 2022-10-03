@@ -1,7 +1,6 @@
 from ....utility import CData
-from ...export.room.classes import OOTRoom
 from ...oot_utility import indent
-
+from ..classes.room import OOTRoom
 from .oot_room_cmds import ootRoomCommandsToC
 from .oot_object_to_c import ootObjectListToC
 from .oot_actor_to_c import ootActorListToC

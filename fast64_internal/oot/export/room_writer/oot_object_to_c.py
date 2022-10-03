@@ -1,6 +1,6 @@
 from ....utility import CData
-from ...export.room.classes import OOTRoom
 from ...oot_utility import indent
+from ..classes.room import OOTRoom
 
 
 def ootObjectListToC(room: OOTRoom, headerIndex: int):

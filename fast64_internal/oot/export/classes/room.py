@@ -1,8 +1,9 @@
 from ....utility import PluginError, toAlnum
 from ...oot_model_classes import OOTModel
 from ...oot_utility import CullGroup
-from ..actor.classes import OOTActor
 from ...actor.classes import OOTActorHeaderProperty
+from .actor import OOTActor
+
 from ....f3d.f3d_gbi import (
     SPDisplayList,
     SPEndDisplayList,

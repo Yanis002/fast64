@@ -3,12 +3,13 @@ from bpy.ops import object
 from bpy.path import abspath
 from mathutils import Matrix, Vector
 from ....f3d.f3d_gbi import DLFormat
-from ...c_writer.oot_scene_table_c import modifySceneTable
-from ...c_writer.oot_spec import modifySegmentDefinition
-from ...c_writer.oot_scene_folder import deleteSceneFiles
+from ...export.other.scene_table import modifySceneTable
+from ...export.other.scene_folder import deleteSceneFiles
 from ....utility import PluginError, raisePluginError
 from ...oot_utility import ExportInfo
-from ...oot_level_writer import sceneNameFromID, ootExportSceneToC
+from ...export import ootExportSceneToC
+from ...export.other.spec import modifySegmentDefinition
+from .utility import sceneNameFromID
 
 
 class OOT_ExportScene(Operator):

@@ -2,10 +2,10 @@ from bpy.types import Scene, Object
 from bpy.props import StringProperty, EnumProperty, BoolProperty, PointerProperty
 from bpy.utils import register_class, unregister_class
 from ...panel import OOT_Panel
-from ...oot_constants import ootEnumSceneID
+from ...oot_constants import ootEnumSceneID, ootSceneIDToName
 from ...scene.operators import OOT_SearchSceneEnumOperator
-from ....utility import customExportWarning, prop_split
-from ...c_writer.oot_scene_bootup import OOT_ClearBootupScene, ootSceneBootupRegister, ootSceneBootupUnregister
+from ....utility import PluginError, customExportWarning, prop_split
+from ...export.hackeroot.scene_bootup import OOT_ClearBootupScene, ootSceneBootupRegister, ootSceneBootupUnregister
 from ...oot_utility import getEnumName
 from .operators import OOT_ExportScene, OOT_RemoveScene
 

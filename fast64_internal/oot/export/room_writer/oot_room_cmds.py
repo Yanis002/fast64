@@ -1,7 +1,7 @@
-from ...export.room.classes import OOTRoom
 from ....utility import CData
 from ...oot_utility import indent
-from ..oot_common_cmds import cmdAltHeaders, cmdEndMarker
+from ..classes.room import OOTRoom
+from ..other.common_cmds import cmdAltHeaders, cmdEndMarker
 
 
 def cmdEchoSettings(room: OOTRoom):

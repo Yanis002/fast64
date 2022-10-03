@@ -1,8 +1,8 @@
-from ..oot_utility import getSceneDirFromLevelName, ExportInfo
-from ..export.scene.classes import OOTScene
 from os import path, listdir, remove
 from re import match as reMatch
 from shutil import rmtree
+from ...oot_utility import getSceneDirFromLevelName, ExportInfo
+from ..classes.scene import OOTScene
 
 
 def getScenePath(exportInfo: ExportInfo, sceneName: str):

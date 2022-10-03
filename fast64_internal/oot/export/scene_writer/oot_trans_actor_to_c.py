@@ -1,6 +1,6 @@
 from ....utility import CData
-from ...export.scene.classes import OOTScene, OOTTransitionActor
 from ...oot_utility import indent
+from ..classes.scene import OOTScene, OOTTransitionActor
 
 
 def ootGetTransActorData(transActor: OOTTransitionActor):

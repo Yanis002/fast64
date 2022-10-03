@@ -1,9 +1,7 @@
-from ....utility import PluginError
-
-from ...export.scene.classes import OOTScene
-from ....utility import CData
+from ....utility import CData, PluginError
 from ...oot_utility import indent
-from ..oot_common_cmds import cmdAltHeaders, cmdEndMarker
+from ...export.other.common_cmds import cmdAltHeaders, cmdEndMarker
+from ..classes.scene import OOTScene
 
 
 def cmdSoundSettings(scene: OOTScene):

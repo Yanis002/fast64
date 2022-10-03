@@ -1,14 +1,13 @@
 from ....utility import CData
-from ...export.scene.classes import OOTScene
 from ...oot_utility import indent
-
+from ..classes.scene import OOTScene
+from ..room_writer.oot_actor_to_c import ootActorListToC
+from ..room_writer.oot_room_list_to_c import ootRoomListHeaderToC
 from .oot_scene_cmds import ootSceneCommandsToC
-from ..oot_room_writer.oot_actor_to_c import ootActorListToC
-from ..oot_room_writer.oot_room_list_to_c import ootRoomListHeaderToC
-from ..oot_scene_writer.oot_path_to_c import ootPathListToC
-from ..oot_scene_writer.oot_light_to_c import ootLightSettingsToC
-from ..oot_scene_writer.oot_trans_actor_to_c import ootTransitionActorListToC
-from ..oot_scene_writer.oot_entrance_exit_to_c import ootEntranceListToC, ootExitListToC
+from .oot_path_to_c import ootPathListToC
+from .oot_light_to_c import ootLightSettingsToC
+from .oot_trans_actor_to_c import ootTransitionActorListToC
+from .oot_entrance_exit_to_c import ootEntranceListToC, ootExitListToC
 
 
 def ootGetSceneLayerData(scene: OOTScene, headerIndex: int):
