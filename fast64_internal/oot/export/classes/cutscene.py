@@ -82,4 +82,4 @@ class OOTCutscene:
         self.csTermIdx = 0
         self.csTermStart = 99
         self.csTermEnd = 100
-        self.csLists = []
+        self.csLists: list[OOTCSList] = []

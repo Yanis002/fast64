@@ -37,7 +37,7 @@ def cmdWindSettings(room: OOTRoom):
 
 def cmdMesh(room: OOTRoom):
     """Returns C-converted room mesh command"""
-    return f"SCENE_CMD_ROOM_SHAPE(&{room.mesh.headerName()})"
+    return f"SCENE_CMD_ROOM_SHAPE(&{room.mesh.getHeaderName()})"
 
 
 def cmdObjectList(room: OOTRoom, headerIndex: int):

@@ -1,4 +1,8 @@
+from bpy.types import Object
 from ...oot_utility import getCutsceneName, getCustomProperty
+from ...scene.classes import OOTSceneHeaderProperty
+from ...oot_cutscene import OOTCutsceneProperty
+from ..classes.scene import OOTScene
 
 from ..classes.cutscene import (
     OOTCSList,
@@ -13,7 +17,7 @@ from ..classes.cutscene import (
 )
 
 
-def readCutsceneData(csParentOut, csParentIn):
+def readCutsceneData(csParentOut: OOTScene | OOTCutscene, csParentIn: OOTSceneHeaderProperty | OOTCutsceneProperty):
     for listIn in csParentIn.csLists:
         listOut = OOTCSList()
         listOut.listType = listIn.listType
@@ -23,7 +27,7 @@ def readCutsceneData(csParentOut, csParentIn):
             listIn.fxStartFrame,
             listIn.fxEndFrame,
         )
-        listData = []
+
         if listOut.listType == "Textbox":
             for entryIn in listIn.textbox:
                 entryOut = OOTCSTextbox()
@@ -91,7 +95,7 @@ def readCutsceneData(csParentOut, csParentIn):
         csParentOut.csLists.append(listOut)
 
 
-def convertCutsceneObject(obj):
+def convertCutsceneObject(obj: Object):
     cs = OOTCutscene()
     cs.name = getCutsceneName(obj)
     csprop = obj.ootCutsceneProperty

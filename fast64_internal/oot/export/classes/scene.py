@@ -4,13 +4,15 @@ from ...oot_model_classes import OOTModel
 from ...oot_spline import OOTPath
 from ...actor.classes import OOTActorHeaderProperty
 from ...scene.classes import OOTExitProperty, OOTLightProperty
+from ..classes.room import OOTRoom
+from ..classes.cutscene import OOTCutscene, OOTCSList
 from .actor import OOTActor, OOTTransitionActor, OOTEntrance
 
 
 class OOTExit:
     def __init__(self, exitProp: OOTExitProperty):
         if exitProp.exitIndex == "Custom":
-            self.index = exitProp.exitIndexCustom
+            self.index: str = exitProp.exitIndexCustom
         else:
             raise PluginError("Exit index enums not implemented yet.")
 
@@ -21,9 +23,9 @@ class OOTLight:
         self.diffuse0, self.diffuseDir0 = ootGetBaseOrCustomLight(lightProp, 0, True, True)
         self.diffuse1, self.diffuseDir1 = ootGetBaseOrCustomLight(lightProp, 1, True, True)
         self.fogColor = exportColor(lightProp.fogColor)
-        self.fogNear = lightProp.fogNear
-        self.transitionSpeed = lightProp.transitionSpeed
-        self.fogFar = lightProp.fogFar
+        self.fogNear: int = lightProp.fogNear
+        self.transitionSpeed: int = lightProp.transitionSpeed
+        self.fogFar: int = lightProp.fogFar
 
     def getBlendFogShort(self):
         return f"(({self.transitionSpeed} << 10) | {self.fogNear})"
@@ -39,10 +41,10 @@ class OOTScene:
         """Initialises the class"""
         self.name = toAlnum(name)
         self.write_dummy_room_list = False
-        self.rooms = {}
+        self.rooms: dict[int, OOTRoom] = {}
         self.transitionActorList: list[OOTTransitionActor] = []
         self.entranceList: list[OOTEntrance] = []
-        self.startPositions = {}
+        self.startPositions: dict[int, OOTActor] = {}
         self.lights: list[OOTLight] = []
         self.model = model
         self.collision = OOTCollision(self.name)
@@ -63,15 +65,19 @@ class OOTScene:
         self.musicSeq = None
         self.nightSeq = None
 
+        # Alternate Layers
         self.childNightHeader = None
         self.adultDayHeader = None
         self.adultNightHeader = None
-        self.cutsceneHeaders = []
+        self.cutsceneHeaders: list["OOTScene"] = []
+        self.altLayers = ["childDayHeader", "childNightHeader", "adultDayHeader", "adultNightHeader"]
 
-        self.exitList = []
+        # Other
+        self.exitList: list[OOTExit] = []
         self.pathList: dict[int, OOTPath] = {}
-        self.cameraList = []
+        self.cameraList = []  # unused?
 
+        # Cutscenes
         self.writeCutscene = False
         self.csWriteType = "Embedded"
         self.csWriteCustom = ""
@@ -81,12 +87,10 @@ class OOTScene:
         self.csTermIdx = 0
         self.csTermStart = 99
         self.csTermEnd = 100
-        self.csLists = []
-        self.extraCutscenes = []
+        self.csLists: list[OOTCSList] = []
+        self.extraCutscenes: list[OOTCutscene] = []
 
         self.sceneTableEntry = OOTSceneTableEntry()
-
-        self.altLayers = ["childDayHeader", "childNightHeader", "adultDayHeader", "adultNightHeader"]
 
     def addActor(
         self, actor: OOTTransitionActor | OOTEntrance, layerProp: OOTActorHeaderProperty, objName: str, listName: str
@@ -133,10 +137,11 @@ class OOTScene:
         else:
             raise PluginError(f"Unhandled scene setup preset: {layerProp.sceneSetupPreset}")
 
-    def addStartPosAtIndex(self, startPosDict: dict, index: int, actor: OOTActor):
-        if index in startPosDict:
+    def addStartPosAtIndex(self, startPosDict: dict[int, OOTActor], index: int, actor: OOTActor):
+        if not index in startPosDict:
+            startPosDict[index] = actor
+        else:
             raise PluginError("Error: Repeated start position spawn index: " + str(index))
-        startPosDict[index] = actor
 
     def addStartPosition(self, index: int, actor: OOTActor, layerProp: OOTActorHeaderProperty, objName: str):
         if layerProp.sceneSetupPreset != "Custom":
@@ -144,7 +149,7 @@ class OOTScene:
 
             for i, altLayer in enumerate(self.altLayers):
                 if i > 0:
-                    curLayer = getattr(self, altLayer)
+                    curLayer: OOTScene = getattr(self, altLayer)
                     if curLayer is not None:
                         self.addStartPosAtIndex(curLayer.startPositions, index, actor)
 
@@ -191,7 +196,7 @@ class OOTScene:
         return f"{self.sceneName()}_header{headerIndex:02}"
 
     def roomListName(self):
-        return self.sceneName() + "_roomList"
+        return f"{self.sceneName()}_roomList"
 
     def entranceListName(self, headerIndex: int):
         return f"{self.sceneHeaderName(headerIndex)}_entranceList"
@@ -209,16 +214,16 @@ class OOTScene:
         return f"{self.sceneHeaderName(headerIndex)}_transitionActors"
 
     def pathListName(self):
-        return self.sceneName() + "_pathway"
+        return f"{self.sceneName()}_pathway"
 
     def cameraListName(self):
-        return self.sceneName() + "_cameraList"
+        return f"{self.sceneName()}_cameraList"
 
     def cutsceneDataName(self, headerIndex: int):
         return f"{self.sceneHeaderName(headerIndex)}_cutscene"
 
     def alternateHeadersName(self):
-        return self.sceneName() + "_alternateHeaders"
+        return f"{self.sceneName()}_alternateHeaders"
 
     def hasAlternateHeaders(self):
         return not (
@@ -259,8 +264,6 @@ class OOTScene:
 
     def addRoom(self, roomIndex: int, roomName: str, roomShape: str):
         """Adds a new room"""
-        from .room import OOTRoom
-
         roomModel = self.model.addSubModel(
             OOTModel(self.model.f3d.F3D_VER, self.model.f3d._HW_VERSION_1, f"{roomName}_dl", self.model.DLFormat, None)
         )

@@ -55,7 +55,7 @@ def ootGetRoomShapeHeaderData(mesh: OOTRoomMesh):
         "ROOM_SHAPE_TYPE_NORMAL": "RoomShapeNormal",
         "ROOM_SHAPE_TYPE_CULLABLE": "RoomShapeCullable",
     }
-    roomShapeName = f"{roomShapeStructs[mesh.roomShape]} {mesh.headerName()}"
+    roomShapeName = f"{roomShapeStructs[mesh.roomShape]} {mesh.getHeaderName()}"
     roomShapeEntryName = mesh.entriesName()
     roomShapeArrayCount = f"ARRAY_COUNT({roomShapeEntryName})"
 

@@ -63,7 +63,11 @@ def drawRoomHeaderProperty(
         behaviourBox = layout.column()
         behaviourBox.box().label(text="Behaviour")
         drawEnumWithCustom(behaviourBox, roomProp, "roomBehaviour", "Room Behaviour", "")
-        drawEnumWithCustom(behaviourBox, roomProp, "linkIdleMode", "Link Idle Mode", "")
+
+        behaviourBox.prop(roomProp, "roomIsHot")
+        if not roomProp.roomIsHot:
+            drawEnumWithCustom(behaviourBox, roomProp, "linkIdleMode", "Link Idle Mode", "")
+
         behaviourBox.prop(roomProp, "disableWarpSongs", text="Disable Warp Songs")
         behaviourBox.prop(roomProp, "showInvisibleActors", text="Show Invisible Actors")
 
@@ -92,6 +96,7 @@ def drawRoomHeaderProperty(
         windBox.box().label(text="Wind")
         windBox.prop(roomProp, "setWind", text="Set Wind")
         if roomProp.setWind:
+            windBox.label(text="Wind Direction (X, Y, Z)")
             windBox.row().prop(roomProp, "windVector", text="")
 
     elif menuTab == "Objects":

@@ -15,19 +15,19 @@ from ....f3d.f3d_gbi import (
 
 class OOTDLGroup:
     def __init__(self, name: str, DLFormat: DLFormat):
-        self.opaque = None
-        self.transparent = None
+        self.opaque: GfxList = None
+        self.transparent: GfxList = None
         self.DLFormat = DLFormat
         self.name = toAlnum(name)
 
     def addDLCall(self, displayList: GfxList, drawLayer: str):
         if drawLayer == "Opaque":
             if self.opaque is None:
-                self.opaque = GfxList(self.name + "_opaque", GfxListTag.Draw, self.DLFormat)
+                self.opaque = GfxList(f"{self.name}_opaque", GfxListTag.Draw, self.DLFormat)
             self.opaque.commands.append(SPDisplayList(displayList))
         elif drawLayer == "Transparent":
             if self.transparent is None:
-                self.transparent = GfxList(self.name + "_transparent", GfxListTag.Draw, self.DLFormat)
+                self.transparent = GfxList(f"{self.name}_transparent", GfxListTag.Draw, self.DLFormat)
             self.transparent.commands.append(SPDisplayList(displayList))
         else:
             raise PluginError(f"Unhandled draw layer: {drawLayer}")
@@ -41,9 +41,9 @@ class OOTDLGroup:
 
     def createDLs(self):
         if self.opaque is None:
-            self.opaque = GfxList(self.name + "_opaque", GfxListTag.Draw, self.DLFormat)
+            self.opaque = GfxList(f"{self.name}_opaque", GfxListTag.Draw, self.DLFormat)
         if self.transparent is None:
-            self.transparent = GfxList(self.name + "_transparent", GfxListTag.Draw, self.DLFormat)
+            self.transparent = GfxList(f"{self.name}_transparent", GfxListTag.Draw, self.DLFormat)
 
     def isEmpty(self):
         return self.opaque is None and self.transparent is None
@@ -55,9 +55,9 @@ class OOTRoomMeshGroup:
         self.roomName = roomName
         self.entryIndex = entryIndex
 
-        self.DLGroup = OOTDLGroup(self.entryName(), dlFormat)
+        self.DLGroup = OOTDLGroup(self.getEntryName(), dlFormat)
 
-    def entryName(self):
+    def getEntryName(self):
         return f"{self.roomName}_entry_{self.entryIndex}"
 
 
@@ -72,7 +72,7 @@ class OOTRoomMesh:
         for entry in self.meshEntries:
             entry.DLGroup.terminateDLs()
 
-    def headerName(self):
+    def getHeaderName(self):
         return f"{self.roomName}_shapeHeader"
 
     def entriesName(self):
@@ -102,36 +102,36 @@ class OOTRoom:
         self.mesh = OOTRoomMesh(self.roomName(), roomShape, model)
 
         # Room behaviour
-        self.roomBehaviour = None
+        self.roomBehaviour = str()
         self.disableWarpSongs = False
         self.showInvisibleActors = False
-        self.linkIdleMode = None
+        self.linkIdleMode = str()
 
-        self.customBehaviourX = None
-        self.customBehaviourY = None
+        self.customBehaviourX = None  # unused
+        self.customBehaviourY = None  # unused
 
         # Wind
         self.setWind = False
-        self.windVector = [0, 0, 0]
-        self.windStrength = 0
+        self.windVector = [0, 0, 0]  # direction (X, Y, Z)
+        self.windStrength = 0  # based on wind vector
 
         # Time
-        self.timeHours = 0x00
-        self.timeMinutes = 0x00
-        self.timeSpeed = 0xA
+        self.timeHours = 0
+        self.timeMinutes = 0
+        self.timeSpeed = 1
 
         # Skybox
         self.disableSkybox = False
         self.disableSunMoon = False
 
         # Echo
-        self.echo = 0x00
+        self.echo = 0x00  # between 0 and 127 (?)
 
         # Other
-        self.objectIDList = []
+        self.objectIDList: list[str] = []
         self.actorList: list[OOTActor] = []  # filled in ``add_actor()`` (called by ``ootProcessEmpties``)
 
-        # Other layers
+        # Alternate Layers
         self.childNightHeader = None
         self.adultDayHeader = None
         self.adultNightHeader = None

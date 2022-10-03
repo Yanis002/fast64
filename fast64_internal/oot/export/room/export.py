@@ -84,18 +84,21 @@ def readRoomData(
     room.roomBehaviour = getCustomProperty(roomHeader, "roomBehaviour")
     room.disableWarpSongs = roomHeader.disableWarpSongs
     room.showInvisibleActors = roomHeader.showInvisibleActors
-    room.linkIdleMode = getCustomProperty(roomHeader, "linkIdleMode")
+
+    # room heat behavior is active if the idle mode is 0x03
+    room.linkIdleMode = getCustomProperty(roomHeader, "linkIdleMode") if not roomHeader.roomIsHot else "0x03"
     room.linkIdleModeCustom = roomHeader.linkIdleModeCustom
+
     room.setWind = roomHeader.setWind
     room.windVector = normToSigned8Vector(Vector(roomHeader.windVector).normalized())
     room.windStrength = int(0xFF * max(Vector(roomHeader.windVector).length, 1))
     if roomHeader.leaveTimeUnchanged:
-        room.timeHours = "0xFF"
-        room.timeMinutes = "0xFF"
+        room.timeHours = "255"
+        room.timeMinutes = "255"
     else:
         room.timeHours = roomHeader.timeHours
         room.timeMinutes = roomHeader.timeMinutes
-    room.timeSpeed = max(-128, min(127, int(round(roomHeader.timeSpeed * 0xA))))
+    room.timeSpeed = roomHeader.timeSpeed * 10
     room.disableSkybox = roomHeader.disableSkybox
     room.disableSunMoon = roomHeader.disableSunMoon
     room.echo = roomHeader.echo

@@ -42,9 +42,12 @@ class OOTRoomHeaderProperty(PropertyGroup):
     showInvisibleActors: BoolProperty(name="Show Invisible Actors")
     linkIdleMode: EnumProperty(name="Link Idle Mode", items=ootEnumLinkIdle, default="0x00")
     linkIdleModeCustom: StringProperty(name="Link Idle Mode Custom", default="0x00")
+    roomIsHot: BoolProperty(
+        name="Use Room Heat Behavior", description="Use heat timer/screen effect, overrides Link Idle Mode", default=False
+    )
 
-    useCustomBehaviourX: BoolProperty(name="Use Custom Behaviour X")
-    useCustomBehaviourY: BoolProperty(name="Use Custom Behaviour Y")
+    useCustomBehaviourX: BoolProperty(name="Use Custom Behaviour X")  # unused
+    useCustomBehaviourY: BoolProperty(name="Use Custom Behaviour Y")  # unused
 
     customBehaviourX: StringProperty(name="Custom Behaviour X", default="0x00")
 
@@ -56,7 +59,17 @@ class OOTRoomHeaderProperty(PropertyGroup):
     leaveTimeUnchanged: BoolProperty(name="Leave Time Unchanged", default=True)
     timeHours: IntProperty(name="Hours", default=0, min=0, max=23)  # 0xFFFE
     timeMinutes: IntProperty(name="Minutes", default=0, min=0, max=59)
-    timeSpeed: FloatProperty(name="Time Speed", default=1, min=-13, max=13)  # 0xA
+
+    # the time speed variable in OoT is an unsigned byte,
+    # thus it can't have negative values or float-like values
+    # if the value if 255 (0xFF) the game force the speed to be 0
+    timeSpeed: FloatProperty(
+        name="Time Speed",
+        description="0: Frozen, 1: Normal, 2: Twice as fast, etc...",
+        default=1,
+        min=0,
+        max=25.5
+    )
 
     disableSkybox: BoolProperty(name="Disable Skybox")
     disableSunMoon: BoolProperty(name="Disable Sun/Moon")
