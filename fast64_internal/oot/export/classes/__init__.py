@@ -10,7 +10,7 @@ class OOTLevelC:
         self.sceneMainC = CData()
         self.sceneTexturesC = CData()
         self.sceneCollisionC = CData()
-        self.sceneCutscenesC = []
+        self.sceneCutscenesC: list[CData] = []
 
         # Files for room segments
         self.roomMainC = {}
