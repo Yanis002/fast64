@@ -16,7 +16,7 @@ def getPathPointsData(path: OOTPath):
     pointData.header = f"extern {pointName};\n"
 
     # .c
-    pointData.source = f"Vec3s {pointName}" + " = {\n" + pointsData + " },\n};\n\n"
+    pointData.source = f"{pointName}" + " = {\n" + pointsData + " },\n};\n\n"
     return pointData
 
 
