@@ -94,7 +94,10 @@ class OOTObjectPanel(bpy.types.Panel):
                 )
 
         elif obj.ootEmptyType == "Water Box":
-            drawWaterBoxProperty(box, obj.ootWaterBoxProperty)
+            wBoxLayout = box.column()
+            if roomObj is None:
+                wBoxLayout.label(text="This must be part of a Room empty's hierarchy.", icon="OUTLINER")
+            drawWaterBoxProperty(box, obj.ootWaterBoxProperty, roomObj.ootRoomHeader.roomIndex)
 
         elif obj.ootEmptyType == "Scene":
             menuTab = obj.ootSceneHeader.menuTab

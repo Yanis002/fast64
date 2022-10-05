@@ -7,7 +7,7 @@ from ...export.other.scene_table import modifySceneTable
 from ...export.other.scene_folder import deleteSceneFiles
 from ....utility import PluginError, raisePluginError
 from ...oot_utility import ExportInfo
-from ...export import ootExportSceneToC
+from ...export import exportScene
 from ...export.other.spec import modifySegmentDefinition
 from .utility import sceneNameFromID
 
@@ -50,7 +50,7 @@ class OOT_ExportScene(Operator):
 
             bootOptions = context.scene.fast64.oot.bootupSceneOptions
             hackerFeaturesEnabled = context.scene.fast64.oot.hackerFeaturesEnabled
-            ootExportSceneToC(
+            exportScene(
                 obj,
                 finalTransform,
                 context.scene.f3d_type,

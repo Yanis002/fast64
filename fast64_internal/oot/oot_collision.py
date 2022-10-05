@@ -1,4 +1,5 @@
 import bpy, os, math, mathutils
+from bpy.types import UILayout
 from bpy.utils import register_class, unregister_class
 
 from ..utility import (
@@ -83,17 +84,37 @@ class OOTMaterialCollisionProperty(bpy.types.PropertyGroup):
 
 
 class OOTWaterBoxProperty(bpy.types.PropertyGroup):
-    lighting: bpy.props.IntProperty(name="Lighting", min=0)
-    camera: bpy.props.IntProperty(name="Camera", min=0)
+    # maximums enforced by the game, see macros inside ``z64bgcheck.h``
+    lighting: bpy.props.IntProperty(name="Lighting", min=0, max=31)
+    camera: bpy.props.IntProperty(name="Camera", min=0, max=255)
+
+    # sets whether the waterbox supposed to be global to a scene
+    # uses 0x3F as room index if ``True``
+    isGlobal: bpy.props.BoolProperty(
+        name="Is Global to Scene",
+        description="This will keep the WaterBox loaded all the time.",
+        default=False,
+    )
 
 
-def drawWaterBoxProperty(layout, waterBoxProp):
-    box = layout.column()
-    # box.box().label(text = "Properties")
-    prop_split(box, waterBoxProp, "lighting", "Lighting")
-    prop_split(box, waterBoxProp, "camera", "Camera")
-    box.label(text="Defined by top face of box empty.")
-    box.label(text="No rotation allowed.")
+def drawWaterBoxProperty(layout: UILayout, waterBoxProp: OOTWaterBoxProperty, roomIndex: int):
+    wBoxLayout = layout.column()
+
+    wBoxLayout.prop(waterBoxProp, "isGlobal")
+    if waterBoxProp.isGlobal:
+        labelText = "This WaterBox is global to the current scene."
+    elif roomIndex < 63:
+        labelText = f"Room Index: {roomIndex}"
+    else:
+        # the code enforce a maximum for this index since
+        # it's with other properties, see macros inside ``z64bgcheck.h``
+        labelText = "The room index can't be higher than 62 (0x3E)!"
+    wBoxLayout.label(text=labelText)
+
+    prop_split(wBoxLayout, waterBoxProp, "lighting", "Lighting")
+    prop_split(wBoxLayout, waterBoxProp, "camera", "Camera")
+    wBoxLayout.label(text="Defined by top face of box empty.")
+    wBoxLayout.label(text="No rotation allowed.")
 
 
 def drawCameraPosProperty(layout, cameraRefProp, index, headerIndex, objName):
@@ -507,7 +528,7 @@ def ootCollisionToC(collision):
         data.source += "};\n\n"
         waterBoxesName = collision.waterBoxesName()
     else:
-        waterBoxesName = "0"
+        waterBoxesName = "NULL"
 
     if len(collision.cameraData.camPosDict) > 0:
         camDataName = "&" + collision.camDataName()

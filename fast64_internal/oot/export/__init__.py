@@ -1,1 +1,1 @@
-from .export import ootExportSceneToC
+from .export import exportScene

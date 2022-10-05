@@ -68,7 +68,8 @@ class OOTRoomHeaderProperty(PropertyGroup):
         description="0: Frozen, 1: Normal, 2: Twice as fast, etc...",
         default=1,
         min=0,
-        max=25.5
+        max=25.5,
+        precision=1
     )
 
     disableSkybox: BoolProperty(name="Disable Skybox")

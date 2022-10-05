@@ -11,8 +11,7 @@ def ootGetActorEntry(actor: OOTActor):
     actorPosData = ", { " + ", ".join([f"{round(pos)}" for pos in actor.position]) + " }, "
 
     # rotation data
-    rotList = actor.rotOverride if actor.rotOverride is not None else actor.rotation
-    actorRotData = "{ " + ", ".join([f"{rot}" for rot in rotList]) + " }, "
+    actorRotData = "{ " + ", ".join([f"{rot}" for rot in actor.rotation]) + " }, "
 
     # actor entry
     return "{ " + actor.actorID + actorPosData + actorRotData + actor.actorParam + " },\n"

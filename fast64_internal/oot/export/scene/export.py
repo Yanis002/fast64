@@ -1,17 +1,26 @@
 import bpy
-from bpy.types import Object
+from bpy.types import Object, Camera, Curve
+from math import radians, degrees
+from mathutils import Quaternion, Matrix
 from ....f3d.f3d_gbi import DLFormat
 from ....utility import PluginError, unhideAllAndGetHiddenList, hideObjsInList
 from ...oot_spline import assertCurveValid
-from ...oot_collision import exportCollisionCommon
-from ...oot_collision_classes import OOTCameraData
+from ...oot_collision import OOTCameraPositionProperty, exportCollisionCommon
+from ...oot_collision_classes import OOTCameraData, OOTCameraPosData, decomp_compat_map_CameraSType
 from ...oot_model_classes import OOTModel
-from ...scene.classes import OOTAlternateSceneHeaderProperty, OOTSceneHeaderProperty, OOTSceneProperties
+from ...oot_spline import ootConvertPath
+from ..utility import getConvertedTransformWithOrientation
 from ..cutscene import readCutsceneData, convertCutsceneObject
 from ..classes.scene import OOTScene
 from ..room import processRoom
-from ..utility import ootProcessWaterBox, readCamPos, readPathProp
-from ..classes.scene import OOTExit, OOTLight
+from ..classes.scene import OOTScene, OOTExit, OOTLight
+
+from ...scene.classes import (
+    OOTAlternateSceneHeaderProperty,
+    OOTSceneHeaderProperty,
+    OOTSceneProperties,
+    OOTLightGroupProperty
+)
 
 from ...oot_utility import (
     OOTObjectCategorizer,
@@ -22,140 +31,204 @@ from ...oot_utility import (
 )
 
 
-def readSceneData(
-    scene: OOTScene,
-    scene_properties: OOTSceneProperties,
-    sceneHeader: OOTSceneHeaderProperty,
-    alternateSceneHeaders: OOTAlternateSceneHeaderProperty,
+def convertCamPosData(
+    inCamObj: Object, outScene: OOTScene, inSceneObj: Object, transformMatrix: Matrix
 ):
-    scene.write_dummy_room_list = scene_properties.write_dummy_room_list
-    scene.sceneTableEntry.drawConfig = sceneHeader.sceneTableEntry.drawConfig
-    scene.globalObject = getCustomProperty(sceneHeader, "globalObject")
-    scene.naviCup = getCustomProperty(sceneHeader, "naviCup")
-    scene.skyboxID = getCustomProperty(sceneHeader, "skyboxID")
-    scene.skyboxCloudiness = getCustomProperty(sceneHeader, "skyboxCloudiness")
-    scene.skyboxLighting = getCustomProperty(sceneHeader, "skyboxLighting")
-    scene.lightMode = sceneHeader.skyboxLighting
-    scene.mapLocation = getCustomProperty(sceneHeader, "mapLocation")
-    scene.cameraMode = getCustomProperty(sceneHeader, "cameraMode")
-    scene.musicSeq = getCustomProperty(sceneHeader, "musicSeq")
-    scene.nightSeq = getCustomProperty(sceneHeader, "nightSeq")
-    scene.audioSessionPreset = getCustomProperty(sceneHeader, "audioSessionPreset")
+    # Camera faces opposite direction
+    orientation = Quaternion((0, 1, 0), radians(180.0))
 
-    if sceneHeader.skyboxLighting == "0x00":  # Time of Day
-        scene.lights.append(OOTLight(sceneHeader.timeOfDayLights.dawn))
-        scene.lights.append(OOTLight(sceneHeader.timeOfDayLights.day))
-        scene.lights.append(OOTLight(sceneHeader.timeOfDayLights.dusk))
-        scene.lights.append(OOTLight(sceneHeader.timeOfDayLights.night))
+    translation, rotation, scale, orientedRotation = getConvertedTransformWithOrientation(
+        transformMatrix, inSceneObj, inCamObj, orientation
+    )
+
+    camPosProp: OOTCameraPositionProperty = inCamObj.ootCameraPositionProperty
+
+    # TODO: FOV conversion?
+    if camPosProp.index in outScene.collision.cameraData.camPosDict:
+        raise PluginError(f"Error: Repeated camera position index: {camPosProp.index}")
+
+    if camPosProp.camSType == "Custom":
+        camSType = camPosProp.camSTypeCustom
     else:
-        for lightProp in sceneHeader.lightList:
-            scene.lights.append(OOTLight(lightProp))
+        camSType = decomp_compat_map_CameraSType.get(camPosProp.camSType, camPosProp.camSType)
 
-    for exitProp in sceneHeader.exitList:
-        scene.exitList.append(OOTExit(exitProp))
+    outScene.collision.cameraData.camPosDict[camPosProp.index] = OOTCameraPosData(
+        camSType,
+        camPosProp.hasPositionData,
+        translation,
+        rotation,
+        round(degrees(inCamObj.data.angle)),
+        camPosProp.jfifID,
+    )
 
-    scene.writeCutscene = getCustomProperty(sceneHeader, "writeCutscene")
-    if scene.writeCutscene:
-        scene.csWriteType = getattr(sceneHeader, "csWriteType")
-        if scene.csWriteType == "Embedded":
-            scene.csEndFrame = getCustomProperty(sceneHeader, "csEndFrame")
-            scene.csWriteTerminator = getCustomProperty(sceneHeader, "csWriteTerminator")
-            scene.csTermIdx = getCustomProperty(sceneHeader, "csTermIdx")
-            scene.csTermStart = getCustomProperty(sceneHeader, "csTermStart")
-            scene.csTermEnd = getCustomProperty(sceneHeader, "csTermEnd")
-            readCutsceneData(scene, sceneHeader)
-        elif scene.csWriteType == "Custom":
-            scene.csWriteCustom = getCustomProperty(sceneHeader, "csWriteCustom")
-        elif scene.csWriteType == "Object":
-            if sceneHeader.csWriteObject is None:
+
+def convertPathData(obj: Object, outScene: OOTScene, inSceneObj: Object, sceneName: str, transformMatrix: Matrix):
+    relativeTransform = transformMatrix @ inSceneObj.matrix_world.inverted() @ obj.matrix_world
+    index: int = obj.ootSplineProperty.index
+
+    if not index in outScene.pathList:
+        outScene.pathList[index] = ootConvertPath(sceneName, index, obj, relativeTransform)
+    else:
+        raise PluginError(f"ERROR: Object: '{obj.name}' has a repeated spline index: {index}")
+
+
+def convertSceneLayer(
+    outScene: OOTScene,
+    inSceneProps: OOTSceneProperties,
+    inSceneLayerProp: OOTSceneHeaderProperty,
+):
+    # Dummy Room List
+    outScene.write_dummy_room_list = inSceneProps.write_dummy_room_list
+
+    # Draw Config
+    outScene.sceneTableEntry.drawConfig = inSceneLayerProp.sceneTableEntry.drawConfig
+
+    # Global Scene Object
+    outScene.globalObject = getCustomProperty(inSceneLayerProp, "globalObject")
+
+    # Navi Hints
+    outScene.naviCup = getCustomProperty(inSceneLayerProp, "naviCup")
+
+    # Skybox
+    outScene.skyboxID = getCustomProperty(inSceneLayerProp, "skyboxID")
+    outScene.skyboxCloudiness = getCustomProperty(inSceneLayerProp, "skyboxCloudiness")
+    outScene.skyboxLighting = getCustomProperty(inSceneLayerProp, "skyboxLighting")
+
+    # Lighting
+    outScene.lightMode = inSceneLayerProp.skyboxLighting
+
+    if inSceneLayerProp.skyboxLighting == "0x00":
+        # Time of Day
+        todLights: OOTLightGroupProperty = inSceneLayerProp.timeOfDayLights
+        for lightType in ["dawn", "day", "dusk", "night"]:
+            outScene.lights.append(OOTLight(getattr(todLights, lightType)))
+    else:
+        # Indoor or Custom
+        for lightProp in inSceneLayerProp.lightList:
+            outScene.lights.append(OOTLight(lightProp))
+
+    # Map Location
+    outScene.mapLocation = getCustomProperty(inSceneLayerProp, "mapLocation")
+
+    # Camera Mode
+    outScene.cameraMode = getCustomProperty(inSceneLayerProp, "cameraMode")
+
+    # Audio
+    outScene.musicSeq = getCustomProperty(inSceneLayerProp, "musicSeq")
+    outScene.nightSeq = getCustomProperty(inSceneLayerProp, "nightSeq")
+    outScene.audioSessionPreset = getCustomProperty(inSceneLayerProp, "audioSessionPreset")
+
+    # Exits
+    for exitProp in inSceneLayerProp.exitList:
+        outScene.exitList.append(OOTExit(exitProp))
+
+    # Cutscenes
+    outScene.writeCutscene = getCustomProperty(inSceneLayerProp, "writeCutscene")
+    if outScene.writeCutscene:
+        outScene.csWriteType = getattr(inSceneLayerProp, "csWriteType")
+        if outScene.csWriteType == "Embedded":
+            outScene.csEndFrame = getCustomProperty(inSceneLayerProp, "csEndFrame")
+            outScene.csWriteTerminator = getCustomProperty(inSceneLayerProp, "csWriteTerminator")
+            outScene.csTermIdx = getCustomProperty(inSceneLayerProp, "csTermIdx")
+            outScene.csTermStart = getCustomProperty(inSceneLayerProp, "csTermStart")
+            outScene.csTermEnd = getCustomProperty(inSceneLayerProp, "csTermEnd")
+            readCutsceneData(outScene, inSceneLayerProp)
+
+        elif outScene.csWriteType == "Custom":
+            outScene.csWriteCustom = getCustomProperty(inSceneLayerProp, "csWriteCustom")
+
+        elif outScene.csWriteType == "Object":
+            if inSceneLayerProp.csWriteObject is None:
                 raise PluginError("No object selected for cutscene reference")
-            elif sceneHeader.csWriteObject.ootEmptyType != "Cutscene":
+            elif inSceneLayerProp.csWriteObject.ootEmptyType != "Cutscene":
                 raise PluginError("Object selected as cutscene is wrong type, must be empty with Cutscene type")
-            elif sceneHeader.csWriteObject.parent is not None:
+            elif inSceneLayerProp.csWriteObject.parent is not None:
                 raise PluginError("Cutscene empty object should not be parented to anything")
             else:
-                scene.csWriteObject = convertCutsceneObject(sceneHeader.csWriteObject)
-
-    if alternateSceneHeaders is not None:
-        for ec in sceneHeader.extraCutscenes:
-            scene.extraCutscenes.append(convertCutsceneObject(ec.csObject))
-
-        scene.collision.cameraData = OOTCameraData(scene.name)
-
-        if not alternateSceneHeaders.childNightHeader.usePreviousHeader:
-            scene.childNightHeader = scene.getAlternateHeaderScene(scene.name)
-            readSceneData(scene.childNightHeader, scene_properties, alternateSceneHeaders.childNightHeader, None)
-
-        if not alternateSceneHeaders.adultDayHeader.usePreviousHeader:
-            scene.adultDayHeader = scene.getAlternateHeaderScene(scene.name)
-            readSceneData(scene.adultDayHeader, scene_properties, alternateSceneHeaders.adultDayHeader, None)
-
-        if not alternateSceneHeaders.adultNightHeader.usePreviousHeader:
-            scene.adultNightHeader = scene.getAlternateHeaderScene(scene.name)
-            readSceneData(scene.adultNightHeader, scene_properties, alternateSceneHeaders.adultNightHeader, None)
-
-        for i in range(len(alternateSceneHeaders.cutsceneHeaders)):
-            cutsceneHeaderProp = alternateSceneHeaders.cutsceneHeaders[i]
-            cutsceneHeader = scene.getAlternateHeaderScene(scene.name)
-            readSceneData(cutsceneHeader, scene_properties, cutsceneHeaderProp, None)
-            scene.cutsceneHeaders.append(cutsceneHeader)
-    else:
-        if len(sceneHeader.extraCutscenes) > 0:
-            raise PluginError(
-                "Extra cutscenes (not in any header) only belong in the main scene, not alternate headers"
-            )
+                outScene.csWriteObject = convertCutsceneObject(inSceneLayerProp.csWriteObject)
 
 
-def ootConvertScene(
-    originalSceneObj: Object,
-    transformMatrix,
+def processScene(
+    inSceneObj: Object,
+    transformMatrix: Matrix,
     f3dType: str,
-    isHWv1: bool,
+    isHWv1: bool,  # is hardware v1
     sceneName: str,
-    DLFormat: DLFormat,
+    dlFormat: DLFormat,
     convertTextureData: bool,
 ):
-
-    if originalSceneObj.data is not None or originalSceneObj.ootEmptyType != "Scene":
-        raise PluginError(originalSceneObj.name + ' is not an empty with the "Scene" empty type.')
+    if inSceneObj.data is not None or inSceneObj.ootEmptyType != "Scene":
+        raise PluginError(f"ERROR: Object: '{inSceneObj.name}' is not an empty object with the 'Scene' type!")
 
     if bpy.context.scene.exportHiddenGeometry:
         hiddenObjs = unhideAllAndGetHiddenList(bpy.context.scene)
 
     # Don't remove ignore_render, as we want to reuse this for collision
-    sceneObj, allObjs = ootDuplicateHierarchy(originalSceneObj, None, True, OOTObjectCategorizer())
+    sceneObj, allObjs = ootDuplicateHierarchy(inSceneObj, None, True, OOTObjectCategorizer())
 
     if bpy.context.scene.exportHiddenGeometry:
         hideObjsInList(hiddenObjs)
 
-    roomObjs = [child for child in sceneObj.children if child.data is None and child.ootEmptyType == "Room"]
-    if len(roomObjs) == 0:
-        raise PluginError("The scene has no child empties with the 'Room' empty type.")
-
     try:
-        scene = OOTScene(sceneName, OOTModel(f3dType, isHWv1, sceneName + "_dl", DLFormat, None))
-        readSceneData(scene, sceneObj.fast64.oot.scene, sceneObj.ootSceneHeader, sceneObj.ootAlternateSceneHeaders)
-        processedRooms = set()
+        # Process the scene data
+        outScene = OOTScene(sceneName, OOTModel(f3dType, isHWv1, sceneName + "_dl", dlFormat, None))
 
-        for obj in sceneObj.children:
+        inSceneLayerProp: OOTSceneHeaderProperty = sceneObj.ootSceneHeader
+        inSceneProps: OOTSceneProperties = sceneObj.fast64.oot.scene
+        convertSceneLayer(outScene, inSceneProps, inSceneLayerProp)
+
+        # Process the scene's alternate layers, if used
+        altSceneLayers: OOTAlternateSceneHeaderProperty = sceneObj.ootAlternateSceneHeaders
+        if altSceneLayers is not None:
+            for ec in inSceneLayerProp.extraCutscenes:
+                outScene.extraCutscenes.append(convertCutsceneObject(ec.csObject))
+
+            outScene.collision.cameraData = OOTCameraData(outScene.name)
+
+            for i, altLayer in enumerate(outScene.altLayers):
+                if i > 0:
+                    curLayerProp = getattr(altSceneLayers, altLayer)
+                    if not curLayerProp.usePreviousHeader:
+                        setattr(outScene, altLayer, outScene.newAltLayer(outScene.name))
+                        convertSceneLayer(getattr(outScene, altLayer), inSceneProps, curLayerProp)
+
+            for csLayer in altSceneLayers.cutsceneHeaders:
+                cutsceneHeader = outScene.newAltLayer(outScene.name)
+                convertSceneLayer(cutsceneHeader, inSceneProps, csLayer)
+                outScene.cutsceneHeaders.append(cutsceneHeader)
+
+        elif len(inSceneLayerProp.extraCutscenes) > 0:
+            raise PluginError(
+                "Extra cutscenes (not in any header) only belong in the main scene, not alternate headers"
+            )
+
+        # Process the rooms
+        processedRooms = set[int]()
+        roomQueue = []
+
+        for obj in sceneObj.children_recursive:
             if obj.data is None and obj.ootEmptyType == "Room":
-                processRoom(scene, sceneObj, obj, processedRooms, sceneName, transformMatrix, convertTextureData)
-            elif obj.data is None and obj.ootEmptyType == "Water Box":
-                ootProcessWaterBox(sceneObj, obj, transformMatrix, scene, 0x3F)
-            elif isinstance(obj.data, bpy.types.Camera):
-                camPosProp = obj.ootCameraPositionProperty
-                readCamPos(camPosProp, obj, scene, sceneObj, transformMatrix)
-            elif isinstance(obj.data, bpy.types.Curve) and assertCurveValid(obj):
-                readPathProp(obj.ootSplineProperty, obj, scene, sceneObj, sceneName, transformMatrix)
+                if not obj in roomQueue:
+                    roomQueue.append(obj)
+            elif isinstance(obj.data, Camera):
+                convertCamPosData(obj, outScene, sceneObj, transformMatrix)
+            elif isinstance(obj.data, Curve) and assertCurveValid(obj):
+                convertPathData(obj, outScene, sceneObj, sceneName, transformMatrix)
 
-        scene.validateIndices()
-        scene.entranceList = sorted(scene.entranceList, key=lambda x: x.startPositionIndex)
-        exportCollisionCommon(scene.collision, sceneObj, transformMatrix, True, sceneName)
+        if len(roomQueue) > 0:
+            for roomObj in roomQueue:
+                processRoom(outScene, sceneObj, roomObj, processedRooms, sceneName, transformMatrix, convertTextureData)
+        else:
+            raise PluginError("The scene has no child empties with the 'Room' empty type.")
 
-        ootCleanupScene(originalSceneObj, allObjs)
+        outScene.validateIndices()
+        outScene.entranceList = sorted(outScene.entranceList, key=lambda x: x.startPositionIndex)
+        exportCollisionCommon(outScene.collision, sceneObj, transformMatrix, True, sceneName)
+
+        ootCleanupScene(inSceneObj, allObjs)
 
     except Exception as e:
-        ootCleanupScene(originalSceneObj, allObjs)
+        ootCleanupScene(inSceneObj, allObjs)
         raise Exception(str(e))
 
-    return scene
+    return outScene

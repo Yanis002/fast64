@@ -64,6 +64,7 @@ class OOTScene:
 
         self.musicSeq = None
         self.nightSeq = None
+        self.audioSessionPreset = str()
 
         # Alternate Layers
         self.childNightHeader = None
@@ -176,16 +177,16 @@ class OOTScene:
                         """
                     )
 
-    def getAlternateHeaderScene(self, name: str):
+    def newAltLayer(self, name: str):
         """Returns a new ``OOTScene()`` for the wanted header"""
-        scene = OOTScene(name, self.model)
-        scene.write_dummy_room_list = self.write_dummy_room_list
-        scene.rooms = self.rooms
-        scene.collision = self.collision
-        scene.exitList = self.exitList
-        scene.pathList = self.pathList
-        scene.cameraList = self.cameraList
-        return scene
+        newLayer = OOTScene(name, self.model)
+        newLayer.write_dummy_room_list = self.write_dummy_room_list
+        newLayer.rooms = self.rooms
+        newLayer.collision = self.collision
+        newLayer.exitList = self.exitList
+        newLayer.pathList = self.pathList
+        newLayer.cameraList = self.cameraList
+        return newLayer
 
     def sceneName(self):
         """Returns the scene's name"""

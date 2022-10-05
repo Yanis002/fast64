@@ -106,6 +106,7 @@ class OOTRoom:
         self.disableWarpSongs = False
         self.showInvisibleActors = False
         self.linkIdleMode = str()
+        self.linkIdleModeCustom = str()
 
         self.customBehaviourX = None  # unused
         self.customBehaviourY = None  # unused
@@ -129,13 +130,14 @@ class OOTRoom:
 
         # Other
         self.objectIDList: list[str] = []
-        self.actorList: list[OOTActor] = []  # filled in ``add_actor()`` (called by ``ootProcessEmpties``)
+        self.actorList: list[OOTActor] = []  # filled in ``add_actor()`` (called by ``processRoomContent``)
 
         # Alternate Layers
         self.childNightHeader = None
         self.adultDayHeader = None
         self.adultNightHeader = None
         self.cutsceneHeaders: list["OOTRoom"] = []
+        self.layerIndex: int = -1  # intended value to see if this was set or not
         self.altLayers = ["childDayHeader", "childNightHeader", "adultDayHeader", "adultNightHeader"]
 
     def addActor(self, actor: OOTActor, layerProp: OOTActorHeaderProperty, objName: str):
@@ -151,23 +153,23 @@ class OOTRoom:
                         actorList.append(actor)
 
             # avoid adding actors to cutscene layers if "non-cutscene layers" is selected
-            if layerProp.sceneSetupPreset == "All Scene Setups":
-                for csLayer in self.cutsceneHeaders:
-                    csLayer.actorList.append(actor)
+            if layerProp.sceneSetupPreset == "All Scene Setups" and self.layerIndex > 3:
+                self.actorList.append(actor)
 
         elif layerProp.sceneSetupPreset == "Custom":
             for i, layer in enumerate(self.altLayers):
-                curLayer = self if i == 0 else getattr(self, layer)
-                actorLayer = getattr(layerProp, layer)
-                if actorLayer and curLayer is not None:
-                    curLayer.actorList.append(actor)
+                if self.layerIndex != -1:
+                    if getattr(layerProp, layer) and self.layerIndex == i:
+                        self.actorList.append(actor)
+                else:
+                    raise PluginError("ERROR: Value Error for Layer Index!")
 
             for csLayer in layerProp.cutsceneHeaders:
                 # csLayer type -> OOTActorHeaderItemProperty
-                if csLayer.headerIndex < len(self.cutsceneHeaders) + 4:
-                    layer = self.cutsceneHeaders[csLayer.headerIndex - 4]
-                    actorList: list[OOTActor] = getattr(layer, "actorList")
-                    actorList.append(actor)
+                if self.layerIndex < (len(layerProp.cutsceneHeaders) + 1) + 4:
+                    if self.layerIndex == csLayer.headerIndex:
+                        actorList: list[OOTActor] = getattr(self, "actorList")
+                        actorList.append(actor)
                 else:
                     raise PluginError(
                         f"""
@@ -178,13 +180,17 @@ class OOTRoom:
         else:
             raise PluginError(f"Unhandled scene setup preset: {layerProp.sceneSetupPreset}")
 
-    def getAlternateHeaderRoom(self, name: str):
-        room = OOTRoom(self.index, name, self.mesh.model, self.mesh.roomShape)
-        room.mesh = self.mesh
-        return room
+    def newAltLayer(self, name: str, layerIndex: int):
+        newLayer = OOTRoom(self.index, name, self.mesh.model, self.mesh.roomShape)
+        newLayer.mesh = self.mesh
+        newLayer.layerIndex = layerIndex
+        return newLayer
 
     def roomName(self):
         return f"{self.ownerName}_room_{self.index}"
+
+    def getLayerName(self):
+        return f"{self.roomName()}_header{self.layerIndex:02}"
 
     def roomHeaderName(self, headerIndex: int):
         """Returns the room's name with the current header index in it"""

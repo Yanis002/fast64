@@ -1,14 +1,22 @@
 class OOTActor:
-    def __init__(self, actorID, position, rotation, actorParam, rotOverride):
+    def __init__(self, actorID: str, position: list[int], rotation: list[str], actorParam: str):
         self.actorID = actorID
         self.actorParam = actorParam
-        self.rotOverride = rotOverride
         self.position = position
         self.rotation = rotation
 
 
 class OOTTransitionActor:
-    def __init__(self, actorID, frontRoom, backRoom, frontCam, backCam, position, rotationY, actorParam):
+    def __init__(
+        self, actorID: str,
+        frontRoom: int,
+        backRoom: int,
+        frontCam: str,
+        backCam: str,
+        position: list[int],
+        rotationY: int,
+        actorParam: str
+):
         self.actorID = actorID
         self.actorParam = actorParam
         self.frontRoom = frontRoom
@@ -20,6 +28,6 @@ class OOTTransitionActor:
 
 
 class OOTEntrance:
-    def __init__(self, roomIndex, startPositionIndex):
+    def __init__(self, roomIndex: int, startPositionIndex: int):
         self.roomIndex = roomIndex
         self.startPositionIndex = startPositionIndex

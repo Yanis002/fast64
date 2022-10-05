@@ -13,9 +13,9 @@ class OOTLevelC:
         self.sceneCutscenesC: list[CData] = []
 
         # Files for room segments
-        self.roomMainC = {}
-        self.roomMeshInfoC = {}
-        self.roomMeshC = {}
+        self.roomMainC: dict[str, CData] = {}
+        self.roomMeshInfoC: dict[str, CData] = {}
+        self.roomMeshC: dict[str, CData] = {}
 
     def sceneTexturesIsUsed(self):
         return len(self.sceneTexturesC.source) > 0

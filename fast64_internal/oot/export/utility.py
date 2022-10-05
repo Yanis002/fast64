@@ -1,28 +1,13 @@
 import bpy
-from math import radians, degrees
-from mathutils import Quaternion, Matrix
+from mathutils import Matrix
 from bpy.types import Mesh, Object
-from ...utility import PluginError, checkIdentityRotation, toAlnum
+from ...utility import PluginError, toAlnum
 from ...f3d.f3d_writer import TriangleConverterInfo, getInfoDict, saveStaticModel
-from ..oot_collision_classes import OOTWaterBox, OOTCameraPosData, decomp_compat_map_CameraSType
-from ..oot_collision import OOTCameraPositionProperty
-from ..oot_utility import CullGroup, checkUniformScale, getCustomProperty, ootConvertRotation, ootConvertTranslation
-from ..oot_spline import ootConvertPath
-from .classes.scene import OOTScene
+from ..oot_utility import CullGroup, checkUniformScale, ootConvertRotation, ootConvertTranslation
 from .classes.room import OOTDLGroup, OOTRoomMesh
 
 
-def getConvertedTransform(transformMatrix, sceneObj: Object, obj: Object, handleOrientation: bool):
-    # Hacky solution to handle Z-up to Y-up conversion
-    # We cannot apply rotation to empty, as that modifies scale
-    if handleOrientation:
-        orientation = Quaternion((1, 0, 0), radians(90.0))
-    else:
-        orientation = Matrix.Identity(4)
-    return getConvertedTransformWithOrientation(transformMatrix, sceneObj, obj, orientation)
-
-
-def getConvertedTransformWithOrientation(transformMatrix, sceneObj: Object, obj: Object, orientation):
+def getConvertedTransformWithOrientation(transformMatrix: Matrix, sceneObj: Object, obj: Object, orientation):
     relativeTransform = transformMatrix @ sceneObj.matrix_world.inverted() @ obj.matrix_world
     blenderTranslation, blenderRotation, scale = relativeTransform.decompose()
     rotation = blenderRotation @ orientation
@@ -32,29 +17,12 @@ def getConvertedTransformWithOrientation(transformMatrix, sceneObj: Object, obj:
     return convertedTranslation, convertedRotation, scale, rotation
 
 
-def ootProcessWaterBox(sceneObj: Object, obj: Object, transformMatrix, scene: OOTScene, roomIndex: int):
-    translation, rotation, scale, orientedRotation = getConvertedTransform(transformMatrix, sceneObj, obj, True)
-
-    checkIdentityRotation(obj, orientedRotation, False)
-    waterBoxProp = obj.ootWaterBoxProperty
-    scene.collision.waterBoxes.append(
-        OOTWaterBox(
-            roomIndex,
-            getCustomProperty(waterBoxProp, "lighting"),
-            getCustomProperty(waterBoxProp, "camera"),
-            translation,
-            scale,
-            obj.empty_display_size,
-        )
-    )
-
-
 def ootProcessLOD(
     roomMesh: OOTRoomMesh,
     DLGroup: OOTDLGroup,
     sceneObj: Object,
     obj: Object,
-    transformMatrix,
+    transformMatrix: Matrix,
     convertTextureData: bool,
     LODHierarchyObject: Object | None,
 ):
@@ -108,7 +76,7 @@ def ootProcessMesh(
     DLGroup: OOTDLGroup,
     sceneObj: Object,
     obj: Object,
-    transformMatrix,
+    transformMatrix: Matrix,
     convertTextureData: bool,
     LODHierarchyObject: Object | None,
 ):
@@ -155,36 +123,3 @@ def ootProcessMesh(
             ootProcessMesh(
                 roomMesh, DLGroup, sceneObj, childObj, transformMatrix, convertTextureData, LODHierarchyObject
             )
-
-
-def readCamPos(camPosProp: OOTCameraPositionProperty, obj: Object, scene: OOTScene, sceneObj: Object, transformMatrix):
-    # Camera faces opposite direction
-    orientation = Quaternion((0, 1, 0), radians(180.0))
-    translation, rotation, scale, orientedRotation = getConvertedTransformWithOrientation(
-        transformMatrix, sceneObj, obj, orientation
-    )
-    camPosProp = obj.ootCameraPositionProperty
-    index = camPosProp.index
-    # TODO: FOV conversion?
-    if index in scene.collision.cameraData.camPosDict:
-        raise PluginError("Error: Repeated camera position index: " + str(index))
-    if camPosProp.camSType == "Custom":
-        camSType = camPosProp.camSTypeCustom
-    else:
-        camSType = decomp_compat_map_CameraSType.get(camPosProp.camSType, camPosProp.camSType)
-    scene.collision.cameraData.camPosDict[index] = OOTCameraPosData(
-        camSType,
-        camPosProp.hasPositionData,
-        translation,
-        rotation,
-        int(round(degrees(obj.data.angle))),
-        camPosProp.jfifID,
-    )
-
-
-def readPathProp(pathProp, obj: Object, scene: OOTScene, sceneObj: Object, sceneName: str, transformMatrix):
-    relativeTransform = transformMatrix @ sceneObj.matrix_world.inverted() @ obj.matrix_world
-    index = obj.ootSplineProperty.index
-    if index in scene.pathList:
-        raise PluginError("Error: " + obj.name + "has a repeated spline index: " + str(index))
-    scene.pathList[index] = ootConvertPath(sceneName, index, obj, relativeTransform)

@@ -1,154 +1,225 @@
-from mathutils import Vector
-from bpy.types import Camera, Curve, Object
-from ....utility import PluginError, normToSigned8Vector
+from math import radians
+from mathutils import Vector, Matrix, Quaternion
+from bpy.types import Object
+from ....utility import PluginError, checkIdentityRotation, normToSigned8Vector
 from ...oot_utility import CullGroup, getCustomProperty
-from ...oot_spline import assertCurveValid
+from ...oot_collision_classes import OOTWaterBox
 from ...room.classes import OOTAlternateRoomHeaderProperty, OOTRoomHeaderProperty
 from ...actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
 from ..classes.scene import OOTScene
 from ..classes.room import OOTRoom
 from ..classes.actor import OOTActor, OOTTransitionActor, OOTEntrance
-from ..utility import getConvertedTransform, ootProcessWaterBox, ootProcessMesh, readCamPos, readPathProp
+from ..utility import getConvertedTransformWithOrientation, ootProcessMesh
 
 
-def ootProcessEmpties(scene: OOTScene, room: OOTRoom, sceneObj: Object, obj: Object, transformMatrix):
+def getConvertedTransform(transformMatrix: Matrix, sceneObj: Object, obj: Object, handleOrientation: bool):
+    # Hacky solution to handle Z-up to Y-up conversion
+    # We cannot apply rotation to empty, as that modifies scale
+    if handleOrientation:
+        orientation = Quaternion((1, 0, 0), radians(90.0))
+    else:
+        orientation = Matrix.Identity(4)
+    return getConvertedTransformWithOrientation(transformMatrix, sceneObj, obj, orientation)
+
+
+def processRoomContent(
+    outScene: OOTScene,
+    outRoom: OOTRoom,
+    inRoomObj: Object,
+    positions: list[int],
+    rotations: list[int],
+):
+    if inRoomObj.ootEmptyType == "Actor":
+        actorProp: OOTActorProperty = inRoomObj.ootActorProperty
+        outRoom.addActor(
+            OOTActor(
+                getCustomProperty(actorProp, "actorID"),
+                positions,
+                [f"0x{rot:04X}" for rot in rotations]
+                if not actorProp.rotOverride
+                else [actorProp.rotOverrideX, actorProp.rotOverrideY, actorProp.rotOverrideZ],
+                actorProp.actorParam,
+            ),
+            actorProp.headerSettings,
+            inRoomObj.name,
+        )
+    elif inRoomObj.ootEmptyType == "Transition Actor":
+        transActorProp: OOTTransitionActorProperty = inRoomObj.ootTransitionActorProperty
+        outScene.addActor(
+            OOTTransitionActor(
+                getCustomProperty(transActorProp.actor, "actorID"),
+                outRoom.index,
+                transActorProp.roomIndex,
+                getCustomProperty(transActorProp, "cameraTransitionFront"),
+                getCustomProperty(transActorProp, "cameraTransitionBack"),
+                positions,
+                rotations[1],  # TODO: Correct axis?
+                transActorProp.actor.actorParam,
+            ),
+            transActorProp.actor.headerSettings,
+            inRoomObj.name,
+            "transitionActorList",
+        )
+    elif inRoomObj.ootEmptyType == "Entrance":
+        entranceProp: OOTEntranceProperty = inRoomObj.ootEntranceProperty
+        spawnIndex = entranceProp.spawnIndex
+        outScene.addActor(
+            OOTEntrance(outRoom.index, spawnIndex), entranceProp.actor.headerSettings, inRoomObj.name, "entranceList"
+        )
+        outScene.addStartPosition(
+            spawnIndex,
+            OOTActor(
+                "ACTOR_PLAYER" if not entranceProp.customActor else entranceProp.actor.actorIDCustom,
+                positions,
+                [f"0x{rot:04X}" for rot in rotations],
+                entranceProp.actor.actorParam,
+            ),
+            entranceProp.actor.headerSettings,
+            inRoomObj.name,
+        )
+
+
+def processWaterBox(sceneObj: Object, obj: Object, transformMatrix: Matrix, scene: OOTScene, roomIndex: int):
     translation, rotation, scale, orientedRotation = getConvertedTransform(transformMatrix, sceneObj, obj, True)
 
-    if obj.data is None:
-        if obj.ootEmptyType == "Actor":
-            actorProp: OOTActorProperty = obj.ootActorProperty
-            room.addActor(
-                OOTActor(
-                    getCustomProperty(actorProp, "actorID"),
-                    translation,
-                    rotation,
-                    actorProp.actorParam,
-                    None
-                    if not actorProp.rotOverride
-                    else (actorProp.rotOverrideX, actorProp.rotOverrideY, actorProp.rotOverrideZ),
-                ),
-                actorProp.headerSettings,
-                obj.name,
-            )
-        elif obj.ootEmptyType == "Transition Actor":
-            transActorProp: OOTTransitionActorProperty = obj.ootTransitionActorProperty
-            scene.addActor(
-                OOTTransitionActor(
-                    getCustomProperty(transActorProp.actor, "actorID"),
-                    room.index,
-                    transActorProp.roomIndex,
-                    getCustomProperty(transActorProp, "cameraTransitionFront"),
-                    getCustomProperty(transActorProp, "cameraTransitionBack"),
-                    translation,
-                    rotation[1],  # TODO: Correct axis?
-                    transActorProp.actor.actorParam,
-                ),
-                transActorProp.actor.headerSettings,
-                obj.name,
-                "transitionActorList",
-            )
-        elif obj.ootEmptyType == "Entrance":
-            entranceProp: OOTEntranceProperty = obj.ootEntranceProperty
-            spawnIndex = entranceProp.spawnIndex
-            scene.addActor(
-                OOTEntrance(room.index, spawnIndex), entranceProp.actor.headerSettings, obj.name, "entranceList"
-            )
-            scene.addStartPosition(
-                spawnIndex,
-                OOTActor(
-                    "ACTOR_PLAYER" if not entranceProp.customActor else entranceProp.actor.actorIDCustom,
-                    translation,
-                    rotation,
-                    entranceProp.actor.actorParam,
-                    None,
-                ),
-                entranceProp.actor.headerSettings,
-                obj.name,
-            )
-        elif obj.ootEmptyType == "Water Box":
-            ootProcessWaterBox(sceneObj, obj, transformMatrix, scene, room.roomIndex)
-    elif isinstance(obj.data, Camera):
-        camPosProp = obj.ootCameraPositionProperty
-        readCamPos(camPosProp, obj, scene, sceneObj, transformMatrix)
-    elif isinstance(obj.data, Curve) and assertCurveValid(obj):
-        readPathProp(obj.ootSplineProperty, obj, scene, sceneObj, scene.name, transformMatrix)
-
-    for childObj in obj.children:
-        ootProcessEmpties(scene, room, sceneObj, childObj, transformMatrix)
+    checkIdentityRotation(obj, orientedRotation, False)
+    waterBoxProp = obj.ootWaterBoxProperty
+    scene.collision.waterBoxes.append(
+        OOTWaterBox(
+            roomIndex,
+            getCustomProperty(waterBoxProp, "lighting"),
+            getCustomProperty(waterBoxProp, "camera"),
+            translation,
+            scale,
+            obj.empty_display_size,
+        )
+    )
 
 
-def readRoomData(
-    room: OOTRoom, roomHeader: OOTRoomHeaderProperty, alternateRoomHeaders: OOTAlternateRoomHeaderProperty
+def convertRoomLayer(
+    outScene: OOTScene,
+    outRoom: OOTRoom,
+    inRoomLayer: OOTRoomHeaderProperty,
+    inSceneObj: Object,
+    inRoomObj: Object,
+    transformMatrix: Matrix,
+    processSceneActors: bool,
+    processedWaterBoxes: set,
 ):
-    room.roomIndex = roomHeader.roomIndex
-    room.roomBehaviour = getCustomProperty(roomHeader, "roomBehaviour")
-    room.disableWarpSongs = roomHeader.disableWarpSongs
-    room.showInvisibleActors = roomHeader.showInvisibleActors
+    outRoom.index = inRoomLayer.roomIndex
 
-    # room heat behavior is active if the idle mode is 0x03
-    room.linkIdleMode = getCustomProperty(roomHeader, "linkIdleMode") if not roomHeader.roomIsHot else "0x03"
-    room.linkIdleModeCustom = roomHeader.linkIdleModeCustom
+    # Room Behavior
+    outRoom.roomBehaviour = getCustomProperty(inRoomLayer, "roomBehaviour")
+    outRoom.disableWarpSongs = inRoomLayer.disableWarpSongs
+    outRoom.showInvisibleActors = inRoomLayer.showInvisibleActors
 
-    room.setWind = roomHeader.setWind
-    room.windVector = normToSigned8Vector(Vector(roomHeader.windVector).normalized())
-    room.windStrength = int(0xFF * max(Vector(roomHeader.windVector).length, 1))
-    if roomHeader.leaveTimeUnchanged:
-        room.timeHours = "255"
-        room.timeMinutes = "255"
-    else:
-        room.timeHours = roomHeader.timeHours
-        room.timeMinutes = roomHeader.timeMinutes
-    room.timeSpeed = roomHeader.timeSpeed * 10
-    room.disableSkybox = roomHeader.disableSkybox
-    room.disableSunMoon = roomHeader.disableSunMoon
-    room.echo = roomHeader.echo
-    room.objectIDList.extend([getCustomProperty(item, "objectID") for item in roomHeader.objectList])
-    if len(room.objectIDList) > 15:
+    # Room heat behavior is active if the idle mode is 0x03
+    outRoom.linkIdleMode = getCustomProperty(inRoomLayer, "linkIdleMode") if not inRoomLayer.roomIsHot else "0x03"
+    outRoom.linkIdleModeCustom = inRoomLayer.linkIdleModeCustom
+
+    # Wind
+    outRoom.setWind = inRoomLayer.setWind
+    outRoom.windVector = normToSigned8Vector(Vector(inRoomLayer.windVector).normalized())
+    outRoom.windStrength = int(0xFF * max(Vector(inRoomLayer.windVector).length, 1))
+
+    # Time
+    outRoom.timeHours = inRoomLayer.timeHours if not inRoomLayer.leaveTimeUnchanged else "255"
+    outRoom.timeMinutes = inRoomLayer.timeMinutes if not inRoomLayer.leaveTimeUnchanged else "255"
+    outRoom.timeSpeed = inRoomLayer.timeSpeed * 10
+
+    # Sky Settings
+    outRoom.disableSkybox = inRoomLayer.disableSkybox
+    outRoom.disableSunMoon = inRoomLayer.disableSunMoon
+
+    # Other
+    outRoom.echo = inRoomLayer.echo
+    outRoom.objectIDList.extend([getCustomProperty(item, "objectID") for item in inRoomLayer.objectList])
+    if len(outRoom.objectIDList) > 15:
         raise PluginError("Error: A scene can only have a maximum of 15 objects (OOT, not blender objects).")
 
-    if alternateRoomHeaders is not None:
-        if not alternateRoomHeaders.childNightHeader.usePreviousHeader:
-            room.childNightHeader = room.getAlternateHeaderRoom(room.ownerName)
-            readRoomData(room.childNightHeader, alternateRoomHeaders.childNightHeader, None)
+    emptyTypes = ["Actor", "Water Box"]
+    if processSceneActors:
+        emptyTypes.extend(["Transition Actor", "Entrance"])
 
-        if not alternateRoomHeaders.adultDayHeader.usePreviousHeader:
-            room.adultDayHeader = room.getAlternateHeaderRoom(room.ownerName)
-            readRoomData(room.adultDayHeader, alternateRoomHeaders.adultDayHeader, None)
-
-        if not alternateRoomHeaders.adultNightHeader.usePreviousHeader:
-            room.adultNightHeader = room.getAlternateHeaderRoom(room.ownerName)
-            readRoomData(room.adultNightHeader, alternateRoomHeaders.adultNightHeader, None)
-
-        for i in range(len(alternateRoomHeaders.cutsceneHeaders)):
-            cutsceneHeaderProp = alternateRoomHeaders.cutsceneHeaders[i]
-            cutsceneHeader = room.getAlternateHeaderRoom(room.ownerName)
-            readRoomData(cutsceneHeader, cutsceneHeaderProp, None)
-            room.cutsceneHeaders.append(cutsceneHeader)
+    # Room Content
+    for childObj in inRoomObj.children_recursive:
+        positions, rotations, scale, orientedRotation = getConvertedTransform(transformMatrix, inSceneObj, childObj, True)
+        if childObj.data is None and childObj.ootEmptyType in emptyTypes:
+            if childObj.ootEmptyType == "Water Box":
+                if not childObj in processedWaterBoxes:
+                    roomIndex = 0x3F if childObj.ootWaterBoxProperty.isGlobal else inRoomObj.ootRoomHeader.roomIndex
+                    processWaterBox(inSceneObj, childObj, transformMatrix, outScene, roomIndex)
+                    processedWaterBoxes.add(childObj)
+            else:
+                processRoomContent(outScene, outRoom, childObj, positions, rotations)
 
 
 def processRoom(
-    scene: OOTScene,
-    sceneObj: Object,
-    roomObj: Object,
+    outScene: OOTScene,
+    inSceneObj: Object,
+    inRoomObj: Object,
     processedRooms: set[int],
     sceneName: str,
-    transformMatrix,
+    transformMatrix: Matrix,
     convertTextureData: bool,
 ):
-    roomIndex: int = roomObj.ootRoomHeader.roomIndex
-    translation, rotation, scale, orientedRotation = getConvertedTransform(transformMatrix, sceneObj, roomObj, True)
+    roomIndex: int = inRoomObj.ootRoomHeader.roomIndex
+    if not roomIndex in processedRooms:
+        processedRooms.add(roomIndex)
+    else:
+        raise PluginError(f"ERROR: Room index: '{roomIndex}' is used more than once.")
 
-    if roomIndex in processedRooms:
-        raise PluginError("Error: room index " + str(roomIndex) + " is used more than once.")
+    outRoom = outScene.addRoom(roomIndex, sceneName, inRoomObj.ootRoomHeader.roomShape)
+    outRoom.layerIndex = 0
 
-    processedRooms.add(roomIndex)
+    positions, rotations, scale, orientedRotation = getConvertedTransform(transformMatrix, inSceneObj, inRoomObj, True)
+    processedWaterBoxes = set()
+    convertRoomLayer(
+        outScene,
+        outRoom,
+        inRoomObj.ootRoomHeader,
+        inSceneObj,
+        inRoomObj,
+        transformMatrix,
+        True,
+        processedWaterBoxes,
+    )
 
-    room = scene.addRoom(roomIndex, sceneName, roomObj.ootRoomHeader.roomShape)
-    readRoomData(room, roomObj.ootRoomHeader, roomObj.ootAlternateRoomHeaders)
+    altLayerProp: OOTAlternateRoomHeaderProperty = inRoomObj.ootAlternateRoomHeaders
+    if altLayerProp is not None:
+        for i, altLayer in enumerate(outRoom.altLayers):
+            if i > 0:
+                inRoomLayerProp: OOTRoomHeaderProperty = getattr(altLayerProp, altLayer)
+                if not inRoomLayerProp.usePreviousHeader:
+                    setattr(outRoom, altLayer, outRoom.newAltLayer(outRoom.ownerName, i))
+                    convertRoomLayer(
+                        outScene,
+                        getattr(outRoom, altLayer),
+                        inRoomLayerProp,
+                        inSceneObj,
+                        inRoomObj,
+                        transformMatrix,
+                        False,
+                        processedWaterBoxes,
+                    )
 
-    DLGroup = room.mesh.addMeshGroup(CullGroup(translation, scale, roomObj.ootRoomHeader.defaultCullDistance)).DLGroup
+        for i, inCsLayerProp in enumerate(altLayerProp.cutsceneHeaders, 4):
+            outCsLayer = outRoom.newAltLayer(outRoom.ownerName, i)
+            outRoom.cutsceneHeaders.append(outCsLayer)
+            convertRoomLayer(
+                outScene,
+                outCsLayer,
+                inCsLayerProp,
+                inSceneObj,
+                inRoomObj,
+                transformMatrix,
+                False,
+                processedWaterBoxes,
+            )
 
-    ootProcessMesh(room.mesh, DLGroup, sceneObj, roomObj, transformMatrix, convertTextureData, None)
-    room.mesh.terminateDLs()
-    room.mesh.removeUnusedEntries()
-    ootProcessEmpties(scene, room, sceneObj, roomObj, transformMatrix)
+    dlGroup = outRoom.mesh.addMeshGroup(
+        CullGroup(positions, scale, inRoomObj.ootRoomHeader.defaultCullDistance)
+    ).DLGroup
+    ootProcessMesh(outRoom.mesh, dlGroup, inSceneObj, inRoomObj, transformMatrix, convertTextureData, None)
+    outRoom.mesh.terminateDLs()
+    outRoom.mesh.removeUnusedEntries()
