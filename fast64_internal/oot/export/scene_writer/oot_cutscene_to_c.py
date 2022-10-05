@@ -6,16 +6,16 @@ from ..classes.scene import OOTScene
 def ootSceneCutscenesToC(scene: OOTScene):
     """Returns the cutscene data"""
     csData: list[CData] = []
-    sceneLayers = [scene, scene.childNightHeader, scene.adultDayHeader, scene.adultNightHeader]
+    sceneLayers: list[OOTScene] = [scene, scene.childNightHeader, scene.adultDayHeader, scene.adultNightHeader]
     sceneLayers.extend(scene.cutsceneHeaders)
 
     for i, layer in enumerate(sceneLayers):
         if layer is not None and layer.writeCutscene:
             data = CData()
             if layer.csWriteType == "Embedded":
-                data = ootCutsceneDataToC(scene, scene.cutsceneDataName(i))
+                data = ootCutsceneDataToC(layer, layer.cutsceneDataName(i))
             elif layer.csWriteType == "Object":
-                data = ootCutsceneDataToC(scene.csWriteObject, scene.csWriteObject.name)
+                data = ootCutsceneDataToC(layer.csWriteObject, layer.csWriteObject.name)
             csData.append(data)
 
     for extraCs in scene.extraCutscenes:

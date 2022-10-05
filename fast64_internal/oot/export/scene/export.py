@@ -193,9 +193,9 @@ def processScene(
                         convertSceneLayer(getattr(outScene, altLayer), inSceneProps, curLayerProp)
 
             for csLayer in altSceneLayers.cutsceneHeaders:
-                cutsceneHeader = outScene.newAltLayer(outScene.name)
-                convertSceneLayer(cutsceneHeader, inSceneProps, csLayer)
-                outScene.cutsceneHeaders.append(cutsceneHeader)
+                curLayer = outScene.newAltLayer(outScene.name)
+                convertSceneLayer(curLayer, inSceneProps, csLayer)
+                outScene.cutsceneHeaders.append(curLayer)
 
         elif len(inSceneLayerProp.extraCutscenes) > 0:
             raise PluginError(

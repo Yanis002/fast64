@@ -10,8 +10,8 @@ def ootRoomListHeaderToC(scene: OOTScene):
 
     # generating segment rom names for every room
     segNames = []
-    for room in scene.rooms.values():
-        roomName = room.roomName()
+    for i in range(len(scene.rooms)):
+        roomName = scene.rooms[i].roomName()
         segNames.append((f"_{roomName}SegmentRomStart", f"_{roomName}SegmentRomEnd"))
 
     # .h

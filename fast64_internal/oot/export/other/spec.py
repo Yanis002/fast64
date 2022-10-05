@@ -104,7 +104,7 @@ def modifySegmentDefinition(scene: OOTScene, exportInfo: ExportInfo, levelC: OOT
 
                 if levelC.sceneCutscenesIsUsed():
                     sceneSegInclude += "".join(
-                        [indent + f'include "{includeDir}_cs_{i}.o"\n' for i in range(len(levelC.sceneCutscenesC))]
+                        [indent + f'include "{includeDir}_scene_cs_{i}.o"\n' for i in range(len(levelC.sceneCutscenesC))]
                     )
 
             sceneSegInclude += indent + "number 2\n"

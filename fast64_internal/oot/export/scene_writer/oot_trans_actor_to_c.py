@@ -7,8 +7,8 @@ def ootGetTransActorData(transActor: OOTTransitionActor):
     """Returns the transition actors array's data"""
     sides = [(transActor.frontRoom, transActor.frontCam), (transActor.backRoom, transActor.backCam)]
     return (
-        "{ "
-        + (", ".join(["{ " + f"{room}, {cam}" + " }" for room, cam in sides]) + ", ")
+        "{ { "
+        + (", ".join([f"{room}, {cam}" for room, cam in sides]) + " }, ")
         + transActor.actorID
         + ", { "
         + ", ".join([f"{round(pos)}" for pos in transActor.position])

@@ -125,7 +125,7 @@ def convertRoomLayer(
     # Time
     outRoom.timeHours = inRoomLayer.timeHours if not inRoomLayer.leaveTimeUnchanged else "255"
     outRoom.timeMinutes = inRoomLayer.timeMinutes if not inRoomLayer.leaveTimeUnchanged else "255"
-    outRoom.timeSpeed = inRoomLayer.timeSpeed * 10
+    outRoom.timeSpeed = int(inRoomLayer.timeSpeed * 10)
 
     # Sky Settings
     outRoom.disableSkybox = inRoomLayer.disableSkybox
