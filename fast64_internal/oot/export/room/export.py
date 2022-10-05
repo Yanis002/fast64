@@ -143,7 +143,9 @@ def convertRoomLayer(
 
     # Room Content
     for childObj in inRoomObj.children_recursive:
-        positions, rotations, scale, orientedRotation = getConvertedTransform(transformMatrix, inSceneObj, childObj, True)
+        positions, rotations, scale, orientedRotation = getConvertedTransform(
+            transformMatrix, inSceneObj, childObj, True
+        )
         if childObj.data is None and childObj.ootEmptyType in emptyTypes:
             if childObj.ootEmptyType == "Water Box":
                 if not childObj in processedWaterBoxes:

@@ -5,6 +5,7 @@ from mathutils import Matrix
 from ...f3d.f3d_gbi import ScrollMethod, DLFormat, TextureExportSettings
 from ...utility import PluginError, CData, writeCDataSourceOnly, writeCDataHeaderOnly, checkObjectReference
 from ..oot_utility import ExportInfo, ootGetPath, ootSceneDirs
+from ..oot_cutscene import ootCutsceneIncludes
 from ..oot_model_classes import OOTGfxFormatter
 from ..oot_collision import ootCollisionToC
 from ..export.room_writer.oot_room_shape_to_c import ootGetRoomShapeHeaderData, ootRoomModelToC
@@ -49,9 +50,6 @@ def ootSceneIncludes(outScene: OOTScene):
         "command_macros_base.h",
         "variables.h",
     ]
-
-    if outScene.writeCutscene:
-        includeFiles.append("z64cutscene_commands.h")
 
     sceneIncludeData.source = "\n".join([f'#include "{fileName}"' for fileName in includeFiles]) + "\n\n"
     return sceneIncludeData
@@ -157,7 +155,8 @@ def exportScene(
     else:
         # Export the scene segment .c files
         writeCDataSourceOnly(
-            ootPreprendSceneIncludes(outScene, levelC.sceneMainC), path.join(levelPath, outScene.sceneName() + "_main.c")
+            ootPreprendSceneIncludes(outScene, levelC.sceneMainC),
+            path.join(levelPath, outScene.sceneName() + "_main.c"),
         )
 
         if levelC.sceneTexturesIsUsed():
@@ -173,23 +172,27 @@ def exportScene(
 
         if levelC.sceneCutscenesIsUsed():
             for i, sceneCs in enumerate(levelC.sceneCutscenesC):
+                fileData = ootCutsceneIncludes(f"{outScene.sceneName()}.h")
+                fileData.append(sceneCs)
                 writeCDataSourceOnly(
-                    ootPreprendSceneIncludes(outScene, sceneCs),
+                    fileData,
                     path.join(levelPath, f"{outScene.sceneName()}_cs_{i}.c"),
                 )
 
         # Export the room segment .c files
         for roomName, roomMainC in levelC.roomMainC.items():
-            writeCDataSourceOnly(ootPreprendSceneIncludes(outScene, roomMainC), path.join(levelPath,  f"{roomName}_main.c"))
+            writeCDataSourceOnly(
+                ootPreprendSceneIncludes(outScene, roomMainC), path.join(levelPath, f"{roomName}_main.c")
+            )
 
         for roomName, roomMeshInfoC in levelC.roomMeshInfoC.items():
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, roomMeshInfoC), path.join(levelPath,  f"{roomName}_model_info.c")
+                ootPreprendSceneIncludes(outScene, roomMeshInfoC), path.join(levelPath, f"{roomName}_model_info.c")
             )
 
         for roomName, roomMeshC in levelC.roomMeshC.items():
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, roomMeshC), path.join(levelPath,  f"{roomName}_model.c")
+                ootPreprendSceneIncludes(outScene, roomMeshC), path.join(levelPath, f"{roomName}_model.c")
             )
 
     # Export the scene .h file

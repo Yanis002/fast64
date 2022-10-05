@@ -19,7 +19,7 @@ from ...scene.classes import (
     OOTAlternateSceneHeaderProperty,
     OOTSceneHeaderProperty,
     OOTSceneProperties,
-    OOTLightGroupProperty
+    OOTLightGroupProperty,
 )
 
 from ...oot_utility import (
@@ -31,9 +31,7 @@ from ...oot_utility import (
 )
 
 
-def convertCamPosData(
-    inCamObj: Object, outScene: OOTScene, inSceneObj: Object, transformMatrix: Matrix
-):
+def convertCamPosData(inCamObj: Object, outScene: OOTScene, inSceneObj: Object, transformMatrix: Matrix):
     # Camera faces opposite direction
     orientation = Quaternion((0, 1, 0), radians(180.0))
 

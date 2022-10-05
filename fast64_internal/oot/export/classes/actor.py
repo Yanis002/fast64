@@ -8,15 +8,16 @@ class OOTActor:
 
 class OOTTransitionActor:
     def __init__(
-        self, actorID: str,
+        self,
+        actorID: str,
         frontRoom: int,
         backRoom: int,
         frontCam: str,
         backCam: str,
         position: list[int],
         rotationY: int,
-        actorParam: str
-):
+        actorParam: str,
+    ):
         self.actorID = actorID
         self.actorParam = actorParam
         self.frontRoom = frontRoom
