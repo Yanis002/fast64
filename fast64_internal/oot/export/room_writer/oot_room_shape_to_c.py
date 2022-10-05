@@ -32,7 +32,7 @@ def ootGetRoomShapeEntryArray(mesh: OOTRoomMesh):
         "ROOM_SHAPE_TYPE_NORMAL": "RoomShapeDListsEntry",
         "ROOM_SHAPE_TYPE_CULLABLE": "RoomShapeCullableEntry",
     }
-    roomShapeEntryName = f"{roomShapeEntryStructs[mesh.roomShape]} {mesh.entriesName()}[{len(mesh.meshEntries)}]"
+    roomShapeEntryName = f"{roomShapeEntryStructs[mesh.roomShape]} {mesh.getEntriesName()}[{len(mesh.meshEntries)}]"
 
     # .h
     roomShapeEntryData.header = f"extern {roomShapeEntryName};\n"
@@ -56,7 +56,7 @@ def ootGetRoomShapeHeaderData(mesh: OOTRoomMesh):
         "ROOM_SHAPE_TYPE_CULLABLE": "RoomShapeCullable",
     }
     roomShapeName = f"{roomShapeStructs[mesh.roomShape]} {mesh.getHeaderName()}"
-    roomShapeEntryName = mesh.entriesName()
+    roomShapeEntryName = mesh.getEntriesName()
     roomShapeArrayCount = f"ARRAY_COUNT({roomShapeEntryName})"
 
     # .h

@@ -42,20 +42,20 @@ def cmdMesh(room: OOTRoom):
 
 def cmdObjectList(room: OOTRoom, headerIndex: int):
     """Returns C-converted room object list command"""
-    return f"SCENE_CMD_OBJECT_LIST({len(room.objectIDList)}, {room.objectListName(headerIndex)})"
+    return f"SCENE_CMD_OBJECT_LIST({len(room.objectIDList)}, {room.getObjectListName(headerIndex)})"
 
 
 def cmdActorList(room: OOTRoom, headerIndex: int):
     """Returns C-converted room actor list command"""
-    return f"SCENE_CMD_ACTOR_LIST({len(room.actorList)}, {room.actorListName(headerIndex)})"
+    return f"SCENE_CMD_ACTOR_LIST({len(room.actorList)}, {room.getActorListName(headerIndex)})"
 
 
 def getRoomCommandsList(room: OOTRoom, headerIndex: int):
     """Returns every room commands converted to C code."""
     roomCmdList: list[str] = []
 
-    if room.hasAlternateHeaders():
-        roomCmdList.append(cmdAltHeaders(room.alternateHeadersName()))
+    if room.hasAltLayers():
+        roomCmdList.append(cmdAltHeaders(room.getAltLayersListName()))
 
     roomCmdList.append(cmdEchoSettings(room))
     roomCmdList.append(cmdRoomBehaviour(room))
@@ -81,7 +81,7 @@ def getRoomCommandsList(room: OOTRoom, headerIndex: int):
 def ootRoomCommandsToC(room: OOTRoom, headerIndex: int):
     """Converts every room commands to C code."""
     roomCmdData = CData()
-    roomCmdName = f"SCmdBase {room.roomHeaderName(headerIndex)}[]"
+    roomCmdName = f"SCmdBase {room.getRoomLayerName(headerIndex)}[]"
     roomCmdList = getRoomCommandsList(room, headerIndex)
 
     # .h

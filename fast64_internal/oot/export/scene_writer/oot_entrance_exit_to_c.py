@@ -11,7 +11,7 @@ def ootGetEntranceEntry(entrance: OOTEntrance):
 def ootEntranceListToC(scene: OOTScene, headerIndex: int):
     """Returns the entrance list array"""
     entranceListData = CData()
-    entranceName = f"EntranceEntry {scene.entranceListName(headerIndex)}[]"
+    entranceName = f"EntranceEntry {scene.getSpawnListName(headerIndex)}[]"
 
     # .h
     entranceListData.header = f"extern {entranceName};\n"
@@ -29,7 +29,7 @@ def ootEntranceListToC(scene: OOTScene, headerIndex: int):
 def ootExitListToC(scene: OOTScene, headerIndex: int):
     """Returns the exit list array"""
     exitListData = CData()
-    exitListName = f"u16 {scene.exitListName(headerIndex)}[{len(scene.exitList)}]"
+    exitListName = f"u16 {scene.getExitListName(headerIndex)}[{len(scene.exitList)}]"
 
     # .h
     exitListData.header = f"extern {exitListName};\n"

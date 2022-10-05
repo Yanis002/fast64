@@ -25,7 +25,7 @@ def ootLightToC(light: OOTLight, lightMode: str, index: int):
     ]
 
     fogData = [
-        (light.getBlendFogShort(), "Blend Rate & Fog Near"),
+        (light.getBlendFogNear(), "Blend Rate & Fog Near"),
         (f"{light.fogFar}", "Fog Far"),
     ]
 
@@ -49,7 +49,7 @@ def ootLightToC(light: OOTLight, lightMode: str, index: int):
 def ootLightSettingsToC(scene: OOTScene, headerIndex: int):
     """Returns the light settings array"""
     lightSettingsData = CData()
-    lightName = f"LightSettings {scene.lightListName(headerIndex)}[{len(scene.lights)}]"
+    lightName = f"LightSettings {scene.getLightSettingsListName(headerIndex)}[{len(scene.lights)}]"
 
     # .h
     lightSettingsData.header = f"extern {lightName};\n"

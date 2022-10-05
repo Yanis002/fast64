@@ -1,7 +1,7 @@
 from ....utility import CData
 
 
-class OOTLevelC:
+class OOTSceneC:
     def __init__(self):
         # Main header file for both the scene and room(s)
         self.header = CData()

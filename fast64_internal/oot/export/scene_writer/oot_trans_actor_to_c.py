@@ -23,7 +23,7 @@ def ootTransitionActorListToC(scene: OOTScene, headerIndex: int):
     """Returns the transition actors array"""
     transActorListData = CData()
     transActorName = (
-        f"TransitionActorEntry {scene.transitionActorListName(headerIndex)}[{len(scene.transitionActorList)}]"
+        f"TransitionActorEntry {scene.getTransActorListName(headerIndex)}[{len(scene.transitionActorList)}]"
     )
 
     # .h

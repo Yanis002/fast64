@@ -11,12 +11,12 @@ def cmdSoundSettings(scene: OOTScene):
 
 def cmdRoomList(scene: OOTScene):
     """Returns C-converted room list command"""
-    return f"SCENE_CMD_ROOM_LIST({len(scene.rooms)}, {scene.roomListName()})"
+    return f"SCENE_CMD_ROOM_LIST({len(scene.rooms)}, {scene.getRoomListName()})"
 
 
 def cmdTransiActorList(scene: OOTScene, headerIndex: int):
     """Returns C-converted transition actors list command"""
-    return f"SCENE_CMD_TRANSITION_ACTOR_LIST({len(scene.transitionActorList)}, {scene.transitionActorListName(headerIndex)})"
+    return f"SCENE_CMD_TRANSITION_ACTOR_LIST({len(scene.transitionActorList)}, {scene.getTransActorListName(headerIndex)})"
 
 
 def cmdMiscSettings(scene: OOTScene):
@@ -32,7 +32,7 @@ def cmdColHeader(scene: OOTScene):
 def cmdEntranceList(scene: OOTScene, headerIndex: int):
     """Returns C-converted entrance list command"""
     # ``NULL`` if there's no list since this command expects an address
-    entranceListName = scene.entranceListName(headerIndex) if len(scene.entranceList) > 0 else "NULL"
+    entranceListName = scene.getSpawnListName(headerIndex) if len(scene.entranceList) > 0 else "NULL"
     return f"SCENE_CMD_ENTRANCE_LIST({entranceListName})"
 
 
@@ -44,14 +44,14 @@ def cmdSpecialFiles(scene: OOTScene):
 
 def cmdPathList(scene: OOTScene):
     """Returns C-converted paths list command"""
-    return f"SCENE_CMD_PATH_LIST({scene.pathListName()})"
+    return f"SCENE_CMD_PATH_LIST({scene.getPathListName()})"
 
 
 def cmdSpawnList(scene: OOTScene, headerIndex: int):
     """Returns C-converted spawns list command"""
     # ``NULL`` if there's no list since this command expects an address
     startPosNumber = len(scene.startPositions)
-    spawnPosName = scene.startPositionsName(headerIndex) if startPosNumber > 0 else "NULL"
+    spawnPosName = scene.getPlayerEntryListName(headerIndex) if startPosNumber > 0 else "NULL"
     return f"SCENE_CMD_SPAWN_LIST({startPosNumber}, {spawnPosName})"
 
 
@@ -62,20 +62,20 @@ def cmdSkyboxSettings(scene: OOTScene):
 
 def cmdExitList(scene: OOTScene, headerIndex: int):
     """Returns C-converted exit list command"""
-    return f"SCENE_CMD_EXIT_LIST({scene.exitListName(headerIndex)})"
+    return f"SCENE_CMD_EXIT_LIST({scene.getExitListName(headerIndex)})"
 
 
 def cmdLightSettingList(scene: OOTScene, headerIndex: int):
     """Returns C-converted light settings list command"""
     lightCount = len(scene.lights)
-    lightSettingsName = scene.lightListName(headerIndex) if lightCount > 0 else "NULL"
+    lightSettingsName = scene.getLightSettingsListName(headerIndex) if lightCount > 0 else "NULL"
     return f"SCENE_CMD_ENV_LIGHT_SETTINGS({lightCount}, {lightSettingsName})"
 
 
 def cmdCutsceneData(scene: OOTScene, headerIndex: int):
     """Returns C-converted cutscene data command"""
     if scene.csWriteType == "Embedded":
-        csDataName = scene.cutsceneDataName(headerIndex)
+        csDataName = scene.getCutsceneDataName(headerIndex)
     elif scene.csWriteType == "Object":
         if scene.csWriteObject is not None:
             csDataName = scene.csWriteObject.name  # ``csWriteObject`` type: ``OOTCutscene``
@@ -91,8 +91,8 @@ def getSceneCommandsList(scene: OOTScene, headerIndex: int):
     """Returns every scene commands converted to C code."""
     sceneCmdList: list[str] = []
 
-    if scene.hasAlternateHeaders():
-        sceneCmdList.append(cmdAltHeaders(scene.alternateHeadersName()))
+    if scene.hasAltLayers():
+        sceneCmdList.append(cmdAltHeaders(scene.getAltLayersListName()))
 
     sceneCmdList.append(cmdSoundSettings(scene))
     sceneCmdList.append(cmdRoomList(scene))
@@ -127,7 +127,7 @@ def getSceneCommandsList(scene: OOTScene, headerIndex: int):
 def ootSceneCommandsToC(scene: OOTScene, headerIndex: int):
     """Converts every scene commands to C code."""
     sceneCmdData = CData()
-    sceneCmdName = f"SCmdBase {scene.sceneHeaderName(headerIndex)}[]"
+    sceneCmdName = f"SCmdBase {scene.getSceneLayerName(headerIndex)}[]"
     sceneCmdList = getSceneCommandsList(scene, headerIndex)
 
     # .h

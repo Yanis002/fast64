@@ -6,12 +6,12 @@ from ..classes.scene import OOTScene
 def ootRoomListHeaderToC(scene: OOTScene):
     """Returns the room list array"""
     headerData = CData()
-    headerName = f"RomFile {scene.roomListName()}[]"
+    headerName = f"RomFile {scene.getRoomListName()}[]"
 
     # generating segment rom names for every room
     segNames = []
     for i in range(len(scene.rooms)):
-        roomName = scene.rooms[i].roomName()
+        roomName = scene.rooms[i].getRoomName()
         segNames.append((f"_{roomName}SegmentRomStart", f"_{roomName}SegmentRomEnd"))
 
     # .h

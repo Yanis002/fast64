@@ -129,7 +129,7 @@ def getSceneParams(scene: OOTScene, exportInfo: ExportInfo, sceneNames: list[str
 
     # if the index is None then this is a custom scene
     if sceneIndex is None and scene is not None:
-        sceneName = scene.sceneName()
+        sceneName = scene.getSceneName()
         sceneTitle = "none"
         sceneID = "SCENE_" + (scene.name.upper() if scene is not None else exportInfo.name.upper())
         sceneUnk10 = sceneUnk12 = 0

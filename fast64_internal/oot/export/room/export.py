@@ -171,7 +171,7 @@ def processRoom(
     else:
         raise PluginError(f"ERROR: Room index: '{roomIndex}' is used more than once.")
 
-    outRoom = outScene.addRoom(roomIndex, sceneName, inRoomObj.ootRoomHeader.roomShape)
+    outRoom = outScene.newRoom(roomIndex, sceneName, inRoomObj.ootRoomHeader.roomShape)
     outRoom.layerIndex = 0
 
     positions, rotations, scale, orientedRotation = getConvertedTransform(transformMatrix, inSceneObj, inRoomObj, True)
@@ -219,7 +219,7 @@ def processRoom(
                 processedWaterBoxes,
             )
 
-    dlGroup = outRoom.mesh.addMeshGroup(
+    dlGroup = outRoom.mesh.newMeshGroup(
         CullGroup(positions, scale, inRoomObj.ootRoomHeader.defaultCullDistance)
     ).DLGroup
     ootProcessMesh(outRoom.mesh, dlGroup, inSceneObj, inRoomObj, transformMatrix, convertTextureData, None)

@@ -7,7 +7,7 @@ def ootObjectListToC(room: OOTRoom, headerIndex: int):
     """Returns the object list of the current header"""
     objListData = CData()
     objListLength = len(room.objectIDList)
-    objListName = f"s16 {room.objectListName(headerIndex)}[{objListLength}]"
+    objListName = f"s16 {room.getObjectListName(headerIndex)}[{objListLength}]"
 
     # .h
     objListData.header = f"extern {objListName};\n"

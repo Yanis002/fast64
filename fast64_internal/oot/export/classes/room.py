@@ -75,17 +75,14 @@ class OOTRoomMesh:
     def getHeaderName(self):
         return f"{self.roomName}_shapeHeader"
 
-    def entriesName(self):
+    def getEntriesName(self):
         entryName = "shapeDListEntry" if self.roomShape == "ROOM_SHAPE_TYPE_NORMAL" else "shapeCullableEntry"
         return f"{self.roomName}_{entryName}"
 
-    def addMeshGroup(self, cullGroup: CullGroup):
+    def newMeshGroup(self, cullGroup: CullGroup):
         meshGroup = OOTRoomMeshGroup(cullGroup, self.model.DLFormat, self.roomName, len(self.meshEntries))
         self.meshEntries.append(meshGroup)
         return meshGroup
-
-    def currentMeshGroup(self):
-        return self.meshEntries[-1]
 
     def removeUnusedEntries(self):
         newList = []
@@ -99,7 +96,7 @@ class OOTRoom:
     def __init__(self, index: int, name: str, model: OOTModel, roomShape: str):
         self.ownerName = toAlnum(name)
         self.index = index
-        self.mesh = OOTRoomMesh(self.roomName(), roomShape, model)
+        self.mesh = OOTRoomMesh(self.getRoomName(), roomShape, model)
 
         # Room behaviour
         self.roomBehaviour = str()
@@ -172,10 +169,8 @@ class OOTRoom:
                         actorList.append(actor)
                 else:
                     raise PluginError(
-                        f"""
-                            Object: '{objName}' uses a cutscene layer index that is outside
-                            the range of the current number of cutscene layers.
-                        """
+                        f"Object: '{objName}' uses a cutscene layer index that is outside "
+                        + "the range of the current number of cutscene layers."
                     )
         else:
             raise PluginError(f"Unhandled scene setup preset: {layerProp.sceneSetupPreset}")
@@ -186,26 +181,23 @@ class OOTRoom:
         newLayer.layerIndex = layerIndex
         return newLayer
 
-    def roomName(self):
+    def getRoomName(self):
         return f"{self.ownerName}_room_{self.index}"
 
-    def getLayerName(self):
-        return f"{self.roomName()}_header{self.layerIndex:02}"
+    def getRoomLayerName(self, headerIndex: int):
+        """Returns the room's name with the current layer index in it"""
+        return f"{self.getRoomName()}_header{headerIndex:02}"
 
-    def roomHeaderName(self, headerIndex: int):
-        """Returns the room's name with the current header index in it"""
-        return f"{self.roomName()}_header{headerIndex:02}"
+    def getObjectListName(self, headerIndex: int):
+        return f"{self.getRoomLayerName(headerIndex)}_objectList"
 
-    def objectListName(self, headerIndex: int):
-        return f"{self.roomHeaderName(headerIndex)}_objectList"
+    def getActorListName(self, headerIndex: int):
+        return f"{self.getRoomLayerName(headerIndex)}_actorList"
 
-    def actorListName(self, headerIndex: int):
-        return f"{self.roomHeaderName(headerIndex)}_actorList"
+    def getAltLayersListName(self):
+        return f"{self.getRoomName()}_alternateLayers"
 
-    def alternateHeadersName(self):
-        return f"{self.roomName()}_alternateHeaders"
-
-    def hasAlternateHeaders(self):
+    def hasAltLayers(self):
         return not (
             self.childNightHeader == None
             and self.adultDayHeader == None

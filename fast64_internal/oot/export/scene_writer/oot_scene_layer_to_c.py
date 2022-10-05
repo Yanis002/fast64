@@ -49,7 +49,7 @@ def ootGetSceneAltHeaderEntries(sceneLayers: list[OOTScene]):
     """Returns the layers headers array names"""
     return "\n".join(
         [
-            f"{indent + sceneLayers[i].sceneName()}_header{i:02},"
+            f"{indent + sceneLayers[i].getSceneName()}_header{i:02},"
             if sceneLayers[i] is not None
             else indent + "NULL,"
             if i < 4
@@ -66,8 +66,8 @@ def ootSceneLayersToC(scene: OOTScene):
     sceneLayers = [scene, scene.childNightHeader, scene.adultDayHeader, scene.adultNightHeader]
     sceneLayers.extend(scene.cutsceneHeaders)
 
-    if scene.hasAlternateHeaders():
-        altLayerName = f"SCmdBase* {scene.alternateHeadersName()}[]"
+    if scene.hasAltLayers():
+        altLayerName = f"SCmdBase* {scene.getAltLayersListName()}[]"
         altLayerArray = altLayerName + " = {\n" + ootGetSceneAltHeaderEntries(sceneLayers) + "\n};\n\n"
 
         # .h
@@ -77,7 +77,7 @@ def ootSceneLayersToC(scene: OOTScene):
     for i, layer in enumerate(sceneLayers):
         if layer is not None:
             layerData.append(ootSceneCommandsToC(layer, i))
-            if i == 0 and scene.hasAlternateHeaders():
+            if i == 0 and scene.hasAltLayers():
                 layerData.source += altLayerArray
             layerData.append(ootGetSceneLayerData(layer, i))
 

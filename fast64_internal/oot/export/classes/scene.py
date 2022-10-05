@@ -27,7 +27,7 @@ class OOTLight:
         self.transitionSpeed: int = lightProp.transitionSpeed
         self.fogFar: int = lightProp.fogFar
 
-    def getBlendFogShort(self):
+    def getBlendFogNear(self):
         return f"(({self.transitionSpeed} << 10) | {self.fogNear})"
 
 
@@ -130,10 +130,8 @@ class OOTScene:
                     actorList.append(actor)
                 else:
                     raise PluginError(
-                        f"""
-                            Object: '{objName}' uses a cutscene layer index that is outside
-                            the range of the current number of cutscene layers.
-                        """
+                        f"Object: '{objName}' uses a cutscene layer index that is outside "
+                        + "the range of the current number of cutscene layers."
                     )
         else:
             raise PluginError(f"Unhandled scene setup preset: {layerProp.sceneSetupPreset}")
@@ -171,10 +169,8 @@ class OOTScene:
                     )
                 else:
                     raise PluginError(
-                        f"""
-                            Object: '{objName}' uses a cutscene layer index that is outside
-                            the range of the current number of cutscene layers.
-                        """
+                        f"Object: '{objName}' uses a cutscene layer index that is outside "
+                        + "the range of the current number of cutscene layers."
                     )
 
     def newAltLayer(self, name: str):
@@ -188,45 +184,42 @@ class OOTScene:
         newLayer.cameraList = self.cameraList
         return newLayer
 
-    def sceneName(self):
+    def getSceneName(self):
         """Returns the scene's name"""
         return f"{self.name}_scene"
 
-    def sceneHeaderName(self, headerIndex: int):
+    def getSceneLayerName(self, headerIndex: int):
         """Returns the scene's name with the current header index in it"""
-        return f"{self.sceneName()}_header{headerIndex:02}"
+        return f"{self.getSceneName()}_header{headerIndex:02}"
 
-    def roomListName(self):
-        return f"{self.sceneName()}_roomList"
+    def getRoomListName(self):
+        return f"{self.getSceneName()}_roomList"
 
-    def entranceListName(self, headerIndex: int):
-        return f"{self.sceneHeaderName(headerIndex)}_entranceList"
+    def getSpawnListName(self, headerIndex: int):
+        return f"{self.getSceneLayerName(headerIndex)}_spawnList"
 
-    def startPositionsName(self, headerIndex: int):
-        return f"{self.sceneHeaderName(headerIndex)}_startPositionList"
+    def getPlayerEntryListName(self, headerIndex: int):
+        return f"{self.getSceneLayerName(headerIndex)}_playerEntryList"
 
-    def exitListName(self, headerIndex: int):
-        return f"{self.sceneHeaderName(headerIndex)}_exitList"
+    def getExitListName(self, headerIndex: int):
+        return f"{self.getSceneLayerName(headerIndex)}_exitList"
 
-    def lightListName(self, headerIndex: int):
-        return f"{self.sceneHeaderName(headerIndex)}_lightSettings"
+    def getLightSettingsListName(self, headerIndex: int):
+        return f"{self.getSceneLayerName(headerIndex)}_lightSettings"
 
-    def transitionActorListName(self, headerIndex: int):
-        return f"{self.sceneHeaderName(headerIndex)}_transitionActors"
+    def getTransActorListName(self, headerIndex: int):
+        return f"{self.getSceneLayerName(headerIndex)}_transitionActors"
 
-    def pathListName(self):
-        return f"{self.sceneName()}_pathway"
+    def getPathListName(self):
+        return f"{self.getSceneName()}_pathway"
 
-    def cameraListName(self):
-        return f"{self.sceneName()}_cameraList"
+    def getCutsceneDataName(self, headerIndex: int):
+        return f"{self.getSceneLayerName(headerIndex)}_cutscene"
 
-    def cutsceneDataName(self, headerIndex: int):
-        return f"{self.sceneHeaderName(headerIndex)}_cutscene"
+    def getAltLayersListName(self):
+        return f"{self.getSceneName()}_alternateLayers"
 
-    def alternateHeadersName(self):
-        return f"{self.sceneName()}_alternateHeaders"
-
-    def hasAlternateHeaders(self):
+    def hasAltLayers(self):
         return not (
             self.childNightHeader == None
             and self.adultDayHeader == None
@@ -263,15 +256,17 @@ class OOTScene:
                     f"Error: Path list does not have a consecutive list of indices. Missing index: {index}"
                 )
 
-    def addRoom(self, roomIndex: int, roomName: str, roomShape: str):
+    def newRoom(self, roomIndex: int, roomName: str, roomShape: str):
         """Adds a new room"""
         roomModel = self.model.addSubModel(
             OOTModel(self.model.f3d.F3D_VER, self.model.f3d._HW_VERSION_1, f"{roomName}_dl", self.model.DLFormat, None)
         )
-        room = OOTRoom(roomIndex, roomName, roomModel, roomShape)
 
-        if roomIndex in self.rooms:
+        newRoom = OOTRoom(roomIndex, roomName, roomModel, roomShape)
+
+        if not roomIndex in self.rooms:
+            self.rooms[roomIndex] = newRoom
+        else:
             raise PluginError(f"Error: Repeated room index for room '{roomName}': {roomIndex}")
 
-        self.rooms[roomIndex] = room
-        return room
+        return newRoom

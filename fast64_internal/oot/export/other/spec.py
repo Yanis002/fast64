@@ -2,7 +2,7 @@ import os, re, bpy
 from ....utility import readFile, writeFile
 from ...oot_utility import getSceneDirFromLevelName, indent, ExportInfo
 from ..classes.scene import OOTScene
-from ..classes import OOTLevelC
+from ..classes import OOTSceneC
 
 
 def getSegmentDefinitionEntryBySceneName(segmentDefinition: list[str], sceneName: str):
@@ -40,7 +40,7 @@ def writeSegmentDefinition(segmentDefinition: list[str], fileData: str, exportPa
         writeFile(os.path.join(exportPath, "spec"), newFileData)
 
 
-def modifySegmentDefinition(scene: OOTScene, exportInfo: ExportInfo, levelC: OOTLevelC):
+def modifySegmentDefinition(scene: OOTScene, exportInfo: ExportInfo, sceneC: OOTSceneC):
     exportPath = exportInfo.exportPath
 
     # read spec file data
@@ -68,7 +68,7 @@ def modifySegmentDefinition(scene: OOTScene, exportInfo: ExportInfo, levelC: OOT
             segmentDefinitions.insert(
                 firstIndex,
                 "\n"
-                + (indent + f'name "{scene.sceneName()}"\n')
+                + (indent + f'name "{scene.getSceneName()}"\n')
                 + compressFlag
                 + (indent + "romalign 0x1000\n")
                 + (indent + f'include "{includeDir}_scene.o"\n')
@@ -91,22 +91,22 @@ def modifySegmentDefinition(scene: OOTScene, exportInfo: ExportInfo, levelC: OOT
         else:
             sceneSegInclude = (
                 "\n"
-                + (indent + f'name "{scene.sceneName()}"\n')
+                + (indent + f'name "{scene.getSceneName()}"\n')
                 + compressFlag
                 + (indent + "romalign 0x1000\n")
                 + (indent + f'include "{includeDir}_scene_main.o"\n')
                 + (indent + f'include "{includeDir}_scene_col.o"\n')
             )
 
-            if levelC is not None:
-                if levelC.sceneTexturesIsUsed():
+            if sceneC is not None:
+                if sceneC.sceneTexturesIsUsed():
                     sceneSegInclude += indent + f'include "{includeDir}_scene_tex.o"\n'
 
-                if levelC.sceneCutscenesIsUsed():
+                if sceneC.sceneCutscenesIsUsed():
                     sceneSegInclude += "".join(
                         [
                             indent + f'include "{includeDir}_scene_cs_{i}.o"\n'
-                            for i in range(len(levelC.sceneCutscenesC))
+                            for i in range(len(sceneC.sceneCutscenesC))
                         ]
                     )
 

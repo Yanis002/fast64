@@ -24,7 +24,7 @@ def ootPathListToC(scene: OOTScene):
     """Converts a path to C"""
     pathListData = CData()
     pointData = CData()
-    pathListName = f"Path {scene.pathListName()}[{len(scene.pathList)}]"
+    pathListName = f"Path {scene.getPathListName()}[{len(scene.pathList)}]"
 
     # .h
     pathListData.header = f"extern {pathListName};\n"

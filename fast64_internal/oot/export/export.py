@@ -17,26 +17,26 @@ from .other.spec import modifySegmentDefinition
 from .other.scene_folder import modifySceneFiles
 from .scene import processScene
 from .classes.scene import OOTScene
-from .classes import OOTLevelC
+from .classes import OOTSceneC
 from .hackeroot.scene_bootup import OOTBootupSceneOptions, setBootupScene
 
 
-def ootLevelToC(outScene: OOTScene, textureExportSettings: TextureExportSettings):
-    levelC = OOTLevelC()
+def generateC(outScene: OOTScene, textureExportSettings: TextureExportSettings):
+    sceneC = OOTSceneC()
     textureData = outScene.model.to_c(textureExportSettings, OOTGfxFormatter(ScrollMethod.Vertex)).all()
 
-    levelC.sceneMainC = ootSceneLayersToC(outScene)
-    levelC.sceneTexturesC = textureData
-    levelC.sceneCollisionC = ootCollisionToC(outScene.collision)
-    levelC.sceneCutscenesC = ootSceneCutscenesToC(outScene)
+    sceneC.sceneMainC = ootSceneLayersToC(outScene)
+    sceneC.sceneTexturesC = textureData
+    sceneC.sceneCollisionC = ootCollisionToC(outScene.collision)
+    sceneC.sceneCutscenesC = ootSceneCutscenesToC(outScene)
 
     for room in outScene.rooms.values():
-        name = room.roomName()
-        levelC.roomMainC[name] = ootRoomLayersToC(room)
-        levelC.roomMeshInfoC[name] = ootGetRoomShapeHeaderData(room.mesh)
-        levelC.roomMeshC[name] = ootRoomModelToC(room, textureExportSettings)
+        name = room.getRoomName()
+        sceneC.roomMainC[name] = ootRoomLayersToC(room)
+        sceneC.roomMeshInfoC[name] = ootGetRoomShapeHeaderData(room.mesh)
+        sceneC.roomMeshC[name] = ootRoomModelToC(room, textureExportSettings)
 
-    return levelC
+    return sceneC
 
 
 def ootSceneIncludes(outScene: OOTScene):
@@ -45,7 +45,7 @@ def ootSceneIncludes(outScene: OOTScene):
         "ultra64.h",
         "z64.h",
         "macros.h",
-        f"{outScene.sceneName()}.h",
+        f"{outScene.getSceneName()}.h",
         "segment_symbols.h",
         "command_macros_base.h",
         "variables.h",
@@ -55,44 +55,44 @@ def ootSceneIncludes(outScene: OOTScene):
     return sceneIncludeData
 
 
-def ootCombineSceneFiles(levelC: OOTLevelC):
+def ootCombineSceneFiles(sceneC: OOTSceneC):
     # only used for single file export
-    sceneC = CData()
-    sceneC.append(levelC.sceneMainC)
+    newSceneC = CData()
+    newSceneC.append(sceneC.sceneMainC)
 
-    if levelC.sceneTexturesIsUsed():
-        sceneC.append(levelC.sceneTexturesC)
+    if sceneC.sceneTexturesIsUsed():
+        newSceneC.append(sceneC.sceneTexturesC)
 
-    sceneC.append(levelC.sceneCollisionC)
+    newSceneC.append(sceneC.sceneCollisionC)
 
-    if levelC.sceneCutscenesIsUsed():
-        for i in range(len(levelC.sceneCutscenesC)):
-            sceneC.append(levelC.sceneCutscenesC[i])
+    if sceneC.sceneCutscenesIsUsed():
+        for i in range(len(sceneC.sceneCutscenesC)):
+            newSceneC.append(sceneC.sceneCutscenesC[i])
 
-    return sceneC
+    return newSceneC
 
 
-def ootCreateSceneHeader(levelC: OOTLevelC):
+def ootCreateSceneHeader(sceneC: OOTSceneC):
     # writes the scene.h file
     sceneHeader = CData()
-    sceneHeader.append(levelC.sceneMainC)
+    sceneHeader.append(sceneC.sceneMainC)
 
-    if levelC.sceneTexturesIsUsed():
-        sceneHeader.append(levelC.sceneTexturesC)
+    if sceneC.sceneTexturesIsUsed():
+        sceneHeader.append(sceneC.sceneTexturesC)
 
-    sceneHeader.append(levelC.sceneCollisionC)
+    sceneHeader.append(sceneC.sceneCollisionC)
 
-    if levelC.sceneCutscenesIsUsed():
-        for sceneCs in levelC.sceneCutscenesC:
+    if sceneC.sceneCutscenesIsUsed():
+        for sceneCs in sceneC.sceneCutscenesC:
             sceneHeader.append(sceneCs)
 
-    for roomMainC in levelC.roomMainC.values():
+    for roomMainC in sceneC.roomMainC.values():
         sceneHeader.append(roomMainC)
 
-    for roomMeshInfoC in levelC.roomMeshInfoC.values():
+    for roomMeshInfoC in sceneC.roomMeshInfoC.values():
         sceneHeader.append(roomMeshInfoC)
 
-    for roomMeshC in levelC.roomMeshC.values():
+    for roomMeshC in sceneC.roomMeshC.values():
         sceneHeader.append(roomMeshC)
 
     return sceneHeader
@@ -136,73 +136,73 @@ def exportScene(
             raise PluginError(f"Scene folder '{sceneName}' cannot be found in the ootSceneDirs list.")
 
     levelPath = ootGetPath(exportPath, isCustomExport, exportSubdir, sceneName, True, True)
-    levelC = ootLevelToC(outScene, TextureExportSettings(False, savePNG, exportSubdir + sceneName, levelPath))
+    sceneC = generateC(outScene, TextureExportSettings(False, savePNG, exportSubdir + sceneName, levelPath))
 
     if bpy.context.scene.ootSceneSingleFile:
         writeCDataSourceOnly(
-            ootPreprendSceneIncludes(outScene, ootCombineSceneFiles(levelC)),
-            path.join(levelPath, outScene.sceneName() + ".c"),
+            ootPreprendSceneIncludes(outScene, ootCombineSceneFiles(sceneC)),
+            path.join(levelPath, outScene.getSceneName() + ".c"),
         )
 
-        for room in outScene.rooms:
+        for room in outScene.rooms.values():
             roomC = CData()
-            roomC.append(levelC.roomMainC[room.roomName()])
-            roomC.append(levelC.roomMeshInfoC[room.roomName()])
-            roomC.append(levelC.roomMeshC[room.roomName()])
+            roomC.append(sceneC.roomMainC[room.getRoomName()])
+            roomC.append(sceneC.roomMeshInfoC[room.getRoomName()])
+            roomC.append(sceneC.roomMeshC[room.getRoomName()])
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, roomC), path.join(levelPath, room.roomName() + ".c")
+                ootPreprendSceneIncludes(outScene, roomC), path.join(levelPath, room.getRoomName() + ".c")
             )
     else:
         # Export the scene segment .c files
         writeCDataSourceOnly(
-            ootPreprendSceneIncludes(outScene, levelC.sceneMainC),
-            path.join(levelPath, outScene.sceneName() + "_main.c"),
+            ootPreprendSceneIncludes(outScene, sceneC.sceneMainC),
+            path.join(levelPath, outScene.getSceneName() + "_main.c"),
         )
 
-        if levelC.sceneTexturesIsUsed():
+        if sceneC.sceneTexturesIsUsed():
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, levelC.sceneTexturesC),
-                path.join(levelPath, outScene.sceneName() + "_tex.c"),
+                ootPreprendSceneIncludes(outScene, sceneC.sceneTexturesC),
+                path.join(levelPath, outScene.getSceneName() + "_tex.c"),
             )
 
         writeCDataSourceOnly(
-            ootPreprendSceneIncludes(outScene, levelC.sceneCollisionC),
-            path.join(levelPath, outScene.sceneName() + "_col.c"),
+            ootPreprendSceneIncludes(outScene, sceneC.sceneCollisionC),
+            path.join(levelPath, outScene.getSceneName() + "_col.c"),
         )
 
-        if levelC.sceneCutscenesIsUsed():
-            for i, sceneCs in enumerate(levelC.sceneCutscenesC):
-                fileData = ootCutsceneIncludes(f"{outScene.sceneName()}.h")
+        if sceneC.sceneCutscenesIsUsed():
+            for i, sceneCs in enumerate(sceneC.sceneCutscenesC):
+                fileData = ootCutsceneIncludes(f"{outScene.getSceneName()}.h")
                 fileData.append(sceneCs)
                 writeCDataSourceOnly(
                     fileData,
-                    path.join(levelPath, f"{outScene.sceneName()}_cs_{i}.c"),
+                    path.join(levelPath, f"{outScene.getSceneName()}_cs_{i}.c"),
                 )
 
         # Export the room segment .c files
-        for roomName, roomMainC in levelC.roomMainC.items():
+        for roomName, roomMainC in sceneC.roomMainC.items():
             writeCDataSourceOnly(
                 ootPreprendSceneIncludes(outScene, roomMainC), path.join(levelPath, f"{roomName}_main.c")
             )
 
-        for roomName, roomMeshInfoC in levelC.roomMeshInfoC.items():
+        for roomName, roomMeshInfoC in sceneC.roomMeshInfoC.items():
             writeCDataSourceOnly(
                 ootPreprendSceneIncludes(outScene, roomMeshInfoC), path.join(levelPath, f"{roomName}_model_info.c")
             )
 
-        for roomName, roomMeshC in levelC.roomMeshC.items():
+        for roomName, roomMeshC in sceneC.roomMeshC.items():
             writeCDataSourceOnly(
                 ootPreprendSceneIncludes(outScene, roomMeshC), path.join(levelPath, f"{roomName}_model.c")
             )
 
     # Export the scene .h file
-    writeCDataHeaderOnly(ootCreateSceneHeader(levelC), path.join(levelPath, outScene.sceneName() + ".h"))
+    writeCDataHeaderOnly(ootCreateSceneHeader(sceneC), path.join(levelPath, outScene.getSceneName() + ".h"))
 
     if not isCustomExport:
         # update scene table, spec and remove extra rooms
         # if exporting to decomp
         modifySceneTable(outScene, exportInfo)
-        modifySegmentDefinition(outScene, exportInfo, levelC)
+        modifySegmentDefinition(outScene, exportInfo, sceneC)
         modifySceneFiles(outScene, exportInfo)
 
     # HackerOoT

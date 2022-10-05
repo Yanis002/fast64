@@ -414,7 +414,7 @@ def ootCameraDataToC(camData):
     exportPosData = False
     if len(camData.camPosDict) > 0:
 
-        camDataName = "CamData " + camData.camDataName() + "[" + str(len(camData.camPosDict)) + "]"
+        camDataName = "BgCamInfo " + camData.camDataName() + "[" + str(len(camData.camPosDict)) + "]"
 
         camC.source = camDataName + " = {\n"
         camC.header = "extern " + camDataName + ";\n"

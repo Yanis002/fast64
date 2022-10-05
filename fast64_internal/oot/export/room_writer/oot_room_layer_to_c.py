@@ -23,7 +23,7 @@ def ootGetRoomAltHeaderEntries(roomLayers: list[OOTRoom]):
     """Returns the layers headers array names"""
     return "\n".join(
         [
-            f"{indent + roomLayers[i].roomName()}_header{i:02},"
+            f"{indent + roomLayers[i].getRoomName()}_header{i:02},"
             if roomLayers[i] is not None
             else indent + "NULL,"
             if i < 4
@@ -40,8 +40,8 @@ def ootRoomLayersToC(room: OOTRoom):
     roomLayers = [room, room.childNightHeader, room.adultDayHeader, room.adultNightHeader]
     roomLayers.extend(room.cutsceneHeaders)
 
-    if room.hasAlternateHeaders():
-        altLayerName = f"SCmdBase* {room.alternateHeadersName()}[]"
+    if room.hasAltLayers():
+        altLayerName = f"SCmdBase* {room.getAltLayersListName()}[]"
         altLayerArray = altLayerName + " = {\n" + ootGetRoomAltHeaderEntries(roomLayers) + "\n};\n\n"
 
         # .h
@@ -51,7 +51,7 @@ def ootRoomLayersToC(room: OOTRoom):
     for i, layer in enumerate(roomLayers):
         if layer is not None:
             layerData.append(ootRoomCommandsToC(layer, i))
-            if i == 0 and room.hasAlternateHeaders():
+            if i == 0 and room.hasAltLayers():
                 layerData.source += altLayerArray
             layerData.append(ootGetRoomLayerData(layer, i))
 

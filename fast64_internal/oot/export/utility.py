@@ -93,7 +93,7 @@ def ootProcessMesh(
             )
 
         checkUniformScale(scale, obj)
-        DLGroup = roomMesh.addMeshGroup(
+        DLGroup = roomMesh.newMeshGroup(
             CullGroup(ootConvertTranslation(translation), scale, obj.empty_display_size)
         ).DLGroup
 

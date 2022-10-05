@@ -13,7 +13,7 @@ def ootSceneCutscenesToC(scene: OOTScene):
         if layer is not None and layer.writeCutscene:
             data = CData()
             if layer.csWriteType == "Embedded":
-                data = ootCutsceneDataToC(layer, layer.cutsceneDataName(i))
+                data = ootCutsceneDataToC(layer, layer.getCutsceneDataName(i))
             elif layer.csWriteType == "Object":
                 data = ootCutsceneDataToC(layer.csWriteObject, layer.csWriteObject.name)
             csData.append(data)

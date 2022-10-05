@@ -23,11 +23,11 @@ def ootActorListToC(scene: OOTScene, room: OOTRoom, headerIndex: int):
 
     if scene is not None:
         # start position actor list
-        actorListName = f"ActorEntry {scene.startPositionsName(headerIndex)}[]"
+        actorListName = f"ActorEntry {scene.getPlayerEntryListName(headerIndex)}[]"
         actorList = scene.startPositions.values()
     elif room is not None:
         # normal actor list
-        actorListName = f"ActorEntry {room.actorListName(headerIndex)}[{len(room.actorList)}]"
+        actorListName = f"ActorEntry {room.getActorListName(headerIndex)}[{len(room.actorList)}]"
         actorList = room.actorList
     else:
         raise PluginError("ERROR: Can't convert the actor list to C!")
