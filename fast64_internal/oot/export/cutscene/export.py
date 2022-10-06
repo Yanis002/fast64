@@ -17,7 +17,7 @@ from ..classes.cutscene import (
 )
 
 
-def readCutsceneData(csParentOut: OOTScene | OOTCutscene, csParentIn: OOTSceneHeaderProperty | OOTCutsceneProperty):
+def convertCutsceneData(csParentOut: OOTScene | OOTCutscene, csParentIn: OOTSceneHeaderProperty | OOTCutsceneProperty):
     for listIn in csParentIn.csLists:
         listOut = OOTCSList()
         listOut.listType = listIn.listType
@@ -95,14 +95,14 @@ def readCutsceneData(csParentOut: OOTScene | OOTCutscene, csParentIn: OOTSceneHe
         csParentOut.csLists.append(listOut)
 
 
-def convertCutsceneObject(obj: Object):
-    cs = OOTCutscene()
-    cs.name = getCutsceneName(obj)
-    csprop = obj.ootCutsceneProperty
-    cs.csEndFrame = getCustomProperty(csprop, "csEndFrame")
-    cs.csWriteTerminator = getCustomProperty(csprop, "csWriteTerminator")
-    cs.csTermIdx = getCustomProperty(csprop, "csTermIdx")
-    cs.csTermStart = getCustomProperty(csprop, "csTermStart")
-    cs.csTermEnd = getCustomProperty(csprop, "csTermEnd")
-    readCutsceneData(cs, csprop)
-    return cs
+def processCutscene(inCSObj: Object):
+    outCs = OOTCutscene()
+    outCs.name = getCutsceneName(inCSObj)
+    csProp = inCSObj.ootCutsceneProperty
+    outCs.csEndFrame = getCustomProperty(csProp, "csEndFrame")
+    outCs.csWriteTerminator = getCustomProperty(csProp, "csWriteTerminator")
+    outCs.csTermIdx = getCustomProperty(csProp, "csTermIdx")
+    outCs.csTermStart = getCustomProperty(csProp, "csTermStart")
+    outCs.csTermEnd = getCustomProperty(csProp, "csTermEnd")
+    convertCutsceneData(outCs, csProp)
+    return outCs

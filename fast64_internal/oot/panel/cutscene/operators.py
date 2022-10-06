@@ -4,7 +4,7 @@ from bpy.ops import object
 from bpy.types import Operator, Context
 from ....utility import PluginError, writeCData, raisePluginError
 from ...oot_cutscene import ootCutsceneIncludes, ootCutsceneDataToC
-from ...export.cutscene import convertCutsceneObject
+from ...export.cutscene import processCutscene
 
 
 def checkGetFilePaths(context: Context):
@@ -39,7 +39,7 @@ class OOT_ExportCutscene(Operator):
 
             cpath, hpath, headerfilename = checkGetFilePaths(context)
             csdata = ootCutsceneIncludes(headerfilename)
-            converted = convertCutsceneObject(activeObj)
+            converted = processCutscene(activeObj)
             csdata.append(ootCutsceneDataToC(converted, converted.name))
             writeCData(csdata, hpath, cpath)
 
@@ -67,7 +67,7 @@ class OOT_ExportAllCutscenes(Operator):
                     continue
                 if obj.parent is not None:
                     raise PluginError("Cutscene object must not be parented to anything")
-                converted = convertCutsceneObject(obj)
+                converted = processCutscene(obj)
                 csdata.append(ootCutsceneDataToC(converted, converted.name))
                 count += 1
             if count == 0:

@@ -1,1 +1,1 @@
-from .export import readCutsceneData, convertCutsceneObject
+from .export import convertCutsceneData, processCutscene

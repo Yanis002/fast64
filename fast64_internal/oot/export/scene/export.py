@@ -10,7 +10,7 @@ from ...oot_collision_classes import OOTCameraData, OOTCameraPosData, decomp_com
 from ...oot_model_classes import OOTModel
 from ...oot_spline import ootConvertPath
 from ..utility import getConvertedTransformWithOrientation
-from ..cutscene import readCutsceneData, convertCutsceneObject
+from ..cutscene import convertCutsceneData, processCutscene
 from ..classes.scene import OOTScene
 from ..room import processRoom
 from ..classes.scene import OOTScene, OOTExit, OOTLight
@@ -130,7 +130,7 @@ def convertSceneLayer(
             outScene.csTermIdx = getCustomProperty(inSceneLayerProp, "csTermIdx")
             outScene.csTermStart = getCustomProperty(inSceneLayerProp, "csTermStart")
             outScene.csTermEnd = getCustomProperty(inSceneLayerProp, "csTermEnd")
-            readCutsceneData(outScene, inSceneLayerProp)
+            convertCutsceneData(outScene, inSceneLayerProp)
 
         elif outScene.csWriteType == "Custom":
             outScene.csWriteCustom = getCustomProperty(inSceneLayerProp, "csWriteCustom")
@@ -143,7 +143,7 @@ def convertSceneLayer(
             elif inSceneLayerProp.csWriteObject.parent is not None:
                 raise PluginError("Cutscene empty object should not be parented to anything")
             else:
-                outScene.csWriteObject = convertCutsceneObject(inSceneLayerProp.csWriteObject)
+                outScene.csWriteObject = processCutscene(inSceneLayerProp.csWriteObject)
 
 
 def processScene(
@@ -179,7 +179,7 @@ def processScene(
         altSceneLayers: OOTAlternateSceneHeaderProperty = sceneObj.ootAlternateSceneHeaders
         if altSceneLayers is not None:
             for ec in inSceneLayerProp.extraCutscenes:
-                outScene.extraCutscenes.append(convertCutsceneObject(ec.csObject))
+                outScene.extraCutscenes.append(processCutscene(ec.csObject))
 
             outScene.collision.cameraData = OOTCameraData(outScene.name)
 
