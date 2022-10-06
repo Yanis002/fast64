@@ -3,23 +3,20 @@ from ....oot_utility import indent
 from ...classes.scene import OOTScene, OOTTransitionActor
 
 
-def ootGetTransActorData(transActor: OOTTransitionActor):
+def getTransActorEntry(transActor: OOTTransitionActor):
     """Returns the transition actors array's data"""
     sides = [(transActor.frontRoom, transActor.frontCam), (transActor.backRoom, transActor.backCam)]
     return (
-        "{ { "
-        + (", ".join([f"{room}, {cam}" for room, cam in sides]) + " }, ")
+        ("{ { " + (", ".join([f"{room}, {cam}" for room, cam in sides]) + " }, "))
         + transActor.actorID
-        + ", { "
-        + ", ".join([f"{round(pos)}" for pos in transActor.position])
-        + " }, "
-        + f"{round(transActor.rotationY)}, "
+        + (", { "  + ", ".join([f"{round(pos)}" for pos in transActor.position]) + " }, ")
+        + f"0x{round(transActor.rotationY):04X}, "
         + f"{transActor.actorParam}"
         + " },\n"
     )
 
 
-def ootTransitionActorListToC(scene: OOTScene, headerIndex: int):
+def convertTransActorList(scene: OOTScene, headerIndex: int):
     """Returns the transition actors array"""
     transActorListData = CData()
     transActorName = (
@@ -32,7 +29,7 @@ def ootTransitionActorListToC(scene: OOTScene, headerIndex: int):
     # .c
     transActorListData.source = (
         (transActorName + " = {\n")
-        + "".join([indent + ootGetTransActorData(transActor) for transActor in scene.transitionActorList])
+        + "".join([indent + getTransActorEntry(transActor) for transActor in scene.transitionActorList])
         + "};\n\n"
     )
 

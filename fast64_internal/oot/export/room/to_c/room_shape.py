@@ -5,7 +5,7 @@ from ....oot_model_classes import OOTGfxFormatter
 from ...classes.room import OOTRoom, OOTRoomMeshGroup, OOTRoomMesh
 
 
-def ootGetRoomShapeEntry(meshEntry: OOTRoomMeshGroup, roomShape: str):
+def getRoomShapeEntry(meshEntry: OOTRoomMeshGroup, roomShape: str):
     """Returns a single room shape entry"""
     opaqueName = meshEntry.DLGroup.opaque.name if meshEntry.DLGroup.opaque is not None else "NULL"
     transparentName = meshEntry.DLGroup.transparent.name if meshEntry.DLGroup.transparent is not None else "NULL"
@@ -13,19 +13,16 @@ def ootGetRoomShapeEntry(meshEntry: OOTRoomMeshGroup, roomShape: str):
 
     if roomShape == "ROOM_SHAPE_TYPE_CULLABLE":
         roomShapeEntry += (
-            "{ "
-            + ", ".join([f"{pos}" for pos in meshEntry.cullGroup.position])
-            + "}, "
+            ("{ " + ", ".join([f"{pos}" for pos in meshEntry.cullGroup.position]) + "}, ")
             + f"{meshEntry.cullGroup.cullDepth}, "
         )
     elif roomShape == "ROOM_SHAPE_TYPE_IMAGE":
-        raise PluginError("Pre-Rendered rooms not supported.")
+        raise PluginError("ERROR: Pre-Rendered rooms not supported.")
 
-    roomShapeEntry += f"{opaqueName}, {transparentName}" + " }\n"
-    return roomShapeEntry
+    return roomShapeEntry + f"{opaqueName}, {transparentName}" + " }\n"
 
 
-def ootGetRoomShapeEntryArray(mesh: OOTRoomMesh):
+def getRoomShapeEntries(mesh: OOTRoomMesh):
     """Returns the room shape entries array"""
     roomShapeEntryData = CData()
     roomShapeEntryStructs = {
@@ -39,16 +36,15 @@ def ootGetRoomShapeEntryArray(mesh: OOTRoomMesh):
 
     # .c
     roomShapeEntryData.source = (
-        roomShapeEntryName
-        + " = {\n"
-        + " },\n".join([indent + ootGetRoomShapeEntry(entry, mesh.roomShape) for entry in mesh.meshEntries])
+        (roomShapeEntryName + " = {\n")
+        + " },\n".join([indent + getRoomShapeEntry(entry, mesh.roomShape) for entry in mesh.meshEntries])
         + "};\n\n"
     )
 
     return roomShapeEntryData
 
 
-def ootGetRoomShapeHeaderData(mesh: OOTRoomMesh):
+def convertRoomShapeData(mesh: OOTRoomMesh):
     """Returns the room shape header and data"""
     roomShapeData = CData()
     roomShapeStructs = {
@@ -74,17 +70,17 @@ def ootGetRoomShapeHeaderData(mesh: OOTRoomMesh):
         )
     )
 
-    roomShapeData.append(ootGetRoomShapeEntryArray(mesh))
+    roomShapeData.append(getRoomShapeEntries(mesh))
     return roomShapeData
 
 
-def ootRoomModelToC(room: OOTRoom, textureExportSettings: TextureExportSettings):
+def convertRoomModel(outRoom: OOTRoom, textureExportSettings: TextureExportSettings):
     """Returns the room model data"""
     modelData = CData()
-    mesh = room.mesh
+    mesh = outRoom.mesh
 
     if len(mesh.meshEntries) == 0:
-        raise PluginError(f"Error: Room '{room.index}' has no mesh children.")
+        raise PluginError(f"Error: Room '{outRoom.index}' has no mesh children.")
 
     # .c
     for entry in mesh.meshEntries:

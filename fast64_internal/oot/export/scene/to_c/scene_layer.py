@@ -1,50 +1,51 @@
 from .....utility import CData
 from ....oot_utility import indent
 from ...classes.scene import OOTScene
-from ...room.to_c import ootActorListToC, ootRoomListHeaderToC
-from .commands import ootSceneCommandsToC
-from .pathways import ootPathListToC
-from .light_settings import ootLightSettingsToC
-from .transition_actor import ootTransitionActorListToC
-from .spawn_exit import ootEntranceListToC, ootExitListToC
+from ...room.to_c import convertActorList
+from .room_list import convertRoomList
+from .commands import convertSceneCommands
+from .pathways import convertPathList
+from .light_settings import convertLightSettings
+from .transition_actor import convertTransActorList
+from .spawn_exit import convertSpawnList, convertExitList
 
 
-def ootGetSceneLayerData(scene: OOTScene, headerIndex: int):
+def getSceneLayerData(outScene: OOTScene, layerIndex: int):
     """Returns a scene layer's data"""
     layerData = CData()
 
     # Write the start position list
-    if len(scene.startPositions) > 0:
-        layerData.append(ootActorListToC(scene, None, headerIndex))
+    if len(outScene.startPositions) > 0:
+        layerData.append(convertActorList(outScene, None, layerIndex))
 
     # Write the transition actor list data
-    if len(scene.transitionActorList) > 0:
-        layerData.append(ootTransitionActorListToC(scene, headerIndex))
+    if len(outScene.transitionActorList) > 0:
+        layerData.append(convertTransActorList(outScene, layerIndex))
 
     # Write the room segment list
-    if headerIndex == 0:
-        layerData.append(ootRoomListHeaderToC(scene))
+    if layerIndex == 0:
+        layerData.append(convertRoomList(outScene))
 
     # Write the path list
-    if len(scene.pathList) > 0:
-        layerData.append(ootPathListToC(scene))
+    if len(outScene.pathList) > 0:
+        layerData.append(convertPathList(outScene))
 
     # Write the entrance list
-    if len(scene.entranceList) > 0:
-        layerData.append(ootEntranceListToC(scene, headerIndex))
+    if len(outScene.entranceList) > 0:
+        layerData.append(convertSpawnList(outScene, layerIndex))
 
     # Write the exit list
-    if len(scene.exitList) > 0:
-        layerData.append(ootExitListToC(scene, headerIndex))
+    if len(outScene.exitList) > 0:
+        layerData.append(convertExitList(outScene, layerIndex))
 
     # Write the light data
-    if len(scene.lights) > 0:
-        layerData.append(ootLightSettingsToC(scene, headerIndex))
+    if len(outScene.lights) > 0:
+        layerData.append(convertLightSettings(outScene, layerIndex))
 
     return layerData
 
 
-def ootGetSceneAltHeaderEntries(sceneLayers: list[OOTScene]):
+def getSceneLayerPtrEntries(sceneLayers: list[OOTScene]):
     """Returns the layers headers array names"""
     return "\n".join(
         [
@@ -58,16 +59,16 @@ def ootGetSceneAltHeaderEntries(sceneLayers: list[OOTScene]):
     )
 
 
-def ootSceneLayersToC(scene: OOTScene):
+def convertSceneLayers(outScene: OOTScene):
     """Returns the scene file data"""
     layerInfo = CData()  # array of pointers to invidual layers
     layerData = CData()  # the data of each layer
-    sceneLayers = [scene, scene.childNightHeader, scene.adultDayHeader, scene.adultNightHeader]
-    sceneLayers.extend(scene.cutsceneHeaders)
+    sceneLayers = [outScene, outScene.childNightHeader, outScene.adultDayHeader, outScene.adultNightHeader]
+    sceneLayers.extend(outScene.cutsceneHeaders)
 
-    if scene.hasAltLayers():
-        altLayerName = f"SCmdBase* {scene.getAltLayersListName()}[]"
-        altLayerArray = altLayerName + " = {\n" + ootGetSceneAltHeaderEntries(sceneLayers) + "\n};\n\n"
+    if outScene.hasAltLayers():
+        altLayerName = f"SCmdBase* {outScene.getAltLayersListName()}[]"
+        altLayerArray = altLayerName + " = {\n" + getSceneLayerPtrEntries(sceneLayers) + "\n};\n\n"
 
         # .h
         layerInfo.header = f"extern {altLayerName};\n"
@@ -75,10 +76,10 @@ def ootSceneLayersToC(scene: OOTScene):
     # .c
     for i, layer in enumerate(sceneLayers):
         if layer is not None:
-            layerData.append(ootSceneCommandsToC(layer, i))
-            if i == 0 and scene.hasAltLayers():
+            layerData.append(convertSceneCommands(layer, i))
+            if i == 0 and outScene.hasAltLayers():
                 layerData.source += altLayerArray
-            layerData.append(ootGetSceneLayerData(layer, i))
+            layerData.append(getSceneLayerData(layer, i))
 
     sceneLayerData = layerInfo
     sceneLayerData.append(layerData)

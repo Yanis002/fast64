@@ -20,11 +20,11 @@ def getPathPointsData(path: OOTPath):
     return pointData
 
 
-def ootPathListToC(scene: OOTScene):
+def convertPathList(outScene: OOTScene):
     """Converts a path to C"""
     pathListData = CData()
     pointData = CData()
-    pathListName = f"Path {scene.getPathListName()}[{len(scene.pathList)}]"
+    pathListName = f"Path {outScene.getPathListName()}[{len(outScene.pathList)}]"
 
     # .h
     pathListData.header = f"extern {pathListName};\n"
@@ -32,7 +32,7 @@ def ootPathListToC(scene: OOTScene):
     # .c
     pathListData.source = pathListName + " = {\n"
 
-    for path in scene.pathList.values():
+    for path in outScene.pathList.values():
         pathListData.source += indent + "{ " f"{len(path.points)}, {path.pathName()}" + " },\n"
         pointData.append(getPathPointsData(path))
 

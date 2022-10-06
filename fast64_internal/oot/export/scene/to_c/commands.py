@@ -4,131 +4,132 @@ from ...other.common_cmds import cmdAltHeaders, cmdEndMarker
 from ...classes.scene import OOTScene
 
 
-def cmdSoundSettings(scene: OOTScene):
+def getSoundSettingsCmd(outScene: OOTScene):
     """Returns C-converted sound settings command"""
-    return f"SCENE_CMD_SOUND_SETTINGS({scene.audioSessionPreset}, {scene.nightSeq}, {scene.musicSeq})"
+    return f"SCENE_CMD_SOUND_SETTINGS({outScene.audioSessionPreset}, {outScene.nightSeq}, {outScene.musicSeq})"
 
 
-def cmdRoomList(scene: OOTScene):
+def getRoomListCmd(outScene: OOTScene):
     """Returns C-converted room list command"""
-    return f"SCENE_CMD_ROOM_LIST({len(scene.rooms)}, {scene.getRoomListName()})"
+    return f"SCENE_CMD_ROOM_LIST({len(outScene.rooms)}, {outScene.getRoomListName()})"
 
 
-def cmdTransiActorList(scene: OOTScene, headerIndex: int):
+def getTransActorListCmd(outScene: OOTScene, layerIndex: int):
     """Returns C-converted transition actors list command"""
-    return f"SCENE_CMD_TRANSITION_ACTOR_LIST({len(scene.transitionActorList)}, {scene.getTransActorListName(headerIndex)})"
+    cmdArgs = f"{len(outScene.transitionActorList)}, {outScene.getTransActorListName(layerIndex)}"
+    return f"SCENE_CMD_TRANSITION_ACTOR_LIST({cmdArgs})"
 
 
-def cmdMiscSettings(scene: OOTScene):
+def getMiscSettingsCmd(outScene: OOTScene):
     """Returns C-converted misc settings command"""
-    return f"SCENE_CMD_MISC_SETTINGS({scene.cameraMode}, {scene.mapLocation})"
+    return f"SCENE_CMD_MISC_SETTINGS({outScene.cameraMode}, {outScene.mapLocation})"
 
 
-def cmdColHeader(scene: OOTScene):
+def getColHeaderCmd(outScene: OOTScene):
     """Returns C-converted collision header command"""
-    return f"SCENE_CMD_COL_HEADER(&{scene.collision.headerName()})"
+    return f"SCENE_CMD_COL_HEADER(&{outScene.collision.headerName()})"
 
 
-def cmdEntranceList(scene: OOTScene, headerIndex: int):
+def getSpawnListCmd(outScene: OOTScene, layerIndex: int):
     """Returns C-converted entrance list command"""
     # ``NULL`` if there's no list since this command expects an address
-    entranceListName = scene.getSpawnListName(headerIndex) if len(scene.entranceList) > 0 else "NULL"
+    entranceListName = outScene.getSpawnListName(layerIndex) if len(outScene.entranceList) > 0 else "NULL"
     return f"SCENE_CMD_ENTRANCE_LIST({entranceListName})"
 
 
-def cmdSpecialFiles(scene: OOTScene):
+def getSpecialFilesCmd(outScene: OOTScene):
     """Returns C-converted special files command"""
     # special files are the Navi hint mode and the scene's global object ID
-    return f"SCENE_CMD_SPECIAL_FILES({scene.naviCup}, {scene.globalObject})"
+    return f"SCENE_CMD_SPECIAL_FILES({outScene.naviCup}, {outScene.globalObject})"
 
 
-def cmdPathList(scene: OOTScene):
+def getPathListCmd(outScene: OOTScene):
     """Returns C-converted paths list command"""
-    return f"SCENE_CMD_PATH_LIST({scene.getPathListName()})"
+    return f"SCENE_CMD_PATH_LIST({outScene.getPathListName()})"
 
 
-def cmdSpawnList(scene: OOTScene, headerIndex: int):
+def getPlayerEntryListCmd(outScene: OOTScene, layerIndex: int):
     """Returns C-converted spawns list command"""
     # ``NULL`` if there's no list since this command expects an address
-    startPosNumber = len(scene.startPositions)
-    spawnPosName = scene.getPlayerEntryListName(headerIndex) if startPosNumber > 0 else "NULL"
+    startPosNumber = len(outScene.startPositions)
+    spawnPosName = outScene.getPlayerEntryListName(layerIndex) if startPosNumber > 0 else "NULL"
     return f"SCENE_CMD_SPAWN_LIST({startPosNumber}, {spawnPosName})"
 
 
-def cmdSkyboxSettings(scene: OOTScene):
+def getSkyboxSettingsCmd(outScene: OOTScene):
     """Returns C-converted spawns list command"""
-    return f"SCENE_CMD_SKYBOX_SETTINGS({scene.skyboxID}, {scene.skyboxCloudiness}, {scene.skyboxLighting})"
+    return f"SCENE_CMD_SKYBOX_SETTINGS({outScene.skyboxID}, {outScene.skyboxCloudiness}, {outScene.skyboxLighting})"
 
 
-def cmdExitList(scene: OOTScene, headerIndex: int):
+def getExitListCmd(outScene: OOTScene, layerIndex: int):
     """Returns C-converted exit list command"""
-    return f"SCENE_CMD_EXIT_LIST({scene.getExitListName(headerIndex)})"
+    return f"SCENE_CMD_EXIT_LIST({outScene.getExitListName(layerIndex)})"
 
 
-def cmdLightSettingList(scene: OOTScene, headerIndex: int):
+def getLightSettingsCmd(outScene: OOTScene, layerIndex: int):
     """Returns C-converted light settings list command"""
-    lightCount = len(scene.lights)
-    lightSettingsName = scene.getLightSettingsListName(headerIndex) if lightCount > 0 else "NULL"
+    lightCount = len(outScene.lights)
+    lightSettingsName = outScene.getLightSettingsListName(layerIndex) if lightCount > 0 else "NULL"
     return f"SCENE_CMD_ENV_LIGHT_SETTINGS({lightCount}, {lightSettingsName})"
 
 
-def cmdCutsceneData(scene: OOTScene, headerIndex: int):
+def getCutsceneDataCmd(outScene: OOTScene, layerIndex: int):
     """Returns C-converted cutscene data command"""
-    if scene.csWriteType == "Embedded":
-        csDataName = scene.getCutsceneDataName(headerIndex)
-    elif scene.csWriteType == "Object":
-        if scene.csWriteObject is not None:
-            csDataName = scene.csWriteObject.name  # ``csWriteObject`` type: ``OOTCutscene``
+    if outScene.csWriteType == "Embedded":
+        csDataName = outScene.getCutsceneDataName(layerIndex)
+    elif outScene.csWriteType == "Object":
+        if outScene.csWriteObject is not None:
+            csDataName = outScene.csWriteObject.name  # ``csWriteObject`` type: ``OOTCutscene``
         else:
-            raise PluginError("OoT Level to C: ``scene.csWriteObject`` is None!")
-    elif scene.csWriteType == "Custom":
-        csDataName = scene.csWriteCustom
+            raise PluginError("OoT Level to C: ``outScene.csWriteObject`` is None!")
+    elif outScene.csWriteType == "Custom":
+        csDataName = outScene.csWriteCustom
 
     return f"SCENE_CMD_CUTSCENE_DATA({csDataName})"
 
 
-def getSceneCommandsList(scene: OOTScene, headerIndex: int):
+def getSceneCommandsEntries(outScene: OOTScene, layerIndex: int):
     """Returns every scene commands converted to C code."""
     sceneCmdList: list[str] = []
 
-    if scene.hasAltLayers():
-        sceneCmdList.append(cmdAltHeaders(scene.getAltLayersListName()))
+    if outScene.hasAltLayers():
+        sceneCmdList.append(cmdAltHeaders(outScene.getAltLayersListName()))
 
-    sceneCmdList.append(cmdSoundSettings(scene))
-    sceneCmdList.append(cmdRoomList(scene))
+    sceneCmdList.append(getSoundSettingsCmd(outScene))
+    sceneCmdList.append(getRoomListCmd(outScene))
 
-    if len(scene.transitionActorList) > 0:
-        sceneCmdList.append(cmdTransiActorList(scene, headerIndex))
+    if len(outScene.transitionActorList) > 0:
+        sceneCmdList.append(getTransActorListCmd(outScene, layerIndex))
 
-    sceneCmdList.append(cmdMiscSettings(scene))
-    sceneCmdList.append(cmdColHeader(scene))
-    sceneCmdList.append(cmdEntranceList(scene, headerIndex))
-    sceneCmdList.append(cmdSpecialFiles(scene))
+    sceneCmdList.append(getMiscSettingsCmd(outScene))
+    sceneCmdList.append(getColHeaderCmd(outScene))
+    sceneCmdList.append(getSpawnListCmd(outScene, layerIndex))
+    sceneCmdList.append(getSpecialFilesCmd(outScene))
 
-    if len(scene.pathList) > 0:
-        sceneCmdList.append(cmdPathList(scene))
+    if len(outScene.pathList) > 0:
+        sceneCmdList.append(getPathListCmd(outScene))
 
-    sceneCmdList.append(cmdSpawnList(scene, headerIndex))
-    sceneCmdList.append(cmdSkyboxSettings(scene))
+    sceneCmdList.append(getPlayerEntryListCmd(outScene, layerIndex))
+    sceneCmdList.append(getSkyboxSettingsCmd(outScene))
 
-    if len(scene.exitList) > 0:
-        sceneCmdList.append(cmdExitList(scene, headerIndex))
+    if len(outScene.exitList) > 0:
+        sceneCmdList.append(getExitListCmd(outScene, layerIndex))
 
-    sceneCmdList.append(cmdLightSettingList(scene, headerIndex))
+    sceneCmdList.append(getLightSettingsCmd(outScene, layerIndex))
 
-    if scene.writeCutscene:
-        sceneCmdList.append(cmdCutsceneData(scene, headerIndex))
+    if outScene.writeCutscene:
+        sceneCmdList.append(getCutsceneDataCmd(outScene, layerIndex))
 
     sceneCmdList.append(cmdEndMarker())
 
     return sceneCmdList
 
 
-def ootSceneCommandsToC(scene: OOTScene, headerIndex: int):
+def convertSceneCommands(outScene: OOTScene, layerIndex: int):
     """Converts every scene commands to C code."""
     sceneCmdData = CData()
-    sceneCmdName = f"SCmdBase {scene.getSceneLayerName(headerIndex)}[]"
-    sceneCmdList = getSceneCommandsList(scene, headerIndex)
+    sceneCmdName = f"SCmdBase {outScene.getSceneLayerName(layerIndex)}[]"
+    sceneCmdList = getSceneCommandsEntries(outScene, layerIndex)
 
     # .h
     sceneCmdData.header = f"extern {sceneCmdName};\n"

@@ -1,25 +1,25 @@
 from .....utility import CData
 from ....oot_utility import indent
 from ...classes.room import OOTRoom
-from .commands import ootRoomCommandsToC
-from .object import ootObjectListToC
-from .actor import ootActorListToC
+from .commands import convertRoomCommands
+from .object import convertObjectList
+from .actor import convertActorList
 
 
-def ootGetRoomLayerData(room: OOTRoom, headerIndex: int):
-    """Returns a room layer's data"""
+def getRoomLayerData(outRoom: OOTRoom, layerIndex: int):
+    """Returns a room layer's actor and object list"""
     layerData = CData()
 
-    if len(room.objectIDList) > 0:
-        layerData.append(ootObjectListToC(room, headerIndex))
+    if len(outRoom.objectIDList) > 0:
+        layerData.append(convertObjectList(outRoom, layerIndex))
 
-    if len(room.actorList) > 0:
-        layerData.append(ootActorListToC(None, room, headerIndex))
+    if len(outRoom.actorList) > 0:
+        layerData.append(convertActorList(None, outRoom, layerIndex))
 
     return layerData
 
 
-def ootGetRoomAltHeaderEntries(roomLayers: list[OOTRoom]):
+def getRoomLayerPtrEntries(roomLayers: list[OOTRoom]):
     """Returns the layers headers array names"""
     return "\n".join(
         [
@@ -33,16 +33,16 @@ def ootGetRoomAltHeaderEntries(roomLayers: list[OOTRoom]):
     )
 
 
-def ootRoomLayersToC(room: OOTRoom):
+def convertRoomLayers(outRoom: OOTRoom):
     """Returns the rooms file data"""
     layerInfo = CData()  # array of pointers to invidual layers
     layerData = CData()  # the data of each layer
-    roomLayers = [room, room.childNightHeader, room.adultDayHeader, room.adultNightHeader]
-    roomLayers.extend(room.cutsceneHeaders)
+    roomLayers = [outRoom, outRoom.childNightHeader, outRoom.adultDayHeader, outRoom.adultNightHeader]
+    roomLayers.extend(outRoom.cutsceneHeaders)
 
-    if room.hasAltLayers():
-        altLayerName = f"SCmdBase* {room.getAltLayersListName()}[]"
-        altLayerArray = altLayerName + " = {\n" + ootGetRoomAltHeaderEntries(roomLayers) + "\n};\n\n"
+    if outRoom.hasAltLayers():
+        altLayerName = f"SCmdBase* {outRoom.getAltLayersListName()}[]"
+        altLayerArray = altLayerName + " = {\n" + getRoomLayerPtrEntries(roomLayers) + "\n};\n\n"
 
         # .h
         layerInfo.header = f"extern {altLayerName};\n"
@@ -50,10 +50,10 @@ def ootRoomLayersToC(room: OOTRoom):
     # .c
     for i, layer in enumerate(roomLayers):
         if layer is not None:
-            layerData.append(ootRoomCommandsToC(layer, i))
-            if i == 0 and room.hasAltLayers():
+            layerData.append(convertRoomCommands(layer, i))
+            if i == 0 and outRoom.hasAltLayers():
                 layerData.source += altLayerArray
-            layerData.append(ootGetRoomLayerData(layer, i))
+            layerData.append(getRoomLayerData(layer, i))
 
     roomLayerData = layerInfo
     roomLayerData.append(layerData)

@@ -1,4 +1,3 @@
-from .room_shape import ootGetRoomShapeHeaderData, ootRoomModelToC
-from .room_layer import ootRoomLayersToC
-from .actor import ootActorListToC
-from .room_list import ootRoomListHeaderToC
+from .room_shape import convertRoomShapeData, convertRoomModel
+from .room_layer import convertRoomLayers
+from .actor import convertActorList

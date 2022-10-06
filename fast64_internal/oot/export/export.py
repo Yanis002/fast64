@@ -8,8 +8,8 @@ from ..oot_utility import ExportInfo, ootGetPath, ootSceneDirs
 from ..oot_cutscene import ootCutsceneIncludes
 from ..oot_model_classes import OOTGfxFormatter
 from ..oot_collision import ootCollisionToC
-from .room.to_c import ootGetRoomShapeHeaderData, ootRoomModelToC, ootRoomLayersToC
-from .scene.to_c import ootSceneLayersToC, ootSceneCutscenesToC
+from .room.to_c import convertRoomShapeData, convertRoomModel, convertRoomLayers
+from .scene.to_c import convertSceneLayers, convertCutscenes
 from .other.scene_table import modifySceneTable
 from .other.spec import modifySegmentDefinition
 from .other.scene_folder import modifySceneFiles
@@ -23,16 +23,16 @@ def generateC(outScene: OOTScene, textureExportSettings: TextureExportSettings):
     sceneC = OOTSceneC()
     textureData = outScene.model.to_c(textureExportSettings, OOTGfxFormatter(ScrollMethod.Vertex)).all()
 
-    sceneC.sceneMainC = ootSceneLayersToC(outScene)
+    sceneC.sceneMainC = convertSceneLayers(outScene)
     sceneC.sceneTexturesC = textureData
     sceneC.sceneCollisionC = ootCollisionToC(outScene.collision)
-    sceneC.sceneCutscenesC = ootSceneCutscenesToC(outScene)
+    sceneC.sceneCutscenesC = convertCutscenes(outScene)
 
     for room in outScene.rooms.values():
         name = room.getRoomName()
-        sceneC.roomMainC[name] = ootRoomLayersToC(room)
-        sceneC.roomMeshInfoC[name] = ootGetRoomShapeHeaderData(room.mesh)
-        sceneC.roomMeshC[name] = ootRoomModelToC(room, textureExportSettings)
+        sceneC.roomMainC[name] = convertRoomLayers(room)
+        sceneC.roomMeshInfoC[name] = convertRoomShapeData(room.mesh)
+        sceneC.roomMeshC[name] = convertRoomModel(room, textureExportSettings)
 
     return sceneC
 

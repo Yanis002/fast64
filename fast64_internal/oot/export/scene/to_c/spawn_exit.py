@@ -3,12 +3,12 @@ from ....oot_utility import indent
 from ...classes.scene import OOTScene, OOTEntrance
 
 
-def ootGetEntranceEntry(entrance: OOTEntrance):
+def getSpawnEntry(entrance: OOTEntrance):
     """Returns an entrance list entrance entry"""
     return "{ " + f"{entrance.startPositionIndex}, {entrance.roomIndex}" + " },\n"
 
 
-def ootEntranceListToC(scene: OOTScene, headerIndex: int):
+def convertSpawnList(scene: OOTScene, headerIndex: int):
     """Returns the entrance list array"""
     entranceListData = CData()
     entranceName = f"EntranceEntry {scene.getSpawnListName(headerIndex)}[]"
@@ -19,14 +19,14 @@ def ootEntranceListToC(scene: OOTScene, headerIndex: int):
     # .c
     entranceListData.source = (
         (entranceName + " = {\n")
-        + "".join([indent + f"{ootGetEntranceEntry(entrance)}" for entrance in scene.entranceList])
+        + "".join([indent + f"{getSpawnEntry(entrance)}" for entrance in scene.entranceList])
         + "};\n\n"
     )
 
     return entranceListData
 
 
-def ootExitListToC(scene: OOTScene, headerIndex: int):
+def convertExitList(scene: OOTScene, headerIndex: int):
     """Returns the exit list array"""
     exitListData = CData()
     exitListName = f"u16 {scene.getExitListName(headerIndex)}[{len(scene.exitList)}]"

@@ -4,85 +4,85 @@ from ...classes.room import OOTRoom
 from ...other.common_cmds import cmdAltHeaders, cmdEndMarker
 
 
-def cmdEchoSettings(room: OOTRoom):
+def getEchoSettingsCmd(outRoom: OOTRoom):
     """Returns C-converted room echo settings command"""
-    return f"SCENE_CMD_ECHO_SETTINGS({room.echo})"
+    return f"SCENE_CMD_ECHO_SETTINGS({outRoom.echo})"
 
 
-def cmdRoomBehaviour(room: OOTRoom):
+def getRoomBehaviorCmd(outRoom: OOTRoom):
     """Returns C-converted room room behavior command"""
-    showInvisibleActors = "true" if room.showInvisibleActors else "false"
-    disableWarpSongs = "true" if room.disableWarpSongs else "false"
+    showInvisibleActors = "true" if outRoom.showInvisibleActors else "false"
+    disableWarpSongs = "true" if outRoom.disableWarpSongs else "false"
     return (
-        f"SCENE_CMD_ROOM_BEHAVIOR({room.roomBehaviour}, {room.linkIdleMode}, {showInvisibleActors}, {disableWarpSongs})"
+        f"SCENE_CMD_ROOM_BEHAVIOR({outRoom.roomBehaviour}, {outRoom.linkIdleMode}, {showInvisibleActors}, {disableWarpSongs})"
     )
 
 
-def cmdSkyboxDisables(room: OOTRoom):
+def getSkyboxDisablesCmd(outRoom: OOTRoom):
     """Returns C-converted room skybox state command"""
-    disableSkybox = "true" if room.disableSkybox else "false"
-    disableSunMoon = "true" if room.disableSunMoon else "false"
+    disableSkybox = "true" if outRoom.disableSkybox else "false"
+    disableSunMoon = "true" if outRoom.disableSunMoon else "false"
     return f"SCENE_CMD_SKYBOX_DISABLES({disableSkybox}, {disableSunMoon})"
 
 
-def cmdTimeSettings(room: OOTRoom):
+def getTimeSettingsCmd(outRoom: OOTRoom):
     """Returns C-converted room time settings command"""
-    return f"SCENE_CMD_TIME_SETTINGS({room.timeHours}, {room.timeMinutes}, {room.timeSpeed})"
+    return f"SCENE_CMD_TIME_SETTINGS({outRoom.timeHours}, {outRoom.timeMinutes}, {outRoom.timeSpeed})"
 
 
-def cmdWindSettings(room: OOTRoom):
+def getWindSettingsCmd(outRoom: OOTRoom):
     """Returns C-converted room wind settings command"""
-    return f"SCENE_CMD_WIND_SETTINGS({room.windVector[0]}, {room.windVector[1]}, {room.windVector[2]}, {room.windStrength})"
+    return f"SCENE_CMD_WIND_SETTINGS({outRoom.windVector[0]}, {outRoom.windVector[1]}, {outRoom.windVector[2]}, {outRoom.windStrength})"
 
 
-def cmdMesh(room: OOTRoom):
+def getRoomShapeCmd(outRoom: OOTRoom):
     """Returns C-converted room mesh command"""
-    return f"SCENE_CMD_ROOM_SHAPE(&{room.mesh.getHeaderName()})"
+    return f"SCENE_CMD_ROOM_SHAPE(&{outRoom.mesh.getHeaderName()})"
 
 
-def cmdObjectList(room: OOTRoom, headerIndex: int):
+def getObjectListCmd(outRoom: OOTRoom, layerIndex: int):
     """Returns C-converted room object list command"""
-    return f"SCENE_CMD_OBJECT_LIST({len(room.objectIDList)}, {room.getObjectListName(headerIndex)})"
+    return f"SCENE_CMD_OBJECT_LIST({len(outRoom.objectIDList)}, {outRoom.getObjectListName(layerIndex)})"
 
 
-def cmdActorList(room: OOTRoom, headerIndex: int):
+def getActorListCmd(outRoom: OOTRoom, layerIndex: int):
     """Returns C-converted room actor list command"""
-    return f"SCENE_CMD_ACTOR_LIST({len(room.actorList)}, {room.getActorListName(headerIndex)})"
+    return f"SCENE_CMD_ACTOR_LIST({len(outRoom.actorList)}, {outRoom.getActorListName(layerIndex)})"
 
 
-def getRoomCommandsList(room: OOTRoom, headerIndex: int):
+def getRoomCommandsEntries(outRoom: OOTRoom, layerIndex: int):
     """Returns every room commands converted to C code."""
     roomCmdList: list[str] = []
 
-    if room.hasAltLayers():
-        roomCmdList.append(cmdAltHeaders(room.getAltLayersListName()))
+    if outRoom.hasAltLayers():
+        roomCmdList.append(cmdAltHeaders(outRoom.getAltLayersListName()))
 
-    roomCmdList.append(cmdEchoSettings(room))
-    roomCmdList.append(cmdRoomBehaviour(room))
-    roomCmdList.append(cmdSkyboxDisables(room))
-    roomCmdList.append(cmdTimeSettings(room))
+    roomCmdList.append(getEchoSettingsCmd(outRoom))
+    roomCmdList.append(getRoomBehaviorCmd(outRoom))
+    roomCmdList.append(getSkyboxDisablesCmd(outRoom))
+    roomCmdList.append(getTimeSettingsCmd(outRoom))
 
-    if room.setWind:
-        roomCmdList.append(cmdWindSettings(room))
+    if outRoom.setWind:
+        roomCmdList.append(getWindSettingsCmd(outRoom))
 
-    roomCmdList.append(cmdMesh(room))
+    roomCmdList.append(getRoomShapeCmd(outRoom))
 
-    if len(room.objectIDList) > 0:
-        roomCmdList.append(cmdObjectList(room, headerIndex))
+    if len(outRoom.objectIDList) > 0:
+        roomCmdList.append(getObjectListCmd(outRoom, layerIndex))
 
-    if len(room.actorList) > 0:
-        roomCmdList.append(cmdActorList(room, headerIndex))
+    if len(outRoom.actorList) > 0:
+        roomCmdList.append(getActorListCmd(outRoom, layerIndex))
 
     roomCmdList.append(cmdEndMarker())
 
     return roomCmdList
 
 
-def ootRoomCommandsToC(room: OOTRoom, headerIndex: int):
+def convertRoomCommands(outRoom: OOTRoom, layerIndex: int):
     """Converts every room commands to C code."""
     roomCmdData = CData()
-    roomCmdName = f"SCmdBase {room.getRoomLayerName(headerIndex)}[]"
-    roomCmdList = getRoomCommandsList(room, headerIndex)
+    roomCmdName = f"SCmdBase {outRoom.getRoomLayerName(layerIndex)}[]"
+    roomCmdList = getRoomCommandsEntries(outRoom, layerIndex)
 
     # .h
     roomCmdData.header = f"extern {roomCmdName};\n"

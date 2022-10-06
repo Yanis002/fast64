@@ -3,38 +3,38 @@ from ....oot_utility import indent
 from ...classes.scene import OOTScene
 
 
-def ootRoomListHeaderToC(scene: OOTScene):
+def convertRoomList(outScene: OOTScene):
     """Returns the room list array"""
-    headerData = CData()
-    headerName = f"RomFile {scene.getRoomListName()}[]"
+    listData = CData()
+    listName = f"RomFile {outScene.getRoomListName()}[]"
 
     # generating segment rom names for every room
     segNames = []
-    for i in range(len(scene.rooms)):
-        roomName = scene.rooms[i].getRoomName()
+    for i in range(len(outScene.rooms)):
+        roomName = outScene.rooms[i].getRoomName()
         segNames.append((f"_{roomName}SegmentRomStart", f"_{roomName}SegmentRomEnd"))
 
     # .h
-    headerData.header += f"extern {headerName};\n"
+    listData.header += f"extern {listName};\n"
 
-    if not scene.write_dummy_room_list:
+    if not outScene.write_dummy_room_list:
         # Write externs for rom segments
-        headerData.header += "".join(
+        listData.header += "".join(
             [f"extern u8 {startName}[];\n" + f"extern u8 {stopName}[];\n" for startName, stopName in segNames]
         )
 
     # .c
-    headerData.source = headerName + " = {\n"
+    listData.source = listName + " = {\n"
 
-    if scene.write_dummy_room_list:
-        headerData.source = (
-            "// Dummy room list\n" + headerData.source + ((indent + "{ NULL, NULL },\n") * len(scene.rooms))
+    if outScene.write_dummy_room_list:
+        listData.source = (
+            "// Dummy room list\n" + listData.source + ((indent + "{ NULL, NULL },\n") * len(outScene.rooms))
         )
     else:
-        headerData.source += (
+        listData.source += (
             " },\n".join([indent + "{ " + f"(u32){startName}, (u32){stopName}" for startName, stopName in segNames])
             + " },\n"
         )
 
-    headerData.source += "};\n\n"
-    return headerData
+    listData.source += "};\n\n"
+    return listData

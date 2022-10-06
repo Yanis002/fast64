@@ -3,11 +3,11 @@ from ....oot_cutscene import ootCutsceneDataToC
 from ...classes.scene import OOTScene
 
 
-def ootSceneCutscenesToC(scene: OOTScene):
+def convertCutscenes(outScene: OOTScene):
     """Returns the cutscene data"""
     csData: list[CData] = []
-    sceneLayers: list[OOTScene] = [scene, scene.childNightHeader, scene.adultDayHeader, scene.adultNightHeader]
-    sceneLayers.extend(scene.cutsceneHeaders)
+    sceneLayers: list[OOTScene] = [outScene, outScene.childNightHeader, outScene.adultDayHeader, outScene.adultNightHeader]
+    sceneLayers.extend(outScene.cutsceneHeaders)
 
     for i, layer in enumerate(sceneLayers):
         if layer is not None and layer.writeCutscene:
@@ -18,7 +18,7 @@ def ootSceneCutscenesToC(scene: OOTScene):
                 data = ootCutsceneDataToC(layer.csWriteObject, layer.csWriteObject.name)
             csData.append(data)
 
-    for extraCs in scene.extraCutscenes:
+    for extraCs in outScene.extraCutscenes:
         csData.append(ootCutsceneDataToC(extraCs, extraCs.name))
 
     return csData
