@@ -3,12 +3,12 @@ from bpy.ops import object
 from bpy.path import abspath
 from mathutils import Matrix, Vector
 from ....f3d.f3d_gbi import DLFormat
-from ...export.other.scene_table import modifySceneTable
-from ...export.other.scene_folder import deleteSceneFiles
+from ...export.scene_table import modifySceneTable
+from ...export.scene_folder import deleteSceneFiles
 from ....utility import PluginError, raisePluginError
 from ...oot_utility import ExportInfo
 from ...export import exportScene
-from ...export.other.spec import modifySegmentDefinition
+from ...export.spec import modifySegmentDefinition
 from .utility import sceneNameFromID
 
 

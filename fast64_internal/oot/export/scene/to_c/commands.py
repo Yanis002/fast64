@@ -1,6 +1,5 @@
 from .....utility import CData, PluginError
 from ....oot_utility import indent
-from ...other.common_cmds import cmdAltHeaders, cmdEndMarker
 from ...classes.scene import OOTScene
 
 
@@ -93,7 +92,7 @@ def getSceneCommandsEntries(outScene: OOTScene, layerIndex: int):
     sceneCmdList: list[str] = []
 
     if outScene.hasAltLayers():
-        sceneCmdList.append(cmdAltHeaders(outScene.getAltLayersListName()))
+        sceneCmdList.append(outScene.getAltLayersListCmd(outScene.getAltLayersListName()))
 
     sceneCmdList.append(getSoundSettingsCmd(outScene))
     sceneCmdList.append(getRoomListCmd(outScene))
@@ -120,7 +119,7 @@ def getSceneCommandsEntries(outScene: OOTScene, layerIndex: int):
     if outScene.writeCutscene:
         sceneCmdList.append(getCutsceneDataCmd(outScene, layerIndex))
 
-    sceneCmdList.append(cmdEndMarker())
+    sceneCmdList.append(outScene.getEndMarkerCmd())
 
     return sceneCmdList
 

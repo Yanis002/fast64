@@ -10,9 +10,9 @@ from ..oot_model_classes import OOTGfxFormatter
 from ..oot_collision import ootCollisionToC
 from .room.to_c import convertRoomShapeData, convertRoomModel, convertRoomLayers
 from .scene.to_c import convertSceneLayers, convertCutscenes
-from .other.scene_table import modifySceneTable
-from .other.spec import modifySegmentDefinition
-from .other.scene_folder import modifySceneFiles
+from .scene_table import modifySceneTable
+from .spec import modifySegmentDefinition
+from .scene_folder import modifySceneFiles
 from .scene import processScene
 from .classes.scene import OOTScene
 from .classes import OOTSceneC

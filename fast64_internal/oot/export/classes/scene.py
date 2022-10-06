@@ -6,6 +6,7 @@ from ...actor.classes import OOTActorHeaderProperty
 from ...scene.classes import OOTExitProperty, OOTLightProperty
 from ..classes.room import OOTRoom
 from ..classes.cutscene import OOTCutscene, OOTCSList
+from ..classes import OOTCommonCommands
 from .actor import OOTActor, OOTTransitionActor, OOTEntrance
 
 
@@ -36,7 +37,7 @@ class OOTSceneTableEntry:
         self.drawConfig = 0
 
 
-class OOTScene:
+class OOTScene(OOTCommonCommands):
     def __init__(self, name: str, model: OOTModel):
         """Initialises the class"""
         self.name = toAlnum(name)

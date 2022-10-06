@@ -1,8 +1,8 @@
 import os, re, bpy
-from ....utility import readFile, writeFile
-from ...oot_utility import getSceneDirFromLevelName, indent, ExportInfo
-from ..classes.scene import OOTScene
-from ..classes import OOTSceneC
+from ...utility import readFile, writeFile
+from ..oot_utility import getSceneDirFromLevelName, indent, ExportInfo
+from .classes.scene import OOTScene
+from .classes import OOTSceneC
 
 
 def getSegmentDefinitionEntryBySceneName(segmentDefinition: list[str], sceneName: str):

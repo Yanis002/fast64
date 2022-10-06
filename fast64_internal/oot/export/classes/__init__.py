@@ -22,3 +22,14 @@ class OOTSceneC:
 
     def sceneCutscenesIsUsed(self):
         return len(self.sceneCutscenesC) > 0
+
+
+class OOTCommonCommands:
+    def getAltLayersListCmd(self, altLayerListName: str):
+        """Returns the alternate scene layer command"""
+        return f"SCENE_CMD_ALTERNATE_HEADER_LIST({altLayerListName})"
+
+    def getEndMarkerCmd(self, ):
+        """Returns the end marker command, common to scenes and rooms"""
+        # ``SCENE_CMD_END`` defines the end of scene commands
+        return "SCENE_CMD_END(),\n"

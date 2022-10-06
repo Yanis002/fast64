@@ -2,6 +2,7 @@ from ....utility import PluginError, toAlnum
 from ...oot_model_classes import OOTModel
 from ...oot_utility import CullGroup
 from ...actor.classes import OOTActorHeaderProperty
+from ..classes import OOTCommonCommands
 from .actor import OOTActor
 
 from ....f3d.f3d_gbi import (
@@ -92,7 +93,7 @@ class OOTRoomMesh:
         self.meshEntries = newList
 
 
-class OOTRoom:
+class OOTRoom(OOTCommonCommands):
     def __init__(self, index: int, name: str, model: OOTModel, roomShape: str):
         self.ownerName = toAlnum(name)
         self.index = index

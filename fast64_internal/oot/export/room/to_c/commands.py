@@ -1,7 +1,6 @@
 from .....utility import CData
 from ....oot_utility import indent
 from ...classes.room import OOTRoom
-from ...other.common_cmds import cmdAltHeaders, cmdEndMarker
 
 
 def getEchoSettingsCmd(outRoom: OOTRoom):
@@ -55,7 +54,7 @@ def getRoomCommandsEntries(outRoom: OOTRoom, layerIndex: int):
     roomCmdList: list[str] = []
 
     if outRoom.hasAltLayers():
-        roomCmdList.append(cmdAltHeaders(outRoom.getAltLayersListName()))
+        roomCmdList.append(outRoom.getAltLayersListCmd(outRoom.getAltLayersListName()))
 
     roomCmdList.append(getEchoSettingsCmd(outRoom))
     roomCmdList.append(getRoomBehaviorCmd(outRoom))
@@ -73,7 +72,7 @@ def getRoomCommandsEntries(outRoom: OOTRoom, layerIndex: int):
     if len(outRoom.actorList) > 0:
         roomCmdList.append(getActorListCmd(outRoom, layerIndex))
 
-    roomCmdList.append(cmdEndMarker())
+    roomCmdList.append(outRoom.getEndMarkerCmd())
 
     return roomCmdList
 
