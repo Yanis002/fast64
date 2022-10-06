@@ -1,6 +1,6 @@
-from ....utility import CData
-from ...oot_utility import indent
-from ..classes.scene import OOTScene
+from .....utility import CData
+from ....oot_utility import indent
+from ...classes.scene import OOTScene
 
 
 def ootRoomListHeaderToC(scene: OOTScene):

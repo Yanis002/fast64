@@ -1,6 +1,6 @@
-from ....utility import CData
-from ...oot_cutscene import ootCutsceneDataToC
-from ..classes.scene import OOTScene
+from .....utility import CData
+from ....oot_cutscene import ootCutsceneDataToC
+from ...classes.scene import OOTScene
 
 
 def ootSceneCutscenesToC(scene: OOTScene):

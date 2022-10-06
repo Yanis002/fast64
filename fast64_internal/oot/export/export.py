@@ -8,10 +8,8 @@ from ..oot_utility import ExportInfo, ootGetPath, ootSceneDirs
 from ..oot_cutscene import ootCutsceneIncludes
 from ..oot_model_classes import OOTGfxFormatter
 from ..oot_collision import ootCollisionToC
-from ..export.room_writer.oot_room_shape_to_c import ootGetRoomShapeHeaderData, ootRoomModelToC
-from ..export.room_writer.oot_room_layer_to_c import ootRoomLayersToC
-from ..export.scene_writer.oot_cutscene_to_c import ootSceneCutscenesToC
-from ..export.scene_writer.oot_scene_layer_to_c import ootSceneLayersToC
+from .room.to_c import ootGetRoomShapeHeaderData, ootRoomModelToC, ootRoomLayersToC
+from .scene.to_c import ootSceneLayersToC, ootSceneCutscenesToC
 from .other.scene_table import modifySceneTable
 from .other.spec import modifySegmentDefinition
 from .other.scene_folder import modifySceneFiles

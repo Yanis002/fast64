@@ -1,6 +1,6 @@
-from ....utility import CData
-from ...oot_utility import indent
-from ..classes.scene import OOTScene, OOTLight
+from .....utility import CData
+from ....oot_utility import indent
+from ...classes.scene import OOTScene, OOTLight
 
 
 def ootGetVectorToC(vector: tuple[int, int, int]):

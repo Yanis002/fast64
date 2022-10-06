@@ -1,9 +1,9 @@
-from ....utility import CData
-from ...oot_utility import indent
-from ..classes.room import OOTRoom
-from .oot_room_cmds import ootRoomCommandsToC
-from .oot_object_to_c import ootObjectListToC
-from .oot_actor_to_c import ootActorListToC
+from .....utility import CData
+from ....oot_utility import indent
+from ...classes.room import OOTRoom
+from .commands import ootRoomCommandsToC
+from .object import ootObjectListToC
+from .actor import ootActorListToC
 
 
 def ootGetRoomLayerData(room: OOTRoom, headerIndex: int):

@@ -1,6 +1,6 @@
-from ....utility import CData
-from ...oot_utility import indent
-from ..classes.scene import OOTScene, OOTEntrance
+from .....utility import CData
+from ....oot_utility import indent
+from ...classes.scene import OOTScene, OOTEntrance
 
 
 def ootGetEntranceEntry(entrance: OOTEntrance):

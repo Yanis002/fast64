@@ -1,7 +1,7 @@
-from ....utility import CData
-from ...oot_spline import OOTPath
-from ...oot_utility import indent
-from ..classes.scene import OOTScene
+from .....utility import CData
+from ....oot_spline import OOTPath
+from ....oot_utility import indent
+from ...classes.scene import OOTScene
 
 
 def getPathPointsData(path: OOTPath):
