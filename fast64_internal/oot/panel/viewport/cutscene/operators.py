@@ -2,9 +2,9 @@ import os
 from bpy.path import abspath
 from bpy.ops import object
 from bpy.types import Operator, Context
-from ....utility import PluginError, writeCData, raisePluginError
-from ...export.cutscene.to_c import getCutsceneIncludes, getCutsceneArray
-from ...export.cutscene import processCutscene
+from .....utility import PluginError, writeCData, raisePluginError
+from ....export.cutscene.to_c import getCutsceneIncludes, getCutsceneArray
+from ....export.cutscene import processCutscene
 
 
 def checkGetFilePaths(context: Context):

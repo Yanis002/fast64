@@ -1,6 +1,6 @@
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import PropertyGroup
-from ....f3d.f3d_material import ootEnumDrawLayers
+from .....f3d.f3d_material import ootEnumDrawLayers
 
 
 class OOTSkeletonExportSettings(PropertyGroup):

@@ -1,6 +1,6 @@
-from ...panel import OOT_Panel
 from bpy.utils import register_class, unregister_class
-from ....utility import prop_split
+from .....utility import prop_split
+from ...viewport import OOT_Panel
 from .classes import OOTDLExportSettings, OOTDLImportSettings
 from .operators import OOT_ImportDL, OOT_ExportDL
 

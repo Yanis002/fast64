@@ -3,11 +3,11 @@ from bpy.ops import object
 from bpy.path import abspath
 from os import path
 from mathutils import Matrix
-from ....utility import PluginError, raisePluginError
-from ....f3d.f3d_gbi import DLFormat
+from .....utility import PluginError, raisePluginError
+from .....f3d.f3d_gbi import DLFormat
+from ....oot_utility import ootGetObjectPath
+from ....oot_skeleton import ootImportSkeletonC, ootConvertArmatureToC
 from .classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
-from ...oot_utility import ootGetObjectPath
-from ...oot_skeleton import ootImportSkeletonC, ootConvertArmatureToC
 
 
 class OOT_ImportSkeleton(Operator):

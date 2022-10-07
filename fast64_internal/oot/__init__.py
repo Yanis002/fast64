@@ -2,11 +2,11 @@ import bpy
 from .export.hackeroot.scene_bootup import OOTBootupSceneOptions
 from bpy.utils import register_class, unregister_class
 from .oot_level import oot_obj_panel_register, oot_obj_panel_unregister, oot_obj_register, oot_obj_unregister
-from .panel.skeleton.classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
+from .panel.viewport.skeleton.classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
 from .oot_collision import oot_col_panel_register, oot_col_panel_unregister, oot_col_register, oot_col_unregister
 from .oot_utility import oot_utility_register, oot_utility_unregister
-from .panel.display_list.classes import OOTDLExportSettings, OOTDLImportSettings
-from .panel.file_settings import file_register, file_unregister
+from .panel.viewport.display_list.classes import OOTDLExportSettings, OOTDLImportSettings
+from .panel.viewport.file_settings import file_register, file_unregister
 
 from .oot_f3d_writer import (
     oot_dl_writer_panel_register,
@@ -15,49 +15,49 @@ from .oot_f3d_writer import (
     oot_dl_writer_unregister,
 )
 
-from .panel.display_list import (
+from .panel.viewport.display_list import (
     dl_writer_panel_register,
     dl_writer_panel_unregister,
     dl_writer_register,
     dl_writer_unregister,
 )
 
-from .panel.collision import (
+from .panel.viewport.collision import (
     collision_panel_register,
     collision_panel_unregister,
     collision_register,
     collision_unregister,
 )
 
-from .panel.scene import (
+from .panel.viewport.scene import (
     oot_level_panel_register,
     oot_level_panel_unregister,
     oot_level_register,
     oot_level_unregister,
 )
 
-from .panel.animation import (
+from .panel.viewport.animation import (
     oot_anim_panel_register,
     oot_anim_panel_unregister,
     oot_anim_register,
     oot_anim_unregister,
 )
 
-from .panel.tools import (
+from .panel.viewport.tools import (
     oot_operator_panel_register,
     oot_operator_panel_unregister,
     oot_operator_register,
     oot_operator_unregister,
 )
 
-from .panel.cutscene import (
+from .panel.viewport.cutscene import (
     oot_cutscene_panel_register,
     oot_cutscene_panel_unregister,
     oot_cutscene_register,
     oot_cutscene_unregister,
 )
 
-from .panel.skeleton import (
+from .panel.viewport.skeleton import (
     skeletonPanelRegister,
     skeletonPanelUnregister,
     skeletonRegister,

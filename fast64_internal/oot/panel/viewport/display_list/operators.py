@@ -3,11 +3,11 @@ from bpy.ops import object
 from bpy.path import abspath
 from mathutils import Matrix
 from os import path
-from ....utility import PluginError, raisePluginError
-from ....f3d.f3d_parser import importMeshC
-from ....f3d.f3d_gbi import DLFormat, F3D
-from ...oot_utility import ootGetObjectPath
-from ...oot_model_classes import OOTF3DContext
+from .....f3d.f3d_parser import importMeshC
+from .....f3d.f3d_gbi import DLFormat, F3D
+from .....utility import PluginError, raisePluginError
+from ....oot_utility import ootGetObjectPath
+from ....oot_model_classes import OOTF3DContext
 from .classes import OOTDLImportSettings
 
 
@@ -69,7 +69,7 @@ class OOT_ExportDL(Operator):
     # Called on demand (i.e. button press, menu item)
     # Can also be called from operator search menu (Spacebar)
     def execute(self, context):
-        from ...oot_f3d_writer import ootConvertMeshToC  # calling it here avoids a circular import
+        from ....oot_f3d_writer import ootConvertMeshToC  # calling it here avoids a circular import
 
         obj = None
         if context.mode != "OBJECT":

@@ -1,8 +1,8 @@
 from bpy.props import StringProperty
 from bpy.types import Scene
 from bpy.utils import register_class, unregister_class
-from ....utility import prop_split
-from ...panel import OOT_Panel
+from .....utility import prop_split
+from ...viewport import OOT_Panel
 from .operators import OOT_ExportCutscene, OOT_ExportAllCutscenes
 
 

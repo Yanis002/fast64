@@ -1,9 +1,9 @@
 from bpy.types import Operator, Armature
 from bpy.ops import object
 from bpy.path import abspath
-from ....utility import PluginError, raisePluginError
-from ...oot_utility import ootGetObjectPath
-from ...oot_anim import exportAnimationC, ootImportAnimationC
+from .....utility import PluginError, raisePluginError
+from ....oot_utility import ootGetObjectPath
+from ....oot_anim import exportAnimationC, ootImportAnimationC
 
 
 class OOT_ExportAnim(Operator):

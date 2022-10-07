@@ -2,9 +2,9 @@ from bpy.types import Operator, Mesh
 from bpy.path import abspath
 from bpy.ops import object
 from mathutils import Matrix, Vector
-from ....utility import PluginError, raisePluginError
-from ...oot_utility import ootGetObjectPath
-from ...oot_collision import exportCollisionToC
+from .....utility import PluginError, raisePluginError
+from ....oot_utility import ootGetObjectPath
+from ....oot_collision import exportCollisionToC
 
 
 class OOT_ExportCollision(Operator):
