@@ -1,13 +1,22 @@
 from ....utility import PluginError, toAlnum, exportColor, ootGetBaseOrCustomLight
 from ...oot_collision_classes import OOTCollision
 from ...oot_model_classes import OOTModel
-from ...oot_spline import OOTPath
 from ...actor.classes import OOTActorHeaderProperty
 from ...scene.classes import OOTExitProperty, OOTLightProperty
 from ..classes.room import OOTRoom
 from ..classes.cutscene import OOTCutscene, OOTCSList
 from ..classes import OOTCommonCommands
 from .actor import OOTActor, OOTTransitionActor, OOTEntrance
+
+
+class OOTPath:
+    def __init__(self, ownerName: str, splineIndex: int):
+        self.ownerName = toAlnum(ownerName)
+        self.splineIndex = splineIndex
+        self.points = []
+
+    def pathName(self):
+        return self.ownerName + "_pathwayList_" + str(self.splineIndex)
 
 
 class OOTExit:

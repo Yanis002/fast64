@@ -71,7 +71,7 @@ from .oot_skeleton import (
     oot_skeleton_unregister,
 )
 
-from .oot_spline import (
+from .panel.properties.spline import (
     oot_spline_panel_register,
     oot_spline_panel_unregister,
     oot_spline_register,

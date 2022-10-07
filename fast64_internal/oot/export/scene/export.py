@@ -4,16 +4,14 @@ from math import radians, degrees
 from mathutils import Quaternion, Matrix
 from ....f3d.f3d_gbi import DLFormat
 from ....utility import PluginError, unhideAllAndGetHiddenList, hideObjsInList
-from ...oot_spline import assertCurveValid
 from ...oot_collision import OOTCameraPositionProperty, exportCollisionCommon
 from ...oot_collision_classes import OOTCameraData, OOTCameraPosData, decomp_compat_map_CameraSType
 from ...oot_model_classes import OOTModel
-from ...oot_spline import ootConvertPath
 from ..utility import getConvertedTransformWithOrientation
 from ..cutscene import convertCutsceneData, processCutscene
 from ..classes.scene import OOTScene
 from ..room import processRoom
-from ..classes.scene import OOTScene, OOTExit, OOTLight
+from ..classes.scene import OOTScene, OOTExit, OOTLight, OOTPath
 
 from ...scene.classes import (
     OOTAlternateSceneHeaderProperty,
@@ -29,6 +27,20 @@ from ...oot_utility import (
     ootCleanupScene,
     getCustomProperty,
 )
+
+
+def assertCurveValid(obj: Object):
+    curve = obj.data
+
+    if not isinstance(curve, Curve) or curve.splines[0].type != "NURBS":
+        # Curve was likely not intended to be exported
+        return False
+
+    if len(curve.splines) != 1:
+        # Curve was intended to be exported but has multiple disconnected segments
+        raise PluginError("Exported curves should have only one single segment, found " + str(len(curve.splines)))
+
+    return True
 
 
 def convertCamPosData(inCamObj: Object, outScene: OOTScene, inSceneObj: Object, transformMatrix: Matrix):
@@ -58,6 +70,16 @@ def convertCamPosData(inCamObj: Object, outScene: OOTScene, inSceneObj: Object, 
         round(degrees(inCamObj.data.angle)),
         camPosProp.jfifID,
     )
+
+
+def ootConvertPath(name: str, index: int, obj: Object, transformMatrix: Matrix):
+    path = OOTPath(name, index)
+
+    for point in obj.data.splines[0].points:
+        position = transformMatrix @ point.co
+        path.points.append(position)
+
+    return path
 
 
 def convertPathData(obj: Object, outScene: OOTScene, inSceneObj: Object, sceneName: str, transformMatrix: Matrix):
