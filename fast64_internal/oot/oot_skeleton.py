@@ -1,6 +1,6 @@
 import mathutils, bpy, math, os, re
 from ..f3d.f3d_gbi import DLFormat, FMesh, TextureExportSettings, ScrollMethod, F3D
-from .oot_model_classes import OOTVertexGroupInfo, OOTModel, OOTGfxFormatter, OOTF3DContext, OOTDynamicTransformProperty
+from .model import OOTVertexGroupInfo, OOTModel, OOTGfxFormatter, OOTF3DContext, OOTDynamicTransformProperty
 from bpy.utils import register_class, unregister_class
 from ..f3d.f3d_writer import getInfoDict
 from ..f3d.f3d_parser import getImportData, parseF3D

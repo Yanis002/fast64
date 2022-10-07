@@ -24,7 +24,7 @@ from .oot_utility import (
     addIncludeFiles,
 )
 
-from .oot_model_classes import (
+from .model import (
     OOTTriangleConverterInfo,
     OOTModel,
     OOTGfxFormatter,

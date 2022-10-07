@@ -1,6 +1,6 @@
 from ....utility import PluginError, toAlnum, exportColor, ootGetBaseOrCustomLight
 from ...oot_collision_classes import OOTCollision
-from ...oot_model_classes import OOTModel
+from ...model import OOTModel
 from ...actor.classes import OOTActorHeaderProperty
 from ...scene.classes import OOTExitProperty, OOTLightProperty
 from ..classes.room import OOTRoom

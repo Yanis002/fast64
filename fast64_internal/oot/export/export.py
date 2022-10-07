@@ -5,7 +5,7 @@ from mathutils import Matrix
 from ...f3d.f3d_gbi import ScrollMethod, DLFormat, TextureExportSettings
 from ...utility import PluginError, CData, writeCDataSourceOnly, writeCDataHeaderOnly, checkObjectReference
 from ..oot_utility import ExportInfo, ootGetPath, ootSceneDirs
-from ..oot_model_classes import OOTGfxFormatter
+from ..model import OOTGfxFormatter
 from ..oot_collision import ootCollisionToC
 from .room.to_c import convertRoomShapeData, convertRoomModel, convertRoomLayers
 from .scene.to_c import convertSceneLayers

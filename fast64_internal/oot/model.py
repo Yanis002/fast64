@@ -122,12 +122,6 @@ class OOTVertexGroupInfo(VertexGroupInfo):
         VertexGroupInfo.__init__(self)
 
 
-# class OOTBox:
-# 	def __init__(self):
-# 		self.minBounds = [-2**8, -2**8]
-# 		self.maxBounds = [2**8 - 1, 2**8 - 1]
-
-
 class OOTF3DContext(F3DContext):
     def __init__(self, f3d, limbList, basePath):
         self.limbList = limbList
@@ -188,8 +182,6 @@ class OOTF3DContext(F3DContext):
             return textureName
         else:
             return textureName
-            # if (pointer >> 24) == 0x08:
-            # 	print("Unhandled OOT pointer: " + textureName)
 
     def clearMaterial(self):
         self.isBillboard = False
