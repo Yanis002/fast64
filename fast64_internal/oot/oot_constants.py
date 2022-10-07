@@ -1436,14 +1436,14 @@ ootEnumCSWriteType = [
 
 ootEnumCSListType = [
     ("Textbox", "Textbox", "Textbox"),
-    ("FX", "Scene Trans FX", "Scene Trans FX"),
+    ("FX", "Transition", "Transition"),
     ("Lighting", "Lighting", "Lighting"),
     ("Time", "Time", "Time"),
     ("PlayBGM", "Play BGM", "Play BGM"),
     ("StopBGM", "Stop BGM", "Stop BGM"),
     ("FadeBGM", "Fade BGM", "Fade BGM"),
     ("Misc", "Misc", "Misc"),
-    ("0x09", "Cmd 09", "Cmd 09"),
+    ("0x09", "Rumble Controller", "Rumble Controller"),
     ("Unk", "Unknown Data", "Unknown Data"),
 ]
 
@@ -1482,7 +1482,7 @@ ootEnumCSListTypeEntryC = {
     "StopBGM": "CS_STOP_BGM",
     "FadeBGM": "CS_FADE_BGM",
     "Misc": "CS_MISC",
-    "0x09": "CS_CMD_09",
+    "0x09": "CS_CMD_09",  # rumble controller
     "Unk": "CS_UNK_DATA",
 }
 
@@ -1497,17 +1497,17 @@ ootEnumCSTextboxTypeEntryC = {
 }
 
 ootEnumCSTransitionType = [
-    ("1", "To White +", "Also plays whiteout sound for certain scenes/entrances"),
-    ("2", "To Blue", "To Blue"),
-    ("3", "From Red", "From Red"),
-    ("4", "From Green", "From Green"),
-    ("5", "From White", "From White"),
-    ("6", "From Blue", "From Blue"),
-    ("7", "To Red", "To Red"),
-    ("8", "To Green", "To Green"),
-    ("9", "Set Unk", "gSaveContext.unk_1410 = 1, works with scene xn 11/17"),
-    ("10", "From Black", "From Black"),
-    ("11", "To Black", "To Black"),
-    ("12", "To Dim Unk", "Fade gSaveContext.unk_1410 255>100, works with scene xn 11/17"),
-    ("13", "From Dim", "Alpha 100>255"),
+    ("1", "White Fill +", "Has hardcoded sounds for some scenes"),
+    ("2", "Blue Fill", "Blue Fill"),
+    ("3", "Red Fill", "Red Fill"),
+    ("4", "Green Fill", "Green Fill"),
+    ("5", "White Unfill", "White Unfill"),
+    ("6", "Blue Unfill", "Blue Unfill"),
+    ("7", "Red Unfill", "Red Unfill"),
+    ("8", "Green Unfill", "Green Unfill"),
+    ("9", "White Trigger Unfill", "The screen will stay white until the command starts"),  # TRANS_TYPE_FADE_WHITE_CS_DELAYED
+    ("10", "Black Fill", "Black Fill"),
+    ("11", "Black Unfill", "Black Unfill"),
+    ("12", "Black Half Fill", "Black Half Fill"),  # TRANS_TYPE_CS_BLACK_FILL
+    ("13", "Black Half Unfill", "Black Half Unfill"),  # 12 and 13 inverted?
 ]

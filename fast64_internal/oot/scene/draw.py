@@ -1,7 +1,7 @@
 from bpy.types import UILayout
 from ...utility import prop_split
 from ..oot_utility import drawAddButton, drawCollectionOps, drawEnumWithCustom
-from ..oot_cutscene import drawCSListProperty, drawCSAddButtons
+from ..cutscene.draw import drawCSListProperty, drawCSAddButtons
 from .operators import OOT_SearchMusicSeqEnumOperator
 from .classes import (
     OOTExitProperty,

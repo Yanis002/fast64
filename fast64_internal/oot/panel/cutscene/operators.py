@@ -3,7 +3,7 @@ from bpy.path import abspath
 from bpy.ops import object
 from bpy.types import Operator, Context
 from ....utility import PluginError, writeCData, raisePluginError
-from ...oot_cutscene import ootCutsceneIncludes, ootCutsceneDataToC
+from ...export.cutscene.to_c import getCutsceneIncludes, getCutsceneArray
 from ...export.cutscene import processCutscene
 
 
@@ -38,9 +38,9 @@ class OOT_ExportCutscene(Operator):
                 raise PluginError("Cutscene object must not be parented to anything")
 
             cpath, hpath, headerfilename = checkGetFilePaths(context)
-            csdata = ootCutsceneIncludes(headerfilename)
+            csdata = getCutsceneIncludes(headerfilename)
             converted = processCutscene(activeObj)
-            csdata.append(ootCutsceneDataToC(converted, converted.name))
+            csdata.append(getCutsceneArray(converted, converted.name))
             writeCData(csdata, hpath, cpath)
 
             self.report({"INFO"}, "Successfully exported cutscene")
@@ -60,7 +60,7 @@ class OOT_ExportAllCutscenes(Operator):
             if context.mode != "OBJECT":
                 object.mode_set(mode="OBJECT")
             cpath, hpath, headerfilename = checkGetFilePaths(context)
-            csdata = ootCutsceneIncludes(headerfilename)
+            csdata = getCutsceneIncludes(headerfilename)
             count = 0
             for obj in context.view_layer.objects:
                 if obj.data is not None or obj.ootEmptyType != "Cutscene":
@@ -68,7 +68,7 @@ class OOT_ExportAllCutscenes(Operator):
                 if obj.parent is not None:
                     raise PluginError("Cutscene object must not be parented to anything")
                 converted = processCutscene(obj)
-                csdata.append(ootCutsceneDataToC(converted, converted.name))
+                csdata.append(getCutsceneArray(converted, converted.name))
                 count += 1
             if count == 0:
                 raise PluginError("Could not find any cutscenes to export")

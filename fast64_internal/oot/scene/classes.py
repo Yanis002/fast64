@@ -1,6 +1,6 @@
 from bpy.types import PropertyGroup, Light, Object
 from ...render_settings import on_update_oot_render_settings
-from ..oot_cutscene import OOTCSListProperty
+from ..cutscene.classes import OOTCSListProperty
 
 from bpy.props import (
     BoolProperty,

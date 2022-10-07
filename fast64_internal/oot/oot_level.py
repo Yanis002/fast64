@@ -12,6 +12,7 @@ from .scene.draw import drawSceneHeaderProperty, drawAlternateSceneHeaderPropert
 from .room.operators import OOT_SearchObjectEnumOperator
 from .room.classes import OOTRoomHeaderProperty, OOTAlternateRoomHeaderProperty
 from .room.draw import drawRoomHeaderProperty, drawAlternateRoomHeaderProperty
+from .cutscene.draw import drawCutsceneProperty
 
 from .actor.draw import (
     drawActorProperty,
@@ -20,10 +21,9 @@ from .actor.draw import (
     drawActorHeaderProperty
 )
 
-from .oot_cutscene import (
+from .cutscene.classes import (
     OOTCutsceneProperty,
     OOTCSTextboxProperty,
-    OOTCSTextboxAdd,
     OOTCSLightingProperty,
     OOTCSTimeProperty,
     OOTCSBGMProperty,
@@ -31,8 +31,10 @@ from .oot_cutscene import (
     OOTCS0x09Property,
     OOTCSUnkProperty,
     OOTCSListProperty,
+)
+from .cutscene.operators import (
+    OOTCSTextboxAdd,
     OOTCSListAdd,
-    drawCutsceneProperty,
 )
 
 def headerSettingsToIndices(headerSettings):
