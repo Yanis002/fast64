@@ -4,7 +4,7 @@ from bpy.utils import register_class, unregister_class
 from .....utility import customExportWarning, prop_split
 from ....oot_constants import ootEnumSceneID
 from ....scene.operators import OOT_SearchSceneEnumOperator
-from ....export.hackeroot.scene_bootup import OOT_ClearBootupScene, ootSceneBootupRegister, ootSceneBootupUnregister
+from ....exporter.hackeroot.scene_bootup import OOT_ClearBootupScene, ootSceneBootupRegister, ootSceneBootupUnregister
 from ....oot_utility import getEnumName
 from ...viewport import OOT_Panel
 from .operators import OOT_ExportScene, OOT_RemoveScene

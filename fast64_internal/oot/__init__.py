@@ -1,5 +1,5 @@
 import bpy
-from .export.hackeroot.scene_bootup import OOTBootupSceneOptions
+from .exporter.hackeroot.scene_bootup import OOTBootupSceneOptions
 from bpy.utils import register_class, unregister_class
 from .oot_level import oot_obj_panel_register, oot_obj_panel_unregister, oot_obj_register, oot_obj_unregister
 from .panel.viewport.skeleton.classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings

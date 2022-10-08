@@ -6,8 +6,8 @@ from mathutils import Matrix
 from .....utility import PluginError, raisePluginError
 from .....f3d.f3d_gbi import DLFormat
 from ....oot_utility import ootGetObjectPath
-from ....Import.skeleton import ootImportSkeletonC
-from ....export.skeleton.to_c import ootConvertArmatureToC
+from ....importer.skeleton import ootImportSkeletonC
+from ....exporter.skeleton.to_c import ootConvertArmatureToC
 from .classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
 
 

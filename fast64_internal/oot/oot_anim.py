@@ -1,6 +1,6 @@
 import math, mathutils, bpy, os, re
 from ..utility import CData, PluginError, toAlnum, writeCData, readFile, hexOrDecInt
-from .export.skeleton import convertArmatureToSkel
+from .exporter.skeleton import convertArmatureToSkel
 
 from ..utility_anim import (
     ValueFrameData,
