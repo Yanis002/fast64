@@ -1,6 +1,14 @@
 import math, mathutils, bpy, os, re
-from .oot_skeleton import ootConvertArmatureToSkeletonWithoutMesh
 from ..utility import CData, PluginError, toAlnum, writeCData, readFile, hexOrDecInt
+from .export.skeleton import convertArmatureToSkel
+
+from ..utility_anim import (
+    ValueFrameData,
+    saveTranslationFrame,
+    saveQuaternionFrame,
+    squashFramesIfAllSame,
+    getFrameInterval,
+)
 
 from .oot_utility import (
     checkForStartBone,
@@ -11,13 +19,12 @@ from .oot_utility import (
     checkEmptyName,
 )
 
-from ..utility_anim import (
-    ValueFrameData,
-    saveTranslationFrame,
-    saveQuaternionFrame,
-    squashFramesIfAllSame,
-    getFrameInterval,
-)
+
+def ootConvertArmatureToSkeletonWithoutMesh(originalArmatureObj, convertTransformMatrix, name):
+    skeleton, fModel = convertArmatureToSkel(
+        originalArmatureObj, convertTransformMatrix, None, name, False, True, "Opaque", False
+    )
+    return skeleton
 
 
 class OOTAnimation:
