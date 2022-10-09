@@ -4,7 +4,8 @@ from math import radians, degrees
 from mathutils import Quaternion, Matrix
 from ....f3d.f3d_gbi import DLFormat
 from ....utility import PluginError, unhideAllAndGetHiddenList, hideObjsInList
-from ...oot_collision import OOTCameraPositionProperty, exportCollisionCommon
+from ...collision.classes import OOTCameraPositionProperty
+from ..collision import exportCollisionCommon
 from ...oot_collision_classes import OOTCameraData, OOTCameraPosData, decomp_compat_map_CameraSType
 from ...model import OOTModel
 from ..utility import getConvertedTransformWithOrientation
@@ -243,7 +244,7 @@ def processScene(
 
         outScene.validateIndices()
         outScene.entranceList = sorted(outScene.entranceList, key=lambda x: x.startPositionIndex)
-        exportCollisionCommon(outScene.collision, sceneObj, transformMatrix, True, sceneName)
+        exportCollisionCommon(outScene.collision, sceneObj, transformMatrix, True)
 
         ootCleanupScene(inSceneObj, allObjs)
 

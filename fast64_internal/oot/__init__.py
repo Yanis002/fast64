@@ -3,10 +3,11 @@ from .exporter.hackeroot.scene_bootup import OOTBootupSceneOptions
 from bpy.utils import register_class, unregister_class
 from .oot_level import oot_obj_panel_register, oot_obj_panel_unregister, oot_obj_register, oot_obj_unregister
 from .panel.viewport.skeleton.classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
-from .oot_collision import oot_col_panel_register, oot_col_panel_unregister, oot_col_register, oot_col_unregister
 from .oot_utility import oot_utility_register, oot_utility_unregister
 from .panel.viewport.display_list.classes import OOTDLExportSettings, OOTDLImportSettings
 from .panel.viewport.file_settings import file_register, file_unregister
+from .panel.properties.collision import oot_col_panel_register, oot_col_panel_unregister
+from .collision.classes import oot_col_register, oot_col_unregister
 
 from .oot_f3d_writer import (
     oot_dl_writer_panel_register,
@@ -156,7 +157,7 @@ def oot_unregister(unregisterPanels):
 
     oot_operator_unregister()
     oot_utility_unregister()
-    oot_col_unregister()  # register first, so panel goes above mat panel
+    oot_col_unregister()
     oot_obj_unregister()
     oot_level_unregister()
     oot_spline_unregister()

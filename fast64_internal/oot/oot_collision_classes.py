@@ -356,10 +356,10 @@ class OOTPolygonType:
 class OOTCollision:
     def __init__(self, ownerName):
         self.ownerName = ownerName
-        self.bounds = []
-        self.vertices = []
+        self.bounds: list[int] = []
+        self.vertices: list[OOTCollisionVertex] = []
         # dict of polygon type : polygon list
-        self.polygonGroups = {}
+        self.polygonGroups: dict[OOTPolygonType, list[OOTCollisionPolygon]] = {}
         self.cameraData = None
         self.waterBoxes = []
 
@@ -427,14 +427,13 @@ class OOTWaterBox(BoxEmpty):
         BoxEmpty.__init__(self, position, scale, emptyScale)
 
     def propertyData(self):
-        value = (int(self.roomIndex) << 13) | (self.lightingSetting << 8) | (self.cameraSetting << 0)
-        return convertIntTo2sComplement(value, 4, False)
+        return f"(({self.roomIndex} << 13) | ({self.lightingSetting} << 8) | {self.cameraSetting})"
 
 
 class OOTCameraData:
     def __init__(self, ownerName):
         self.ownerName = ownerName
-        self.camPosDict = {}
+        self.camPosDict: dict[int, OOTCameraPosData] = {}
 
     def camDataName(self):
         return self.ownerName + "_camData"

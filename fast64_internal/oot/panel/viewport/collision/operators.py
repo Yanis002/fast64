@@ -4,7 +4,7 @@ from bpy.ops import object
 from mathutils import Matrix, Vector
 from .....utility import PluginError, raisePluginError
 from ....oot_utility import ootGetObjectPath
-from ....oot_collision import exportCollisionToC
+from ....exporter.collision.to_c import exportCollisionToC
 
 
 class OOT_ExportCollision(Operator):
@@ -36,7 +36,9 @@ class OOT_ExportCollision(Operator):
             exportPath = abspath(context.scene.ootColExportPath)
 
             filepath = ootGetObjectPath(isCustomExport, exportPath, folderName)
-            exportCollisionToC(obj, finalTransform, includeChildren, name, isCustomExport, folderName, filepath)
+            exportCollisionToC(
+                context, obj, finalTransform, includeChildren, name, isCustomExport, folderName, filepath
+            )
 
             self.report({"INFO"}, "Success!")
             return {"FINISHED"}

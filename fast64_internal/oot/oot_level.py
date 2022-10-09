@@ -2,7 +2,8 @@ import bpy
 from bpy.utils import register_class, unregister_class
 
 from ..utility import prop_split, gammaInverse
-from .oot_collision import OOTWaterBoxProperty, drawWaterBoxProperty
+from .collision.classes import OOTWaterBoxProperty
+from .collision.draw import drawWaterBoxProperty
 from .oot_constants import ootRegisterQueue, ootEnumEmptyType
 from .actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
 from .oot_utility import getSceneObj, getRoomObj

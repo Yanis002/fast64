@@ -6,7 +6,7 @@ from ...f3d.f3d_gbi import ScrollMethod, DLFormat, TextureExportSettings
 from ...utility import PluginError, CData, writeCDataSourceOnly, writeCDataHeaderOnly, checkObjectReference
 from ..oot_utility import ExportInfo, ootGetPath, ootSceneDirs
 from ..model import OOTGfxFormatter
-from ..oot_collision import ootCollisionToC
+from .collision.to_c import ootCollisionToC
 from .room.to_c import convertRoomShapeData, convertRoomModel, convertRoomLayers
 from .scene.to_c import convertSceneLayers
 from .cutscene.to_c import convertCutsceneToC, getCutsceneIncludes
