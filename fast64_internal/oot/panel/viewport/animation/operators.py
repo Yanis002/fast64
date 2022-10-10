@@ -3,7 +3,8 @@ from bpy.ops import object
 from bpy.path import abspath
 from .....utility import PluginError, raisePluginError
 from ....oot_utility import ootGetObjectPath
-from ....oot_anim import exportAnimationC, ootImportAnimationC
+from ....exporter.animation.to_c import exportAnimationC
+from ....importer.animation import ootImportAnimationC
 
 
 class OOT_ExportAnim(Operator):
