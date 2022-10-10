@@ -34,6 +34,7 @@ class OOTDynamicMaterialProperty(PropertyGroup):
     opaque: PointerProperty(type=OOTDynamicMaterialDrawLayerProperty)
     transparent: PointerProperty(type=OOTDynamicMaterialDrawLayerProperty)
 
+
 oot_dl_writer_classes = (
     OOTDefaultRenderModesProperty,
     OOTDynamicMaterialDrawLayerProperty,

@@ -49,7 +49,7 @@ class OOT_DrawLayersPanel(Panel):
             "transparentCycle1": "Transparent Cycle 1",
             "transparentCycle2": "Transparent Cycle ",
             "overlayCycle1": "Overlay Cycle 1",
-            "overlayCycle2": "Overlay Cycle 2"
+            "overlayCycle2": "Overlay Cycle 2",
         }
 
         ootDefaultRenderModeProp = context.scene.world.ootDefaultRenderModes
