@@ -6,7 +6,7 @@ from ....f3d.f3d_gbi import DLFormat
 from ....utility import PluginError, unhideAllAndGetHiddenList, hideObjsInList
 from ...collision.classes import OOTCameraPositionProperty
 from ..collision import exportCollisionCommon
-from ...model import OOTModel
+from ...model.classes import OOTModel
 from ..utility import getConvertedTransformWithOrientation
 from ..cutscene import convertCutsceneData, processCutscene
 from ..room import processRoom

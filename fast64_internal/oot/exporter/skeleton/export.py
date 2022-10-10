@@ -8,7 +8,7 @@ from ...oot_f3d_writer import ootProcessVertexGroup, getInfoDict
 from ...oot_utility import getSortedChildren, checkEmptyName, checkForStartBone, getStartBone
 from ...skeleton.utility import ootDuplicateArmature, getGroupIndices
 from ..classes.skeleton import OOTSkeleton, OOTLimb
-from ...model import OOTModel
+from ...model.classes import OOTModel
 
 
 def convertArmatureToSkel(

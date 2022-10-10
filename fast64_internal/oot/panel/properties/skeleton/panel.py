@@ -2,7 +2,7 @@ from bpy.types import Panel, Object, Armature, Bone
 from bpy.props import PointerProperty, EnumProperty, StringProperty
 from bpy.utils import register_class, unregister_class
 from .....utility import prop_split
-from ....model import OOTDynamicTransformProperty
+from ....model.classes import OOTDynamicTransformProperty
 
 
 ootEnumBoneType = [

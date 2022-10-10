@@ -7,7 +7,7 @@ from .....f3d.f3d_parser import importMeshC
 from .....f3d.f3d_gbi import DLFormat, F3D
 from .....utility import PluginError, raisePluginError
 from ....oot_utility import ootGetObjectPath
-from ....model import OOTF3DContext
+from ....model.classes import OOTF3DContext
 from .classes import OOTDLImportSettings
 
 

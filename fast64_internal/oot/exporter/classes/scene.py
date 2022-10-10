@@ -1,5 +1,5 @@
 from ....utility import PluginError, toAlnum, exportColor, ootGetBaseOrCustomLight
-from ...model import OOTModel
+from ...model.classes import OOTModel
 from ...actor.classes import OOTActorHeaderProperty
 from ...scene.classes import OOTExitProperty, OOTLightProperty
 from ..classes.room import OOTRoom

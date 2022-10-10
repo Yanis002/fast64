@@ -4,7 +4,7 @@ from bpy.types import Object
 from bpy.ops import pose, object
 from ...f3d.f3d_writer import MeshInfo
 from ...utility import PluginError, attemptModifierApply, cleanupDuplicatedObjects, getGroupNameFromIndex, setOrigin
-from ..model import OOTVertexGroupInfo
+from .classes import OOTVertexGroupInfo
 
 
 def getGroupIndexOfVert(vertex, armatureObj: Object, obj: Object, rootGroupIndex: int):

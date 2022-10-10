@@ -2,7 +2,8 @@ import bpy, os, mathutils
 from bpy.utils import register_class, unregister_class
 from ..utility import CData, prop_split, writeCData, getGroupIndexFromname, toAlnum
 from ..f3d.f3d_parser import ootEnumDrawLayers
-from ..f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod
+from ..f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod, MTX_SIZE
+from ..f3d.f3d_writer import TriangleConverterInfo
 from .panel.viewport.display_list.classes import OOTDLExportSettings
 
 from ..f3d.f3d_writer import (
@@ -23,13 +24,19 @@ from .oot_utility import (
     ootGetPath,
     addIncludeFiles,
 )
-
-from .model import (
-    OOTTriangleConverterInfo,
+from .model.classes import (
     OOTModel,
     OOTGfxFormatter,
     OOTDynamicTransformProperty,
 )
+
+
+class OOTTriangleConverterInfo(TriangleConverterInfo):
+    def __init__(self, obj, armature, f3d, transformMatrix, infoDict):
+        TriangleConverterInfo.__init__(self, obj, armature, f3d, transformMatrix, infoDict)
+
+    def getMatrixAddrFromGroup(self, groupIndex):
+        return format((0x0D << 24) + MTX_SIZE * self.vertexGroupInfo.vertexGroupToMatrixIndex[groupIndex], "#010x")
 
 
 # returns:

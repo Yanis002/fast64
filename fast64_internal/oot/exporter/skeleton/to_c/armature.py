@@ -3,7 +3,7 @@ from bpy.path import abspath
 from mathutils import Matrix
 from os import path
 from .....f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod
-from ....model import OOTModel, OOTGfxFormatter
+from ....model.classes import OOTModel, OOTGfxFormatter
 from ....panel.viewport.skeleton.classes import OOTSkeletonExportSettings
 from ....oot_utility import ootGetPath, addIncludeFiles
 from ....skeleton.utility import ootGetSkeleton, ootGetLimbs, ootGetLimb
