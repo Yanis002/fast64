@@ -2,6 +2,9 @@ from mathutils import Matrix
 from os import path as p
 from bpy.types import Object, Context
 from .....utility import CData, hideObjsInList, unhideAllAndGetHiddenList, writeCData
+from ...classes.collision import OOTCameraData, OOTCameraPosData, OOTCollision, OOTCollisionPolygon, OOTWaterBox
+from ..export import exportCollisionCommon
+
 from ....oot_utility import (
     OOTObjectCategorizer,
     addIncludeFiles,
@@ -10,8 +13,6 @@ from ....oot_utility import (
     ootDuplicateHierarchy,
     ootGetPath,
 )
-from ....oot_collision_classes import OOTCameraData, OOTCameraPosData, OOTCollision, OOTCollisionPolygon, OOTWaterBox
-from ..export import exportCollisionCommon
 
 
 def ootCollisionPolygonToC(

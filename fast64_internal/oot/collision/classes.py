@@ -3,7 +3,7 @@ from bpy.types import PropertyGroup, Camera, Object, Material
 from bpy.utils import register_class, unregister_class
 from bpy.props import IntProperty, StringProperty, EnumProperty, BoolProperty, PointerProperty, FloatProperty
 
-from ..oot_collision_classes import (
+from .data import (
     ootEnumFloorSetting,
     ootEnumWallSetting,
     ootEnumFloorProperty,

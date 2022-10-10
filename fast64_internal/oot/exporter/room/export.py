@@ -3,9 +3,9 @@ from mathutils import Vector, Matrix, Quaternion
 from bpy.types import Object
 from ....utility import PluginError, checkIdentityRotation, normToSigned8Vector
 from ...oot_utility import CullGroup, getCustomProperty
-from ...oot_collision_classes import OOTWaterBox
 from ...room.classes import OOTAlternateRoomHeaderProperty, OOTRoomHeaderProperty
 from ...actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
+from ..classes.collision import OOTWaterBox
 from ..classes.scene import OOTScene
 from ..classes.room import OOTRoom
 from ..classes.actor import OOTActor, OOTTransitionActor, OOTEntrance

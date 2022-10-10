@@ -6,13 +6,13 @@ from ....f3d.f3d_gbi import DLFormat
 from ....utility import PluginError, unhideAllAndGetHiddenList, hideObjsInList
 from ...collision.classes import OOTCameraPositionProperty
 from ..collision import exportCollisionCommon
-from ...oot_collision_classes import OOTCameraData, OOTCameraPosData, decomp_compat_map_CameraSType
 from ...model import OOTModel
 from ..utility import getConvertedTransformWithOrientation
 from ..cutscene import convertCutsceneData, processCutscene
-from ..classes.scene import OOTScene
 from ..room import processRoom
+from ..classes.collision import OOTCameraData, OOTCameraPosData
 from ..classes.scene import OOTScene, OOTExit, OOTLight, OOTPath
+from .data import decomp_compat_map_CameraSType
 
 from ...scene.classes import (
     OOTAlternateSceneHeaderProperty,

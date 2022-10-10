@@ -1,16 +1,47 @@
 from mathutils import Matrix, Vector
+from math import pi
 from bpy.types import Object, Mesh
 from bpy.ops import object
 from ....utility import PluginError
-from ...oot_utility import convertIntTo2sComplement
+from ...oot_utility import convertIntTo2sComplement, getCustomProperty
 
-from ...oot_collision_classes import (
+from ..classes.collision import (
     OOTCollision,
     OOTCollisionVertex,
     OOTCollisionPolygon,
     OOTPolygonType,
-    getPolygonType,
 )
+
+
+def getPolygonType(collisionProp):
+    polygonType = OOTPolygonType()
+    polygonType.ignoreCameraCollision = collisionProp.ignoreCameraCollision
+    polygonType.ignoreActorCollision = collisionProp.ignoreActorCollision
+    polygonType.ignoreProjectileCollision = collisionProp.ignoreProjectileCollision
+    polygonType.eponaBlock = collisionProp.eponaBlock
+    polygonType.decreaseHeight = collisionProp.decreaseHeight
+    polygonType.floorSetting = getCustomProperty(collisionProp, "floorSetting")
+    polygonType.wallSetting = getCustomProperty(collisionProp, "wallSetting")
+    polygonType.floorProperty = getCustomProperty(collisionProp, "floorProperty")
+    polygonType.exitID = collisionProp.exitID
+    polygonType.cameraID = collisionProp.cameraID
+    polygonType.isWallDamage = collisionProp.isWallDamage
+    polygonType.enableConveyor = collisionProp.conveyorOption == "Land"
+    if collisionProp.conveyorOption != "None":
+        polygonType.conveyorRotation = int(collisionProp.conveyorRotation / (2 * pi) * 0x3F)
+        polygonType.conveyorSpeed = int(getCustomProperty(collisionProp, "conveyorSpeed"), 16) + (
+            4 if collisionProp.conveyorKeepMomentum else 0
+        )
+    else:
+        polygonType.conveyorRotation = 0
+        polygonType.conveyorSpeed = 0
+
+    polygonType.hookshotable = collisionProp.hookshotable
+    polygonType.echo = collisionProp.echo
+    polygonType.lightingSetting = collisionProp.lightingSetting
+    polygonType.terrain = getCustomProperty(collisionProp, "terrain")
+    polygonType.sound = getCustomProperty(collisionProp, "sound")
+    return polygonType
 
 
 def roundPosition(position: list[int]):
