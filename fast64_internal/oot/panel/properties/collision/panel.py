@@ -52,6 +52,7 @@ oot_col_panel_classes = (
     OOT_CameraPosPanel,
 )
 
+
 def oot_col_panel_register():
     for cls in oot_col_panel_classes:
         register_class(cls)

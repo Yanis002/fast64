@@ -9,7 +9,7 @@ def getTransActorEntry(transActor: OOTTransitionActor):
     return (
         ("{ { " + (", ".join([f"{room}, {cam}" for room, cam in sides]) + " }, "))
         + transActor.actorID
-        + (", { "  + ", ".join([f"{round(pos)}" for pos in transActor.position]) + " }, ")
+        + (", { " + ", ".join([f"{round(pos)}" for pos in transActor.position]) + " }, ")
         + f"0x{round(transActor.rotationY):04X}, "
         + f"{transActor.actorParam}"
         + " },\n"

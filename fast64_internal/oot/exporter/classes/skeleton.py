@@ -149,10 +149,7 @@ class OOTSkeleton:
                 name = f"{self.name}_{toAlnum(limb.boneName)}".upper()
 
                 if limb.index == 0:
-                    data.header += (
-                        f"#define {name}_POS_LIMB 0\n"
-                        + f"#define {name}_ROT_LIMB 1\n"
-                    )
+                    data.header += f"#define {name}_POS_LIMB 0\n" + f"#define {name}_ROT_LIMB 1\n"
                 else:
                     data.header += f"#define {name}_LIMB {limb.index + 1}\n"
 
@@ -168,9 +165,7 @@ class OOTSkeleton:
             limbData.source += "\n"
             data.source += "};\n\n"
 
-            data.source += (
-                skelName + " = { " + f"{self.limbsName()}, {self.getNumLimbs()}" + numDLs + " };\n\n"
-            )
+            data.source += skelName + " = { " + f"{self.limbsName()}, {self.getNumLimbs()}" + numDLs + " };\n\n"
 
             limbData.append(data)
             return limbData

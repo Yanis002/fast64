@@ -12,9 +12,7 @@ def getRoomBehaviorCmd(outRoom: OOTRoom):
     """Returns C-converted room room behavior command"""
     showInvisibleActors = "true" if outRoom.showInvisibleActors else "false"
     disableWarpSongs = "true" if outRoom.disableWarpSongs else "false"
-    return (
-        f"SCENE_CMD_ROOM_BEHAVIOR({outRoom.roomBehaviour}, {outRoom.linkIdleMode}, {showInvisibleActors}, {disableWarpSongs})"
-    )
+    return f"SCENE_CMD_ROOM_BEHAVIOR({outRoom.roomBehaviour}, {outRoom.linkIdleMode}, {showInvisibleActors}, {disableWarpSongs})"
 
 
 def getSkyboxDisablesCmd(outRoom: OOTRoom):

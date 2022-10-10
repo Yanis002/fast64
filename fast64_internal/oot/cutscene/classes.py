@@ -37,7 +37,7 @@ class OOTCSProperty:
         listIndex: int,
         cmdIndex: int,
         objName: str,
-        collectionType: str
+        collectionType: str,
     ):
         attrToName = {
             "messageId": "Message ID",

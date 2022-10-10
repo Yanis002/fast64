@@ -43,7 +43,9 @@ class OOTRoomHeaderProperty(PropertyGroup):
     linkIdleMode: EnumProperty(name="Link Idle Mode", items=ootEnumLinkIdle, default="0x00")
     linkIdleModeCustom: StringProperty(name="Link Idle Mode Custom", default="0x00")
     roomIsHot: BoolProperty(
-        name="Use Room Heat Behavior", description="Use heat timer/screen effect, overrides Link Idle Mode", default=False
+        name="Use Room Heat Behavior",
+        description="Use heat timer/screen effect, overrides Link Idle Mode",
+        default=False,
     )
 
     useCustomBehaviourX: BoolProperty(name="Use Custom Behaviour X")  # unused
@@ -69,7 +71,7 @@ class OOTRoomHeaderProperty(PropertyGroup):
         default=1,
         min=0,
         max=25.5,
-        precision=1
+        precision=1,
     )
 
     disableSkybox: BoolProperty(name="Disable Skybox")

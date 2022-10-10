@@ -1505,7 +1505,11 @@ ootEnumCSTransitionType = [
     ("6", "Blue Unfill", "Blue Unfill"),
     ("7", "Red Unfill", "Red Unfill"),
     ("8", "Green Unfill", "Green Unfill"),
-    ("9", "White Trigger Unfill", "The screen will stay white until the command starts"),  # TRANS_TYPE_FADE_WHITE_CS_DELAYED
+    (
+        "9",
+        "White Trigger Unfill",
+        "The screen will stay white until the command starts",
+    ),  # TRANS_TYPE_FADE_WHITE_CS_DELAYED
     ("10", "Black Fill", "Black Fill"),
     ("11", "Black Unfill", "Black Unfill"),
     ("12", "Black Half Fill", "Black Half Fill"),  # TRANS_TYPE_CS_BLACK_FILL

@@ -92,9 +92,7 @@ class OOT_Properties(bpy.types.PropertyGroup):
     skeletonImportSettings: bpy.props.PointerProperty(type=OOTSkeletonImportSettings)
 
 
-oot_classes = (
-    OOT_Properties,
-)
+oot_classes = (OOT_Properties,)
 
 
 def oot_panel_register():
@@ -110,7 +108,6 @@ def oot_panel_register():
     skeletonPanelRegister()
     collision_panel_register()
     dl_writer_panel_register()
-
 
 
 def oot_panel_unregister():

@@ -40,6 +40,7 @@ def getGroupIndices(meshInfo: MeshInfo, armatureObj: Object, meshObj: Object, ro
             vertex, armatureObj, meshObj, rootGroupIndex
         )
 
+
 def ootDuplicateArmature(originalArmatureObj: Object):
     # Duplicate objects to apply scale / modifiers / linked data
     object.select_all(action="DESELECT")
@@ -99,6 +100,7 @@ def ootDuplicateArmature(originalArmatureObj: Object):
 
 
 # those functions are used for both import and export
+
 
 def ootGetLimbs(skeletonData: str, limbsName: str, continueOnError: bool):
     matchResult = search(

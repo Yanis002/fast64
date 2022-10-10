@@ -80,6 +80,7 @@ oot_col_classes = (
     OOTMaterialCollisionProperty,
 )
 
+
 def oot_col_register():
     for cls in oot_col_classes:
         register_class(cls)

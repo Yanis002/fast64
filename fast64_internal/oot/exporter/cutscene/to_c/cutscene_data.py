@@ -80,17 +80,11 @@ def getCutsceneArray(csParent, csName: str):
                     elif e.textboxType == "None":
                         csData.source += f"{e.startFrame}, {e.endFrame}"
                     elif e.textboxType == "LearnSong":
-                        csData.source += (
-                            f"{e.ocarinaSongAction}, {e.startFrame}, {e.endFrame}, {e.ocarinaMessageId}"
-                        )
+                        csData.source += f"{e.ocarinaSongAction}, {e.startFrame}, {e.endFrame}, {e.ocarinaMessageId}"
                 case "Lighting":
-                    csData.source += (
-                        f"{e.index}, {e.startFrame}, {e.startFrame + 1}{', 0' * 8}"
-                    )
+                    csData.source += f"{e.index}, {e.startFrame}, {e.startFrame + 1}{', 0' * 8}"
                 case "Time":
-                    csData.source += (
-                        f"1, {e.startFrame}, {e.startFrame + 1}, {e.hour}, {e.minute}, 0"
-                    )
+                    csData.source += f"1, {e.startFrame}, {e.startFrame + 1}, {e.hour}, {e.minute}, 0"
                 case "PlayBGM" | "StopBGM" | "FadeBGM":
                     csData.source += e.value
 
@@ -99,13 +93,9 @@ def getCutsceneArray(csParent, csName: str):
 
                     csData.source += f", {e.startFrame}, {e.endFrame}{', 0' * 8}"
                 case "Misc":
-                    csData.source += (
-                        f"{e.operation}, {e.startFrame}, {e.endFrame}{', 0' * 11}"
-                    )
+                    csData.source += f"{e.operation}, {e.startFrame}, {e.endFrame}{', 0' * 11}"
                 case "0x09":
-                    csData.source += (
-                        f"0, {e.startFrame}, {e.startFrame + 1}, {e.unk2}, {e.unk3}, {e.unk4}, 0, 0"
-                    )
+                    csData.source += f"0, {e.startFrame}, {e.startFrame + 1}, {e.unk2}, {e.unk3}, {e.unk4}, 0, 0"
                 case "Unk":
                     csData.source += (
                         f"{e.unk1}, {e.unk2}, {e.unk3}, {e.unk4}, {e.unk5}, {e.unk6}, "
@@ -123,7 +113,12 @@ def getCutsceneArray(csParent, csName: str):
 def convertCutsceneToC(outScene: OOTScene):
     """Returns the cutscene data"""
     csData: list[CData] = []
-    sceneLayers: list[OOTScene] = [outScene, outScene.childNightHeader, outScene.adultDayHeader, outScene.adultNightHeader]
+    sceneLayers: list[OOTScene] = [
+        outScene,
+        outScene.childNightHeader,
+        outScene.adultDayHeader,
+        outScene.adultNightHeader,
+    ]
     sceneLayers.extend(outScene.cutsceneHeaders)
 
     for i, layer in enumerate(sceneLayers):

@@ -13,9 +13,8 @@ def getRoomShapeEntry(meshEntry: OOTRoomMeshGroup, roomShape: str):
 
     if roomShape == "ROOM_SHAPE_TYPE_CULLABLE":
         roomShapeEntry += (
-            ("{ " + ", ".join([f"{pos}" for pos in meshEntry.cullGroup.position]) + "}, ")
-            + f"{meshEntry.cullGroup.cullDepth}, "
-        )
+            "{ " + ", ".join([f"{pos}" for pos in meshEntry.cullGroup.position]) + "}, "
+        ) + f"{meshEntry.cullGroup.cullDepth}, "
     elif roomShape == "ROOM_SHAPE_TYPE_IMAGE":
         raise PluginError("ERROR: Pre-Rendered rooms not supported.")
 

@@ -32,6 +32,7 @@ class OOTSplinePanel(Panel):
 
 oot_spline_classes = (OOTSplineProperty,)
 
+
 def oot_spline_register():
     for cls in oot_spline_classes:
         register_class(cls)
@@ -48,6 +49,7 @@ def oot_spline_unregister():
 
 
 oot_spline_panel_classes = (OOTSplinePanel,)
+
 
 def oot_spline_panel_register():
     for cls in oot_spline_panel_classes:

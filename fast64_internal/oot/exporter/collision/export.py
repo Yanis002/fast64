@@ -70,7 +70,12 @@ def addCollisionTriangles(
                 faceNormal = (transformMatrix.inverted().transposed() @ face.normal).normalized()
                 distance = int(
                     round(
-                        -1 * (faceNormal[0] * planePoint[0] + faceNormal[1] * planePoint[1] + faceNormal[2] * planePoint[2])
+                        -1
+                        * (
+                            faceNormal[0] * planePoint[0]
+                            + faceNormal[1] * planePoint[1]
+                            + faceNormal[2] * planePoint[2]
+                        )
                     )
                 )
                 distance = convertIntTo2sComplement(distance, 2, True)

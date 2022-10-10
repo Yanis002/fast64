@@ -11,6 +11,7 @@ ootEnumBoneType = [
     ("Ignore", "Ignore", "Ignore"),
 ]
 
+
 class OOT_SkeletonPanel(Panel):
     bl_idname = "OOT_PT_skeleton"
     bl_label = "OOT Skeleton Properties"

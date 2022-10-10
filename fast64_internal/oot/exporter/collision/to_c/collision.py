@@ -2,7 +2,14 @@ from mathutils import Matrix
 from os import path as p
 from bpy.types import Object, Context
 from .....utility import CData, hideObjsInList, unhideAllAndGetHiddenList, writeCData
-from ....oot_utility import OOTObjectCategorizer, addIncludeFiles, indent, ootCleanupScene, ootDuplicateHierarchy, ootGetPath
+from ....oot_utility import (
+    OOTObjectCategorizer,
+    addIncludeFiles,
+    indent,
+    ootCleanupScene,
+    ootDuplicateHierarchy,
+    ootGetPath,
+)
 from ....oot_collision_classes import OOTCameraData, OOTCameraPosData, OOTCollision, OOTCollisionPolygon, OOTWaterBox
 from ..export import exportCollisionCommon
 
@@ -13,12 +20,12 @@ def ootCollisionPolygonToC(
     ignoreActor: bool,
     ignoreProjectile: bool,
     enableConveyor: bool,
-    polygonTypeIndex: int
+    polygonTypeIndex: int,
 ):
     vtxData = [
         polygon.convertShort02(ignoreCamera, ignoreActor, ignoreProjectile),
         polygon.convertShort04(enableConveyor),
-        polygon.convertShort06()
+        polygon.convertShort06(),
     ]
 
     return (
@@ -41,9 +48,14 @@ def ootWaterBoxToC(waterBox: OOTWaterBox):
 
 def ootCameraPosToC(camPos: OOTCameraPosData):
     return (
-        indent + "{ " + ", ".join([f"{pos}" for pos in camPos.position] + " }, ")
-        + "{ " + ", ".join([f"0x{rot:04X}" for rot in camPos.rotation] + " }, ")
-        + "{ " + f"{camPos.fov}, {camPos.jfifID}, {camPos.unknown}" + " },\n"
+        indent
+        + "{ "
+        + ", ".join([f"{pos}" for pos in camPos.position] + " }, ")
+        + "{ "
+        + ", ".join([f"0x{rot:04X}" for rot in camPos.rotation] + " }, ")
+        + "{ "
+        + f"{camPos.fov}, {camPos.jfifID}, {camPos.unknown}"
+        + " },\n"
     )
 
 
@@ -163,18 +175,29 @@ def ootCollisionToC(collision: OOTCollision):
     if len(collision.bounds) == 2:
         # x, y, z for min and max bounds
         colData.source += (
-            indent + "{ " + ", ".join([f"{minPos}" for minPos in collision.bounds[0]]) + " },\n"
-            + indent + "{ " + ", ".join([f"{maxPos}" for maxPos in collision.bounds[1]]) + " },\n"
+            indent
+            + "{ "
+            + ", ".join([f"{minPos}" for minPos in collision.bounds[0]])
+            + " },\n"
+            + indent
+            + "{ "
+            + ", ".join([f"{maxPos}" for maxPos in collision.bounds[1]])
+            + " },\n"
         )
     else:
         colData.source += "{ 0, 0, 0 },\n" + indent + "{ 0, 0, 0 },\n"
 
     colData.source += (
-        indent + f"{len(collision.vertices)}, {collisionVerticesName},\n"
-        + indent + f"{collision.polygonCount()}, {polygonsName},\n"
-        + indent + f"{polygonTypesName},\n"
-        + indent + f"{camDataName},\n"
-        + indent + f"{len(collision.waterBoxes)}, {waterBoxesName}\n"
+        indent
+        + f"{len(collision.vertices)}, {collisionVerticesName},\n"
+        + indent
+        + f"{collision.polygonCount()}, {polygonsName},\n"
+        + indent
+        + f"{polygonTypesName},\n"
+        + indent
+        + f"{camDataName},\n"
+        + indent
+        + f"{len(collision.waterBoxes)}, {waterBoxesName}\n"
         + "};\n\n"
     )
 
@@ -189,7 +212,7 @@ def exportCollisionToC(
     name: str,
     isCustomExport: bool,
     folderName: str,
-    exportPath: str
+    exportPath: str,
 ):
     collision = OOTCollision(name)
     collision.cameraData = OOTCameraData(name)
