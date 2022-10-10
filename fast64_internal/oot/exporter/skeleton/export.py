@@ -2,13 +2,13 @@ import bpy
 from bpy.types import Object
 from mathutils import Matrix
 from ....f3d.f3d_gbi import DLFormat, FMesh
-from ....f3d.f3d_writer import MeshInfo
+from ....f3d.f3d_writer import MeshInfo, getInfoDict
 from ....utility import PluginError, getGroupIndexFromname, cleanupDuplicatedObjects
-from ...oot_f3d_writer import ootProcessVertexGroup, getInfoDict
 from ...oot_utility import getSortedChildren, checkEmptyName, checkForStartBone, getStartBone
 from ...skeleton.utility import ootDuplicateArmature, getGroupIndices
-from ..classes.skeleton import OOTSkeleton, OOTLimb
 from ...model.classes import OOTModel
+from ..classes.skeleton import OOTSkeleton, OOTLimb
+from ..f3d import ootProcessVertexGroup
 
 
 def convertArmatureToSkel(

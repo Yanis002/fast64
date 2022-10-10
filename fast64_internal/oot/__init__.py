@@ -8,13 +8,8 @@ from .panel.viewport.display_list.classes import OOTDLExportSettings, OOTDLImpor
 from .panel.viewport.file_settings import file_register, file_unregister
 from .panel.properties.collision import oot_col_panel_register, oot_col_panel_unregister
 from .collision.classes import oot_col_register, oot_col_unregister
-
-from .oot_f3d_writer import (
-    oot_dl_writer_panel_register,
-    oot_dl_writer_panel_unregister,
-    oot_dl_writer_register,
-    oot_dl_writer_unregister,
-)
+from .panel.properties.f3d import oot_dl_writer_panel_register, oot_dl_writer_panel_unregister
+from .f3d.classes import oot_dl_writer_register, oot_dl_writer_unregister
 
 from .panel.viewport.display_list import (
     dl_writer_panel_register,
@@ -65,7 +60,7 @@ from .panel.viewport.skeleton import (
     skeletonUnregister,
 )
 
-from .panel.properties.skeleton.panel import (
+from .panel.properties.skeleton import (
     oot_skeleton_panel_register,
     oot_skeleton_panel_unregister,
     oot_skeleton_register,
