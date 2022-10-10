@@ -50,8 +50,7 @@ def ootImportAnimationC(armatureObj: Object, filepath: str, animName: str, actor
     animData = readFile(filepath)
 
     matchResult = search(
-        escape(animName)
-        + "\s*=\s*\{\s*\{\s*([^,\s]*)\s*\}*\s*,\s*([^,\s]*)\s*,\s*([^,\s]*)\s*,\s*([^,\s]*)\s*\}\s*;",
+        escape(animName) + "\s*=\s*\{\s*\{\s*([^,\s]*)\s*\}*\s*,\s*([^,\s]*)\s*,\s*([^,\s]*)\s*,\s*([^,\s]*)\s*\}\s*;",
         animData,
     )
 

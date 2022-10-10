@@ -91,9 +91,7 @@ def ootGetAnimBoneRot(bone: Bone, poseBone: Bone, isRoot: bool):
     return finalRotation
 
 
-def ootConvertAnimationData(
-    armatureObj: Object, convertTransformMatrix: Matrix, frame_start: int, frame_count: int
-):
+def ootConvertAnimationData(armatureObj: Object, convertTransformMatrix: Matrix, frame_start: int, frame_count: int):
     checkForStartBone(armatureObj)
     bonesToProcess = [getStartBone(armatureObj)]
     currentBone = armatureObj.data.bones[bonesToProcess[0]]
@@ -131,8 +129,7 @@ def ootConvertAnimationData(
 
         # Convert Z-up to Y-up for root translation animation
         translation = (
-            Quaternion((1, 0, 0), radians(-90.0))
-            @ (convertTransformMatrix @ rootPoseBone.matrix).decompose()[0]
+            Quaternion((1, 0, 0), radians(-90.0)) @ (convertTransformMatrix @ rootPoseBone.matrix).decompose()[0]
         )
 
         saveTranslationFrame(translationData, translation)

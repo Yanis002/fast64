@@ -37,12 +37,10 @@ class OOTAnimation:
 
         # indices (index -1 => translation)
         # index for frame data array
-        animData.source += f"JointIndex {self.indicesName()}[{len(self.indices)}]" +" = {\n"
+        animData.source += f"JointIndex {self.indicesName()}[{len(self.indices)}]" + " = {\n"
         for index in range(-1, len(self.indices) - 1):
             animData.source += (
-                indent + "{ "
-                + ", ".join([f"{self.indices[index][field]}" for field in range(3)])
-                + " },\n"
+                indent + "{ " + ", ".join([f"{self.indices[index][field]}" for field in range(3)]) + " },\n"
             )
         animData.source += "};\n\n"
 
@@ -50,8 +48,10 @@ class OOTAnimation:
         animName = f"AnimationHeader {self.name}"
         animData.header += f"extern {animName};\n"
         animData.source += (
-            animName + " = {\n"
-            + indent + f"{self.frameCount}, {self.valuesName()}, {self.indicesName()}, {self.limit}\n"
+            animName
+            + " = {\n"
+            + indent
+            + f"{self.frameCount}, {self.valuesName()}, {self.indicesName()}, {self.limit}\n"
             + "};\n\n"
         )
 

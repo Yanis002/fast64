@@ -12,8 +12,7 @@ def exportAnimationC(armatureObj: Object, exportPath: str, isCustomExport: bool,
     checkEmptyName(skeletonName)
 
     convertTransformMatrix = (
-        Matrix.Scale(bpy.context.scene.ootActorBlenderScale, 4)
-        @ Matrix.Diagonal(armatureObj.scale).to_4x4()
+        Matrix.Scale(bpy.context.scene.ootActorBlenderScale, 4) @ Matrix.Diagonal(armatureObj.scale).to_4x4()
     )
 
     ootAnim = ootExportAnimationCommon(armatureObj, convertTransformMatrix, skeletonName)
