@@ -1,11 +1,7 @@
 from bpy.types import Operator
 from bpy.props import StringProperty, IntProperty, EnumProperty
 from ..oot_utility import getCollection
-
-from ..oot_constants import (
-    ootEnumCSTextboxType,
-    ootEnumCSListType,
-)
+from .data import ootEnumCSListType, ootEnumCSTextboxType
 
 
 class OOTCSTextboxAdd(Operator):

@@ -1,5 +1,5 @@
 from .....utility import PluginError
-from ....oot_constants import ootSceneIDToName
+from .data import ootSceneIDToName
 
 
 def sceneNameFromID(sceneID):

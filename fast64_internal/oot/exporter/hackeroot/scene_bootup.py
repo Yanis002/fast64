@@ -1,8 +1,8 @@
 import os, re, bpy
 from typing import Any
 from bpy.utils import register_class, unregister_class
+from .data import ootEnumHeaderMenuComplete
 from ....utility import PluginError, writeFile, readFile
-from ...oot_constants import ootEnumHeaderMenuComplete
 
 
 def setBootupScene(configPath: str, entranceIndex: str, options: "OOTBootupSceneOptions"):

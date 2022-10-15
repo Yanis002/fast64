@@ -1,4 +1,5 @@
 from bpy.types import PropertyGroup
+from ..data import ootRegisterQueue, ootEnumHeaderMenu
 
 from bpy.props import (
     PointerProperty,
@@ -11,17 +12,14 @@ from bpy.props import (
     FloatVectorProperty,
 )
 
-from ..oot_constants import (
-    ootRegisterQueue,
-    ootEnumHeaderMenu,
-    ootEnumLinkIdle,
-    ootEnumObjectID,
+from .data import (
     ootEnumRoomShapeType,
     ootEnumRoomMenu,
     ootEnumRoomMenuAlternate,
+    ootEnumLinkIdle,
+    ootEnumObjectID,
     ootEnumRoomBehaviour,
 )
-
 
 class OOTObjectProperty(PropertyGroup):
     expandTab: BoolProperty(name="Expand Tab")

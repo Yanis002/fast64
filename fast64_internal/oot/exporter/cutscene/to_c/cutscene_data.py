@@ -1,12 +1,7 @@
 from .....utility import CData, PluginError
 from ....oot_utility import indent
 from ...classes.scene import OOTScene
-
-from ....oot_constants import (
-    ootEnumCSListTypeListC,
-    ootEnumCSTextboxTypeEntryC,
-    ootEnumCSListTypeEntryC,
-)
+from .data import ootEnumCSListTypeListC, ootEnumCSListTypeEntryC, ootEnumCSTextboxTypeEntryC
 
 
 def getCutsceneIncludes(fileName: str):

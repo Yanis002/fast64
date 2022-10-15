@@ -1,15 +1,9 @@
 from bpy.types import UILayout, Object
-from ...utility import PluginError, prop_split
+from ...utility import prop_split
 from ..oot_utility import OOTCollectionAdd, drawCollectionOps
 from .operators import OOTCSListAdd, OOTCSTextboxAdd
 from .classes import OOTCSListProperty, OOTCutsceneProperty
-
-from ..oot_constants import (
-    ootEnumCSTextboxType,
-    ootEnumCSListType,
-    ootEnumCSTextboxTypeIcons,
-    ootEnumCSListTypeIcons,
-)
+from .data import ootEnumCSListType, ootEnumCSListTypeIcons, ootEnumCSTextboxType, ootEnumCSTextboxTypeIcons
 
 
 def drawCSListProperty(

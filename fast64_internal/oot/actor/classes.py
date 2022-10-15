@@ -1,6 +1,7 @@
 from bpy.types import PropertyGroup
 from bpy.props import IntProperty, BoolProperty, EnumProperty, StringProperty, CollectionProperty, PointerProperty
-from ..oot_constants import ootRegisterQueue, ootEnumActorID, ootEnumSceneSetupPreset, ootEnumCamTransition
+from ..data import ootRegisterQueue
+from .data import ootEnumActorID, ootEnumCamTransition, ootEnumSceneSetupPreset
 
 
 class OOTActorHeaderItemProperty(PropertyGroup):

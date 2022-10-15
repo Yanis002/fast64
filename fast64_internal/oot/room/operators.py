@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 from bpy.props import EnumProperty, IntProperty, StringProperty
 from ...utility import ootGetSceneOrRoomHeader
-from ..oot_constants import ootEnumObjectID
+from .data import ootEnumObjectID
 
 
 class OOT_SearchObjectEnumOperator(Operator):

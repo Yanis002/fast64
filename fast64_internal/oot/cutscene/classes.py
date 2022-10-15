@@ -2,12 +2,7 @@ from bpy.types import PropertyGroup, UILayout
 from bpy.props import StringProperty, IntProperty, EnumProperty, BoolProperty, CollectionProperty
 from ...utility import PluginError, prop_split
 from ..oot_utility import drawCollectionOps
-
-from ..oot_constants import (
-    ootEnumCSTextboxType,
-    ootEnumCSListType,
-    ootEnumCSTransitionType,
-)
+from .data import ootEnumCSListType, ootEnumCSTextboxType, ootEnumCSTransitionType
 
 
 # Perhaps this should have been called something like OOTCSParentPropertyType,

@@ -1,8 +1,9 @@
 import bpy
 from bpy.types import Operator
 from bpy.props import EnumProperty, StringProperty
-from ..oot_constants import ootEnumActorID, ootRegisterQueue
 from ...utility import PluginError
+from ..data import ootRegisterQueue
+from .data import ootEnumActorID
 
 
 class OOT_SearchActorIDEnumOperator(Operator):

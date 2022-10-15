@@ -1,6 +1,7 @@
 from bpy.types import PropertyGroup, Light, Object
 from ...render_settings import on_update_oot_render_settings
 from ..cutscene.classes import OOTCSListProperty
+from ..data import ootRegisterQueue, ootEnumHeaderMenu, ootEnumSceneID
 
 from bpy.props import (
     BoolProperty,
@@ -12,26 +13,23 @@ from bpy.props import (
     CollectionProperty,
 )
 
-from ..oot_constants import (
-    ootRegisterQueue,
-    ootEnumHeaderMenu,
-    ootEnumSceneID,
-    ootEnumExitIndex,
-    ootEnumTransitionAnims,
+from .data import (
+    ootEnumSceneMenu,
+    ootEnumSceneMenuAlternate,
     ootEnumLightGroupMenu,
-    ootEnumMusicSeq,
-    ootEnumGlobalObject,
-    ootEnumNaviHints,
     ootEnumSkybox,
     ootEnumCloudiness,
     ootEnumSkyboxLighting,
     ootEnumMapLocation,
     ootEnumCameraMode,
+    ootEnumMusicSeq,
     ootEnumNightSeq,
     ootEnumAudioSessionPreset,
+    ootEnumTransitionAnims,
+    ootEnumGlobalObject,
+    ootEnumNaviHints,
+    ootEnumExitIndex,
     ootEnumCSWriteType,
-    ootEnumSceneMenu,
-    ootEnumSceneMenuAlternate,
 )
 
 
