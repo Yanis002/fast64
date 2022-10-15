@@ -1,6 +1,7 @@
 from bpy.types import UILayout, Object
 from ...utility import prop_split
-from ..oot_utility import OOTCollectionAdd, drawCollectionOps
+from ..utility import drawCollectionOps
+from ..classes import OOTCollectionAdd
 from .operators import OOTCSListAdd, OOTCSTextboxAdd
 from .classes import OOTCSListProperty, OOTCutsceneProperty
 from .data import ootEnumCSListType, ootEnumCSListTypeIcons, ootEnumCSTextboxType, ootEnumCSTextboxTypeIcons

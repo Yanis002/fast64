@@ -1,10 +1,45 @@
 import bpy
+from os import path as p, makedirs
+from math import degrees, radians
 from mathutils import Matrix
 from bpy.types import Mesh, Object
-from ...utility import PluginError, toAlnum
 from ...f3d.f3d_writer import TriangleConverterInfo, getInfoDict, saveStaticModel
-from ..oot_utility import CullGroup, checkUniformScale, ootConvertRotation, ootConvertTranslation
+from .classes.export import CullGroup
 from .classes.room import OOTDLGroup, OOTRoomMesh
+
+from ...utility import (
+    PluginError,
+    toAlnum,
+    getDataFromFile,
+    saveDataToFile,
+    setOrigin,
+    attemptModifierApply,
+    applyRotation,
+    cleanupDuplicatedObjects,
+)
+
+
+def checkUniformScale(scale, obj):
+    if abs(scale[0] - scale[1]) > 0.01 or abs(scale[1] - scale[2]) > 0.01 or abs(scale[0] - scale[2]) > 0.01:
+        raise PluginError("Cull group " + obj.name + " must have a uniform scale.")
+
+
+def getCustomProperty(data, prop):
+    value = getattr(data, prop)
+    return value if value != "Custom" else getattr(data, prop + str("Custom"))
+
+
+def convertIntTo2sComplement(value, length, signed):
+    return int.from_bytes(int(round(value)).to_bytes(length, "big", signed=signed), "big")
+
+
+def ootConvertTranslation(translation):
+    return [int(round(value)) for value in translation]
+
+
+def ootConvertRotation(rotation):
+    # see BINANG_TO_DEGF
+    return [int(round((degrees(value) % 360) / 360 * (2**16))) % (2**16) for value in rotation.to_euler()]
 
 
 def getConvertedTransformWithOrientation(transformMatrix: Matrix, sceneObj: Object, obj: Object, orientation):
@@ -123,3 +158,143 @@ def ootProcessMesh(
             ootProcessMesh(
                 roomMesh, DLGroup, sceneObj, childObj, transformMatrix, convertTextureData, LODHierarchyObject
             )
+
+def addIncludeFilesExtension(objectName, objectPath, assetName, extension):
+    include = '#include "' + assetName + "." + extension + '"\n'
+    if not p.exists(objectPath):
+        raise PluginError(objectPath + " does not exist.")
+    path = p.join(objectPath, objectName + "." + extension)
+    data = getDataFromFile(path)
+
+    if include not in data:
+        data += "\n" + include
+
+    # Save this regardless of modification so it will be recompiled.
+    saveDataToFile(path, data)
+
+
+def addIncludeFiles(objectName, objectPath, assetName):
+    addIncludeFilesExtension(objectName, objectPath, assetName, "h")
+    addIncludeFilesExtension(objectName, objectPath, assetName, "c")
+
+
+# This also sets all origins relative to the scene object.
+def ootDuplicateHierarchy(obj, ignoreAttr, includeEmpties, objectCategorizer):
+    # Duplicate objects to apply scale / modifiers / linked data
+    bpy.ops.object.select_all(action="DESELECT")
+    ootSelectMeshChildrenOnly(obj, includeEmpties)
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.duplicate()
+    try:
+        tempObj = bpy.context.view_layer.objects.active
+        allObjs = bpy.context.selected_objects
+        bpy.ops.object.make_single_user(obdata=True)
+
+        objectCategorizer.sortObjects(allObjs)
+        meshObjs = objectCategorizer.meshes
+        bpy.ops.object.select_all(action="DESELECT")
+        for selectedObj in meshObjs:
+            selectedObj.select_set(True)
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True, properties=False)
+
+        for selectedObj in meshObjs:
+            bpy.ops.object.select_all(action="DESELECT")
+            selectedObj.select_set(True)
+            bpy.context.view_layer.objects.active = selectedObj
+            for modifier in selectedObj.modifiers:
+                attemptModifierApply(modifier)
+        for selectedObj in meshObjs:
+            setOrigin(obj, selectedObj)
+        if ignoreAttr is not None:
+            for selectedObj in meshObjs:
+                if getattr(selectedObj, ignoreAttr):
+                    for child in selectedObj.children:
+                        bpy.ops.object.select_all(action="DESELECT")
+                        child.select_set(True)
+                        bpy.ops.object.parent_clear(type="CLEAR_KEEP_TRANSFORM")
+                        selectedObj.parent.select_set(True)
+                        bpy.ops.object.parent_set(keep_transform=True)
+                    selectedObj.parent = None
+
+        # Assume objects with these types of constraints are parented, and are
+        # intended to be parented in-game, i.e. rendered as an extra DL alongside
+        # a skeletal mesh, e.g. for a character to be wearing or holding it.
+        # In this case we purely want the transformation of the object relative
+        # to whatever it's parented to. Getting rid of the constraint and then
+        # doing transform_apply() sets up this transformation.
+        hasConstraint = False
+        for constraint in tempObj.constraints:
+            if (
+                constraint.type
+                in {
+                    "COPY_LOCATION",
+                    "COPY_ROTATION",
+                    "COPY_SCALE",
+                    "COPY_TRANSFORMS",
+                    "TRANSFORM",
+                    "CHILD_OF",
+                    "CLAMP_TO",
+                    "DAMPED_TRACK",
+                    "LOCKED_TRACK",
+                    "TRACK_TO",
+                }
+                and not constraint.mute
+            ):
+                hasConstraint = True
+                tempObj.constraints.remove(constraint)
+        if not hasConstraint:
+            # For normal objects, the game's coordinate system is 90 degrees
+            # away from Blender's.
+            applyRotation([tempObj], radians(90), "X")
+        else:
+            # This is a relative transform we care about so the 90 degrees
+            # doesn't matter (since they're both right-handed).
+            print("Applying transform")
+            bpy.ops.object.select_all(action="DESELECT")
+            tempObj.select_set(True)
+            bpy.context.view_layer.objects.active = tempObj
+            bpy.ops.object.transform_apply()
+
+        return tempObj, allObjs
+    except Exception as e:
+        cleanupDuplicatedObjects(allObjs)
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        raise Exception(str(e))
+
+def ootSelectMeshChildrenOnly(obj, includeEmpties):
+    isMesh = isinstance(obj.data, bpy.types.Mesh)
+    isEmpty = (
+        obj.data is None or isinstance(obj.data, bpy.types.Camera) or isinstance(obj.data, bpy.types.Curve)
+    ) and includeEmpties
+    if isMesh or isEmpty:
+        obj.select_set(True)
+        obj.original_name = obj.name
+    for child in obj.children:
+        ootSelectMeshChildrenOnly(child, includeEmpties)
+
+def ootCleanupScene(originalSceneObj, allObjs):
+    cleanupDuplicatedObjects(allObjs)
+    originalSceneObj.select_set(True)
+    bpy.context.view_layer.objects.active = originalSceneObj
+
+def checkEmptyName(name):
+    if name == "":
+        raise PluginError("No name entered for the exporter.")
+
+def ootGetPath(exportPath, isCustomExport, subPath, folderName, makeIfNotExists, useFolderForCustom):
+    if isCustomExport:
+        path = bpy.path.abspath(p.join(exportPath, (folderName if useFolderForCustom else "")))
+    else:
+        if bpy.context.scene.ootDecompPath == "":
+            raise PluginError("Decomp base path is empty.")
+        path = bpy.path.abspath(p.join(bpy.context.scene.ootDecompPath, subPath + folderName))
+
+    if not p.exists(path):
+        if isCustomExport or makeIfNotExists:
+            makedirs(path)
+        else:
+            raise PluginError(path + " does not exist.")
+
+    return path

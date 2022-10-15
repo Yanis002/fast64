@@ -1,5 +1,5 @@
 from .....utility import CData, PluginError
-from ....oot_utility import indent
+from ...data import indent
 from ...classes.scene import OOTScene
 from ...classes.room import OOTRoom
 from ...classes.actor import OOTActor

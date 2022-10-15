@@ -4,7 +4,7 @@ from bpy.utils import register_class, unregister_class
 from .general import oot_obj_register, oot_obj_unregister
 from .panel.properties.general import oot_obj_panel_register, oot_obj_panel_unregister
 from .panel.viewport.skeleton.classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
-from .oot_utility import oot_utility_register, oot_utility_unregister
+from .classes import oot_utility_register, oot_utility_unregister
 from .panel.viewport.display_list.classes import OOTDLExportSettings, OOTDLImportSettings
 from .panel.viewport.file_settings import file_register, file_unregister
 from .panel.properties.collision import oot_col_panel_register, oot_col_panel_unregister

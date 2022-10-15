@@ -4,9 +4,10 @@ from mathutils import Matrix
 from ....f3d.f3d_gbi import DLFormat, FMesh
 from ....f3d.f3d_writer import MeshInfo, getInfoDict
 from ....utility import PluginError, getGroupIndexFromname, cleanupDuplicatedObjects
-from ...oot_utility import getSortedChildren, checkEmptyName, checkForStartBone, getStartBone
+from ...utility import getSortedChildren, getStartBone
 from ...skeleton.utility import ootDuplicateArmature, getGroupIndices
 from ...model.classes import OOTModel
+from ..utility import checkEmptyName
 from ..classes.skeleton import OOTSkeleton, OOTLimb
 from ..f3d import ootProcessVertexGroup
 
@@ -31,7 +32,6 @@ def convertArmatureToSkel(
         if len(armatureObj.children) == 0:
             raise PluginError("No mesh parented to armature.")
 
-        checkForStartBone(armatureObj)
         startBoneName = getStartBone(armatureObj)
         meshObj = meshObjs[0]
 

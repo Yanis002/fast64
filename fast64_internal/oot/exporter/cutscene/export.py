@@ -1,7 +1,7 @@
 from bpy.types import Object
-from ...oot_utility import getCutsceneName, getCustomProperty
 from ...scene.classes import OOTSceneHeaderProperty
 from ...cutscene.classes import OOTCutsceneProperty
+from ..utility import getCustomProperty
 from ..classes.scene import OOTScene
 
 from ..classes.cutscene import (
@@ -15,6 +15,14 @@ from ..classes.cutscene import (
     OOTCSUnk,
     OOTCutscene,
 )
+
+
+def getCutsceneName(obj):
+    name = obj.name
+    if name.startswith("Cutscene."):
+        name = name[9:]
+    name = name.replace(".", "_")
+    return name
 
 
 def convertCutsceneData(csParentOut: OOTScene | OOTCutscene, csParentIn: OOTSceneHeaderProperty | OOTCutsceneProperty):

@@ -3,8 +3,7 @@ from bpy.types import Bone, Object
 from math import radians
 from mathutils import Quaternion, Matrix
 from ....utility import PluginError, toAlnum
-from ...oot_utility import checkForStartBone, getStartBone, getSortedChildren
-from ..skeleton import convertArmatureToSkel
+from ...utility import getStartBone, getSortedChildren
 from ..classes.animation import OOTAnimation
 
 from ....utility_anim import (
@@ -92,7 +91,6 @@ def ootGetAnimBoneRot(bone: Bone, poseBone: Bone, isRoot: bool):
 
 
 def ootConvertAnimationData(armatureObj: Object, convertTransformMatrix: Matrix, frame_start: int, frame_count: int):
-    checkForStartBone(armatureObj)
     bonesToProcess = [getStartBone(armatureObj)]
     currentBone = armatureObj.data.bones[bonesToProcess[0]]
     animBones = []

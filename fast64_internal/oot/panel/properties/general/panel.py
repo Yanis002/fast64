@@ -2,12 +2,28 @@ from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
 from .....utility import prop_split
 from ....collision.draw import drawWaterBoxProperty
-from ....oot_utility import getSceneObj, getRoomObj
 from ....scene.draw import drawSceneHeaderProperty, drawAlternateSceneHeaderProperty
 from ....room.draw import drawRoomHeaderProperty, drawAlternateRoomHeaderProperty
 from ....cutscene.draw import drawCutsceneProperty
 from ....actor.draw import drawActorProperty, drawTransitionActorProperty, drawEntranceProperty, drawActorHeaderProperty
 
+
+def getSceneObj(obj):
+    while not (obj is None or (obj is not None and obj.data is None and obj.ootEmptyType == "Scene")):
+        obj = obj.parent
+    if obj is None:
+        return None
+    else:
+        return obj
+
+
+def getRoomObj(obj):
+    while not (obj is None or (obj is not None and obj.data is None and obj.ootEmptyType == "Room")):
+        obj = obj.parent
+    if obj is None:
+        return None
+    else:
+        return obj
 
 class OOTObjectPanel(Panel):
     bl_label = "Object Inspector"

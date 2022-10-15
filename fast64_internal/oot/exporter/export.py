@@ -4,19 +4,26 @@ from bpy.types import Object
 from mathutils import Matrix
 from ...f3d.f3d_gbi import ScrollMethod, DLFormat, TextureExportSettings
 from ...utility import PluginError, CData, writeCDataSourceOnly, writeCDataHeaderOnly, checkObjectReference
-from ..oot_utility import ExportInfo, ootGetPath, ootSceneDirs
 from ..model.classes import OOTGfxFormatter
+from .utility import ootGetPath
+from .data import ootSceneDirs
 from .collision.to_c import ootCollisionToC
 from .room.to_c import convertRoomShapeData, convertRoomModel, convertRoomLayers
 from .scene.to_c import convertSceneLayers
 from .cutscene.to_c import convertCutsceneToC, getCutsceneIncludes
 from .scene_table import modifySceneTable
-from .spec import modifySegmentDefinition
-from .scene_folder import modifySceneFiles
 from .scene import processScene
+from .classes.export import ExportInfo
 from .classes.scene import OOTScene
 from .classes import OOTSceneC
 from .hackeroot.scene_bootup import OOTBootupSceneOptions, setBootupScene
+
+
+def getSceneDirFromLevelName(name):
+    for sceneDir, dirLevels in ootSceneDirs.items():
+        if name in dirLevels:
+            return sceneDir + name
+    return None
 
 
 def generateC(outScene: OOTScene, textureExportSettings: TextureExportSettings):
@@ -113,6 +120,9 @@ def exportScene(
     exportInfo: ExportInfo,
     bootToSceneOptions: OOTBootupSceneOptions,
 ):
+    # circular import fix
+    from .scene_folder import modifySceneFiles
+    from .spec import modifySegmentDefinition
 
     checkObjectReference(inSceneObj, "Scene object")
     isCustomExport = exportInfo.isCustomExportPath

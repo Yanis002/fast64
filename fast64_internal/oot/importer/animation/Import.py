@@ -4,7 +4,7 @@ from math import radians
 from re import search, escape, finditer, DOTALL
 from ....utility import PluginError, readFile, hexOrDecInt
 
-from ...oot_utility import (
+from ...utility import (
     getStartBone,
     getSortedChildren,
 )

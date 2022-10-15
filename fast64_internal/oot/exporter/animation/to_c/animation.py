@@ -3,8 +3,8 @@ from bpy.types import Object
 from os import path as p
 from mathutils import Matrix
 from .....utility import writeCData
-from ....oot_utility import ootGetPath, addIncludeFiles, checkEmptyName
 from ..export import ootExportAnimationCommon
+from ...utility import addIncludeFiles, ootGetPath, checkEmptyName
 
 
 def exportAnimationC(armatureObj: Object, exportPath: str, isCustomExport: bool, folderName: str, skeletonName: str):

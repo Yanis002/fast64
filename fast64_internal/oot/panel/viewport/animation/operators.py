@@ -2,7 +2,7 @@ from bpy.types import Operator, Armature
 from bpy.ops import object
 from bpy.path import abspath
 from .....utility import PluginError, raisePluginError
-from ....oot_utility import ootGetObjectPath
+from ...utility import ootGetObjectPath
 from ....exporter.animation.to_c import exportAnimationC
 from ....importer.animation import ootImportAnimationC
 

@@ -12,6 +12,7 @@ from ..cutscene import convertCutsceneData, processCutscene
 from ..room import processRoom
 from ..classes.collision import OOTCameraData, OOTCameraPosData
 from ..classes.scene import OOTScene, OOTExit, OOTLight, OOTPath
+from ..classes.export import OOTObjectCategorizer
 from .data import decomp_compat_map_CameraSType
 
 from ...scene.classes import (
@@ -21,8 +22,7 @@ from ...scene.classes import (
     OOTLightGroupProperty,
 )
 
-from ...oot_utility import (
-    OOTObjectCategorizer,
+from ..utility import (
     getCustomProperty,
     ootDuplicateHierarchy,
     ootCleanupScene,

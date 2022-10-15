@@ -1,6 +1,6 @@
 from bpy.types import Operator
 from bpy.props import StringProperty, IntProperty, EnumProperty
-from ..oot_utility import getCollection
+from ..utility import getCollection
 from .data import ootEnumCSListType, ootEnumCSTextboxType
 
 

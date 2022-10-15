@@ -3,7 +3,7 @@ from math import pi
 from bpy.types import Object, Mesh
 from bpy.ops import object
 from ....utility import PluginError
-from ...oot_utility import convertIntTo2sComplement, getCustomProperty
+from ..utility import convertIntTo2sComplement, getCustomProperty
 
 from ..classes.collision import (
     OOTCollision,

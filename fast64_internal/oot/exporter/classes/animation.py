@@ -1,5 +1,5 @@
 from ....utility import CData, toAlnum
-from ...oot_utility import indent
+from ..data import indent
 
 
 class OOTAnimation:

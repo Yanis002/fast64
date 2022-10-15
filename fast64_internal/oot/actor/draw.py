@@ -1,6 +1,6 @@
 from bpy.types import UILayout
 from ...utility import prop_split, label_split
-from ..oot_utility import drawAddButton, drawCollectionOps, getEnumName, drawEnumWithCustom
+from ..utility import drawAddButton, drawCollectionOps, getEnumName, drawEnumWithCustom
 from ..room.classes import OOTAlternateRoomHeaderProperty
 from .operators import OOT_SearchActorIDEnumOperator
 from .data import ootEnumActorID

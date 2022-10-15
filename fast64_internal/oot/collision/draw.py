@@ -1,6 +1,6 @@
 from bpy.types import UILayout, ID
 from ...utility import prop_split
-from ..oot_utility import drawEnumWithCustom
+from ..utility import drawEnumWithCustom
 from .classes import OOTCameraPositionProperty, OOTMaterialCollisionProperty, OOTWaterBoxProperty
 
 

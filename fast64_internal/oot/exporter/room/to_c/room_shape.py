@@ -1,7 +1,7 @@
 from .....f3d.f3d_gbi import ScrollMethod, TextureExportSettings
 from .....utility import CData, PluginError
-from ....oot_utility import indent
 from ....model.classes import OOTGfxFormatter
+from ...data import indent
 from ...classes.room import OOTRoom, OOTRoomMeshGroup, OOTRoomMesh
 
 

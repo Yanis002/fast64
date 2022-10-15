@@ -7,13 +7,13 @@ from .....f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod
 from .....f3d.f3d_writer import TriangleConverterInfo, removeDL, saveStaticModel, getInfoDict
 from ....panel.viewport.display_list.classes import OOTDLExportSettings
 from ....model.classes import OOTModel, OOTGfxFormatter
+from ...utility import addIncludeFiles
+from ...classes.export import OOTObjectCategorizer
 
-from ....oot_utility import (
-    OOTObjectCategorizer,
+from ...utility import (
     ootDuplicateHierarchy,
     ootCleanupScene,
     ootGetPath,
-    addIncludeFiles,
 )
 
 

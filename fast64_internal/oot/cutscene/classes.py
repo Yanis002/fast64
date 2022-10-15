@@ -1,7 +1,7 @@
 from bpy.types import PropertyGroup, UILayout
 from bpy.props import StringProperty, IntProperty, EnumProperty, BoolProperty, CollectionProperty
 from ...utility import PluginError, prop_split
-from ..oot_utility import drawCollectionOps
+from ..utility import drawCollectionOps
 from .data import ootEnumCSListType, ootEnumCSTextboxType, ootEnumCSTransitionType
 
 

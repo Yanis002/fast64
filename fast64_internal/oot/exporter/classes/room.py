@@ -1,7 +1,7 @@
 from ....utility import PluginError, toAlnum
 from ...model.classes import OOTModel
-from ...oot_utility import CullGroup
 from ...actor.classes import OOTActorHeaderProperty
+from ..classes.export import CullGroup
 from ..classes import OOTCommonCommands
 from .actor import OOTActor
 
