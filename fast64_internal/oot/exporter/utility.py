@@ -159,6 +159,7 @@ def ootProcessMesh(
                 roomMesh, DLGroup, sceneObj, childObj, transformMatrix, convertTextureData, LODHierarchyObject
             )
 
+
 def addIncludeFilesExtension(objectName, objectPath, assetName, extension):
     include = '#include "' + assetName + "." + extension + '"\n'
     if not p.exists(objectPath):
@@ -263,6 +264,7 @@ def ootDuplicateHierarchy(obj, ignoreAttr, includeEmpties, objectCategorizer):
         bpy.context.view_layer.objects.active = obj
         raise Exception(str(e))
 
+
 def ootSelectMeshChildrenOnly(obj, includeEmpties):
     isMesh = isinstance(obj.data, bpy.types.Mesh)
     isEmpty = (
@@ -274,14 +276,17 @@ def ootSelectMeshChildrenOnly(obj, includeEmpties):
     for child in obj.children:
         ootSelectMeshChildrenOnly(child, includeEmpties)
 
+
 def ootCleanupScene(originalSceneObj, allObjs):
     cleanupDuplicatedObjects(allObjs)
     originalSceneObj.select_set(True)
     bpy.context.view_layer.objects.active = originalSceneObj
 
+
 def checkEmptyName(name):
     if name == "":
         raise PluginError("No name entered for the exporter.")
+
 
 def ootGetPath(exportPath, isCustomExport, subPath, folderName, makeIfNotExists, useFolderForCustom):
     if isCustomExport:

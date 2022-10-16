@@ -1,5 +1,6 @@
 from bpy.types import Mesh
 
+
 class ExportInfo:
     def __init__(self, isCustomExport: bool, exportPath: str, customSubPath: str, name: str):
         self.isCustomExportPath = isCustomExport

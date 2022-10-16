@@ -25,6 +25,7 @@ def getRoomObj(obj):
     else:
         return obj
 
+
 class OOTObjectPanel(Panel):
     bl_label = "Object Inspector"
     bl_idname = "OBJECT_PT_OOT_Object_Inspector"

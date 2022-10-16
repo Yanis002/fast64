@@ -21,6 +21,7 @@ from .data import (
     ootEnumRoomBehaviour,
 )
 
+
 class OOTObjectProperty(PropertyGroup):
     expandTab: BoolProperty(name="Expand Tab")
     objectID: EnumProperty(items=ootEnumObjectID, default="OBJECT_HUMAN")

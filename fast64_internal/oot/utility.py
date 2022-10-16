@@ -37,9 +37,10 @@ def drawCollectionOps(layout, index, collectionType, subIndex, objName, allowAdd
     moveDown.subIndex = subIndex
     moveDown.objName = objName
 
+
 def drawAddButton(layout, index, collectionType, subIndex, objName):
     from .classes import OOTCollectionAdd  # circular import fix
-    
+
     if subIndex is None:
         subIndex = 0
     addOp = layout.operator(OOTCollectionAdd.bl_idname)
@@ -48,9 +49,11 @@ def drawAddButton(layout, index, collectionType, subIndex, objName):
     addOp.subIndex = subIndex
     addOp.objName = objName
 
+
 def getCollectionFromIndex(obj, prop, subIndex, isRoom):
     header = ootGetSceneOrRoomHeader(obj, subIndex, isRoom)
     return getattr(header, prop)
+
 
 # Operators cannot store mutable references (?), so to reuse PropertyCollection modification code we do this.
 # Save a string identifier in the operator, then choose the member variable based on that.
@@ -97,6 +100,7 @@ def getCollection(objName, collectionType, subIndex):
 
     return collection
 
+
 def getEnumName(enumItems, value):
     for enumTuple in enumItems:
         if enumTuple[0] == value:
@@ -108,6 +112,7 @@ def drawEnumWithCustom(panel, data, attribute, name, customName):
     prop_split(panel, data, attribute, name)
     if getattr(data, attribute) == "Custom":
         prop_split(panel, data, attribute + "Custom", customName)
+
 
 def getSortedChildren(armatureObj, bone):
     return sorted(
