@@ -1,20 +1,21 @@
+from ....f3d.f3d_gbi import GfxList
 from ....utility import CData, toAlnum
 from ..data import indent
 
 
 class OOTLimb:
-    def __init__(self, skeletonName: str, boneName: str, index: int, translation, DL, lodDL):
+    def __init__(self, skeletonName: str, boneName: str, index: int, translation: list[int], dl: GfxList, lodDL):
         self.skeletonName = skeletonName
         self.boneName = boneName
         self.translation = translation
         self.firstChildIndex = 0xFF
         self.nextSiblingIndex = 0xFF
-        self.DL = DL
+        self.DL = dl
         self.lodDL = lodDL
 
         self.isFlex = False
         self.index = index
-        self.children = []
+        self.children: list["OOTLimb"] = []
         self.inverseRotation = None
 
     def toC(self, isLOD):
@@ -71,7 +72,7 @@ class OOTLimb:
                     return True
             return False
 
-    def getList(self, limbList):
+    def getList(self, limbList: list["OOTLimb"]):
         # Like ootProcessBone, this must be in depth-first order to match the
         # OoT SkelAnime draw code, so the bones are listed in the file in the
         # same order as they are drawn. This is needed to enable the programmer
@@ -83,9 +84,11 @@ class OOTLimb:
     def setLinks(self):
         if len(self.children) > 0:
             self.firstChildIndex = self.children[0].index
+
         for i in range(len(self.children)):
             if i < len(self.children) - 1:
                 self.children[i].nextSiblingIndex = self.children[i + 1].index
+
             self.children[i].setLinks()
         # self -> child -> sibling
 

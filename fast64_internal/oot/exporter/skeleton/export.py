@@ -88,9 +88,9 @@ def ootProcessBone(
     bone = armatureObj.data.bones[boneName]
 
     if bone.parent is not None:
-        transform = convertTransformMatrix @ bone.parent.matrix_local.inverted() @ bone.matrix_local
+        transform: Matrix = convertTransformMatrix @ bone.parent.matrix_local.inverted() @ bone.matrix_local
     else:
-        transform = convertTransformMatrix @ bone.matrix_local
+        transform: Matrix = convertTransformMatrix @ bone.matrix_local
 
     translate, rotate, scale = transform.decompose()
 
@@ -126,21 +126,21 @@ def ootProcessBone(
             # Dummy data, only used so that name is set correctly
             mesh = FMesh(bone.ootCustomDLName, DLFormat.Static)
 
-    DL = None
+    dl = None
     if mesh is not None:
         if not bone.use_deform:
             raise PluginError(
                 bone.name
                 + " has vertices in its vertex group but is not set to deformable. Make sure to enable deform on this bone."
             )
-        DL = mesh.draw
+        dl = mesh.draw
 
     if isinstance(parentLimb, OOTSkeleton):
         skeleton = parentLimb
-        limb = OOTLimb(skeleton.name, boneName, nextIndex, translate, DL, None)
+        limb = OOTLimb(skeleton.name, boneName, nextIndex, translate, dl, None)
         skeleton.limbRoot = limb
     else:
-        limb = OOTLimb(parentLimb.skeletonName, boneName, nextIndex, translate, DL, None)
+        limb = OOTLimb(parentLimb.skeletonName, boneName, nextIndex, translate, dl, None)
         parentLimb.children.append(limb)
 
     limb.isFlex = hasSkinnedFaces
@@ -150,7 +150,7 @@ def ootProcessBone(
     # the bones are listed in the file in the same order as they are drawn. This
     # is needed to enable the programmer to get the limb indices and to enable
     # optimization between limbs.
-    childrenNames = getSortedChildren(armatureObj, bone)
+    childrenNames = getSortedChildren(bone)
     for childName in childrenNames:
         nextIndex, lastMaterialName = ootProcessBone(
             fModel,

@@ -1,8 +1,9 @@
 import bpy
+from bpy.types import UILayout, Object, Bone
 from ..utility import PluginError, prop_split, ootGetSceneOrRoomHeader
 
 
-def drawCollectionOps(layout, index, collectionType, subIndex, objName, allowAdd=True):
+def drawCollectionOps(layout: UILayout, index: int, collectionType: str, subIndex: int, objName: str, allowAdd=True):
     from .classes import OOTCollectionAdd, OOTCollectionRemove, OOTCollectionMove  # circular import fix
 
     if subIndex is None:
@@ -11,26 +12,26 @@ def drawCollectionOps(layout, index, collectionType, subIndex, objName, allowAdd
     buttons = layout.row(align=True)
 
     if allowAdd:
-        addOp = buttons.operator(OOTCollectionAdd.bl_idname, text="Add", icon="ADD")
+        addOp: OOTCollectionAdd = buttons.operator(OOTCollectionAdd.bl_idname, text="Add", icon="ADD")
         addOp.option = index + 1
         addOp.collectionType = collectionType
         addOp.subIndex = subIndex
         addOp.objName = objName
 
-    removeOp = buttons.operator(OOTCollectionRemove.bl_idname, text="Delete", icon="REMOVE")
+    removeOp: OOTCollectionRemove = buttons.operator(OOTCollectionRemove.bl_idname, text="Delete", icon="REMOVE")
     removeOp.option = index
     removeOp.collectionType = collectionType
     removeOp.subIndex = subIndex
     removeOp.objName = objName
 
-    moveUp = buttons.operator(OOTCollectionMove.bl_idname, text="Up", icon="TRIA_UP")
+    moveUp: OOTCollectionMove = buttons.operator(OOTCollectionMove.bl_idname, text="Up", icon="TRIA_UP")
     moveUp.option = index
     moveUp.offset = -1
     moveUp.collectionType = collectionType
     moveUp.subIndex = subIndex
     moveUp.objName = objName
 
-    moveDown = buttons.operator(OOTCollectionMove.bl_idname, text="Down", icon="TRIA_DOWN")
+    moveDown: OOTCollectionMove = buttons.operator(OOTCollectionMove.bl_idname, text="Down", icon="TRIA_DOWN")
     moveDown.option = index
     moveDown.offset = 1
     moveDown.collectionType = collectionType
@@ -38,19 +39,20 @@ def drawCollectionOps(layout, index, collectionType, subIndex, objName, allowAdd
     moveDown.objName = objName
 
 
-def drawAddButton(layout, index, collectionType, subIndex, objName):
+def drawAddButton(layout: UILayout, index: int, collectionType: str, subIndex: int, objName: str):
     from .classes import OOTCollectionAdd  # circular import fix
 
     if subIndex is None:
         subIndex = 0
-    addOp = layout.operator(OOTCollectionAdd.bl_idname)
+
+    addOp: OOTCollectionAdd = layout.operator(OOTCollectionAdd.bl_idname)
     addOp.option = index
     addOp.collectionType = collectionType
     addOp.subIndex = subIndex
     addOp.objName = objName
 
 
-def getCollectionFromIndex(obj, prop, subIndex, isRoom):
+def getCollectionFromIndex(obj: Object, prop: str, subIndex: int, isRoom: bool):
     header = ootGetSceneOrRoomHeader(obj, subIndex, isRoom)
     return getattr(header, prop)
 
@@ -58,8 +60,9 @@ def getCollectionFromIndex(obj, prop, subIndex, isRoom):
 # Operators cannot store mutable references (?), so to reuse PropertyCollection modification code we do this.
 # Save a string identifier in the operator, then choose the member variable based on that.
 # subIndex is for a collection within a collection element
-def getCollection(objName, collectionType, subIndex):
+def getCollection(objName: str, collectionType: str, subIndex: int):
     obj = bpy.data.objects[objName]
+
     if collectionType == "Actor":
         collection = obj.ootActorProperty.headerSettings.cutsceneHeaders
     elif collectionType == "Transition Actor":
@@ -83,6 +86,7 @@ def getCollection(objName, collectionType, subIndex):
         assert len(toks) in [2, 3]
         hdrnum = int(toks[1])
         collection = getCollectionFromIndex(obj, "csLists", hdrnum, False)
+
         if len(toks) == 3:
             collection = getattr(collection[subIndex], toks[2])
     elif collectionType.startswith("Cutscene."):
@@ -105,28 +109,30 @@ def getEnumName(enumItems, value):
     for enumTuple in enumItems:
         if enumTuple[0] == value:
             return enumTuple[1]
-    raise PluginError("Could not find enum value " + str(value))
+    raise PluginError(f"Could not find enum value {value}")
 
 
-def drawEnumWithCustom(panel, data, attribute, name, customName):
+def drawEnumWithCustom(panel: UILayout, data, attribute: str, name: str, customName: str):
     prop_split(panel, data, attribute, name)
+
     if getattr(data, attribute) == "Custom":
         prop_split(panel, data, attribute + "Custom", customName)
 
 
-def getSortedChildren(armatureObj, bone):
+def getSortedChildren(bone: Bone):
     return sorted(
         [child.name for child in bone.children if child.ootBoneType != "Ignore"],
         key=lambda childName: childName.lower(),
     )
 
 
-def getStartBone(armatureObj):
+def getStartBone(armatureObj: Object):
     startBoneNames = [
         bone.name for bone in armatureObj.data.bones if bone.parent is None and bone.ootBoneType != "Ignore"
     ]
+
     if len(startBoneNames) == 0:
-        raise PluginError(armatureObj.name + ' does not have any root bones that are not of the "Ignore" type.')
+        raise PluginError(f'{armatureObj.name} does not have any root bones that are not of the "Ignore" type.')
+
     startBoneName = startBoneNames[0]
     return startBoneName
-    # return 'root'

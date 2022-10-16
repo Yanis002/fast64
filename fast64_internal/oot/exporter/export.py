@@ -19,7 +19,7 @@ from .classes import OOTSceneC
 from .hackeroot.scene_bootup import OOTBootupSceneOptions, setBootupScene
 
 
-def getSceneDirFromLevelName(name):
+def getSceneDirFromLevelName(name: str):
     for sceneDir, dirLevels in ootSceneDirs.items():
         if name in dirLevels:
             return sceneDir + name

@@ -4,7 +4,9 @@ from ..classes.export import BoxEmpty
 
 
 class OOTWaterBox(BoxEmpty):
-    def __init__(self, roomIndex, lightingSetting, cameraSetting, position, scale, emptyScale):
+    def __init__(
+        self, roomIndex: int, lightingSetting: int, cameraSetting: int, position: list[int], scale, emptyScale: float
+    ):
         self.roomIndex = roomIndex
         self.lightingSetting = lightingSetting
         self.cameraSetting = cameraSetting
@@ -15,7 +17,9 @@ class OOTWaterBox(BoxEmpty):
 
 
 class OOTCameraPosData:
-    def __init__(self, camSType, hasPositionData, position, rotation, fov, jfifID):
+    def __init__(
+        self, camSType: str, hasPositionData: bool, position: list[int], rotation: list[int], fov: int, jfifID: str
+    ):
         self.camSType = camSType
         self.position = position
         self.rotation = rotation
@@ -26,46 +30,46 @@ class OOTCameraPosData:
 
 
 class OOTCameraData:
-    def __init__(self, ownerName):
+    def __init__(self, ownerName: str):
         self.ownerName = ownerName
         self.camPosDict: dict[int, OOTCameraPosData] = {}
 
     def camDataName(self):
-        return self.ownerName + "_camData"
+        return f"{self.ownerName}_camData"
 
     def camPositionsName(self):
-        return self.ownerName + "_camPosData"
+        return f"{self.ownerName}_camPosData"
 
     def validateCamPositions(self):
         count = 0
+
         while count < len(self.camPosDict):
             if count not in self.camPosDict:
                 raise PluginError(
-                    "Error: Camera positions do not have a consecutive list of indices.\n"
-                    + "Missing index: "
-                    + str(count)
+                    "Error: Camera positions do not have a consecutive list of indices.\n" + f"Missing index: {count}"
                 )
+
             count = count + 1
 
 
 class OOTCollisionVertex:
-    def __init__(self, position):
+    def __init__(self, position: int):
         self.position = position
 
 
 class OOTCollisionPolygon:
-    def __init__(self, indices, normal, distance):
+    def __init__(self, indices: list[int], normal: tuple[int, int, int], distance: int):
         self.indices = indices
         self.normal = normal
         self.distance = distance
 
-    def convertShort02(self, ignoreCamera, ignoreActor, ignoreProjectile):
+    def convertShort02(self, ignoreCamera: bool, ignoreActor: bool, ignoreProjectile: bool):
         vertPart = self.indices[0] & 0x1FFF
         colPart = (1 if ignoreCamera else 0) + (2 if ignoreActor else 0) + (4 if ignoreProjectile else 0)
 
         return vertPart | (colPart << 13)
 
-    def convertShort04(self, enableConveyor):
+    def convertShort04(self, enableConveyor: bool):
         vertPart = self.indices[1] & 0x1FFF
         conveyorPart = 1 if enableConveyor else 0
 
@@ -76,6 +80,8 @@ class OOTCollisionPolygon:
 
 
 class OOTPolygonType:
+    # 'other' type: OOTMaterialCollisionProperty
+    # bug with ``enableConveyor``?
     def __eq__(self, other):
         return (
             self.eponaBlock == other.eponaBlock
@@ -204,28 +210,28 @@ class OOTCollision:
         # dict of polygon type : polygon list
         self.polygonGroups: dict[OOTPolygonType, list[OOTCollisionPolygon]] = {}
         self.cameraData = None
-        self.waterBoxes = []
+        self.waterBoxes: list[OOTWaterBox] = []
 
     def polygonCount(self):
         count = 0
-        for polygonType, polygons in self.polygonGroups.items():
+        for polygons in self.polygonGroups.values():
             count += len(polygons)
         return count
 
     def headerName(self):
-        return self.ownerName + "_collisionHeader"
+        return f"{self.ownerName}_collisionHeader"
 
     def verticesName(self):
-        return self.ownerName + "_vertices"
+        return f"{self.ownerName}_vertices"
 
     def polygonsName(self):
-        return self.ownerName + "_polygons"
+        return f"{self.ownerName}_polygons"
 
     def polygonTypesName(self):
-        return self.ownerName + "_polygonTypes"
+        return f"{self.ownerName}_polygonTypes"
 
     def camDataName(self):
-        return self.ownerName + "_camData"
+        return f"{self.ownerName}_camData"
 
     def waterBoxesName(self):
-        return self.ownerName + "_waterBoxes"
+        return f"{self.ownerName}_waterBoxes"

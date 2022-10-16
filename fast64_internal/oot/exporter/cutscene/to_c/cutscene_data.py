@@ -1,6 +1,7 @@
 from .....utility import CData, PluginError
 from ...data import indent
 from ...classes.scene import OOTScene
+from ...classes.cutscene import OOTCutscene
 from .data import ootEnumCSListTypeListC, ootEnumCSListTypeEntryC, ootEnumCSTextboxTypeEntryC
 
 
@@ -20,8 +21,7 @@ def getCutsceneIncludes(fileName: str):
     return includeData
 
 
-def getCutsceneArray(csParent, csName: str):
-    # csParent can be OOTCutscene or OOTScene
+def getCutsceneArray(csParent: OOTCutscene | OOTScene, csName: str):
     csData = CData()
     csDataName = f"CutsceneData {csName}[]"
 

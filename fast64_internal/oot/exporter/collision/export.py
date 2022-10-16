@@ -3,6 +3,7 @@ from math import pi
 from bpy.types import Object, Mesh
 from bpy.ops import object
 from ....utility import PluginError
+from ...panel.properties.collision.classes import OOTMaterialCollisionProperty
 from ..utility import convertIntTo2sComplement, getCustomProperty
 
 from ..classes.collision import (
@@ -13,7 +14,7 @@ from ..classes.collision import (
 )
 
 
-def getPolygonType(collisionProp):
+def getPolygonType(collisionProp: OOTMaterialCollisionProperty):
     polygonType = OOTPolygonType()
     polygonType.ignoreCameraCollision = collisionProp.ignoreCameraCollision
     polygonType.ignoreActorCollision = collisionProp.ignoreActorCollision
@@ -27,6 +28,7 @@ def getPolygonType(collisionProp):
     polygonType.cameraID = collisionProp.cameraID
     polygonType.isWallDamage = collisionProp.isWallDamage
     polygonType.enableConveyor = collisionProp.conveyorOption == "Land"
+
     if collisionProp.conveyorOption != "None":
         polygonType.conveyorRotation = int(collisionProp.conveyorRotation / (2 * pi) * 0x3F)
         polygonType.conveyorSpeed = int(getCustomProperty(collisionProp, "conveyorSpeed"), 16) + (
@@ -41,6 +43,7 @@ def getPolygonType(collisionProp):
     polygonType.lightingSetting = collisionProp.lightingSetting
     polygonType.terrain = getCustomProperty(collisionProp, "terrain")
     polygonType.sound = getCustomProperty(collisionProp, "sound")
+
     return polygonType
 
 
@@ -162,13 +165,13 @@ def exportCollisionCommon(collision: OOTCollision, obj: Object, transformMatrix:
             #
             # 1) The vertex with the minimum y coordinate should be first.
             # This prevents a bug due to an optimization in OoT's CollisionPoly_GetMinY.
-            # https://github.com/zeldaret/oot/blob/791d9018c09925138b9f830f7ae8142119905c05/src/code/z_bgcheck.c#L161
+            # https://github.com/zeldaret/oot/blob/7996df1913bcf47095f972534385fcdd0bafeb6e/src/code/z_bgcheck.c#L208
             #
             # 2) The vertices should wrap around the polygon normal **counter-clockwise**.
             # This is needed for OoT's dynapoly, which is collision that can move.
             # When it moves, the vertex coordinates and normals are recomputed.
             # The normal is computed based on the vertex coordinates, which makes the order of vertices matter.
-            # https://github.com/zeldaret/oot/blob/791d9018c09925138b9f830f7ae8142119905c05/src/code/z_bgcheck.c#L2888
+            # https://github.com/zeldaret/oot/blob/7996df1913bcf47095f972534385fcdd0bafeb6e/src/code/z_bgcheck.c#L2973
 
             # Address 1): sort by ascending y coordinate
             indices.sort(key=lambda index: collision.vertices[index].position[1])

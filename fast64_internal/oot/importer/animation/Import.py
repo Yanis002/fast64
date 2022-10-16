@@ -16,7 +16,7 @@ def getNextBone(boneStack, armatureObj: Object):
 
     bone = armatureObj.data.bones[boneStack[0]]
     boneStack = boneStack[1:]
-    boneStack = getSortedChildren(armatureObj, bone) + boneStack
+    boneStack = getSortedChildren(bone) + boneStack
 
     return bone, boneStack
 

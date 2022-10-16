@@ -1,4 +1,4 @@
-from bpy.types import Mesh
+from bpy.types import Mesh, Object
 
 
 class ExportInfo:
@@ -19,7 +19,7 @@ class OOTObjectCategorizer:
         self.entrances = []
         self.waterBoxes = []
 
-    def sortObjects(self, allObjs):
+    def sortObjects(self, allObjs: list[Object]):
         for obj in allObjs:
             if obj.data is None:
                 if obj.ootEmptyType == "Actor":
@@ -39,19 +39,19 @@ class OOTObjectCategorizer:
 
 
 class BoxEmpty:
-    def __init__(self, position, scale, emptyScale):
+    def __init__(self, position: list[int], scale: list[int], emptyScale: float):
         # The scale ordering is due to the fact that scaling happens AFTER rotation.
         # Thus the translation uses Y-up, while the scale uses Z-up.
         self.low = (position[0] - scale[0] * emptyScale, position[2] - scale[1] * emptyScale)
         self.high = (position[0] + scale[0] * emptyScale, position[2] + scale[1] * emptyScale)
         self.height = position[1] + scale[2] * emptyScale
 
-        self.low = [int(round(value)) for value in self.low]
-        self.high = [int(round(value)) for value in self.high]
-        self.height = int(round(self.height))
+        self.low = [round(value) for value in self.low]
+        self.high = [round(value) for value in self.high]
+        self.height = round(self.height)
 
 
 class CullGroup:
-    def __init__(self, position, scale, emptyScale):
+    def __init__(self, position: list[int], scale: list[int], emptyScale: float):
         self.position = [round(field) for field in position]
         self.cullDepth = abs(round(scale[0] * emptyScale))

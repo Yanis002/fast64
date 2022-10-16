@@ -17,7 +17,7 @@ from ..classes.cutscene import (
 )
 
 
-def getCutsceneName(obj):
+def getCutsceneName(obj: Object):
     name = obj.name
     if name.startswith("Cutscene."):
         name = name[9:]

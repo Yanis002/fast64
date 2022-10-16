@@ -104,7 +104,7 @@ def ootConvertAnimationData(armatureObj: Object, convertTransformMatrix: Matrix,
 
         animBones.append(boneName)
 
-        childrenNames = getSortedChildren(armatureObj, currentBone)
+        childrenNames = getSortedChildren(currentBone)
         bonesToProcess = childrenNames + bonesToProcess
 
     # list of boneFrameData, which is [[x frames], [y frames], [z frames]]

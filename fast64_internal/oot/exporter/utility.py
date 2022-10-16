@@ -4,7 +4,7 @@ from math import degrees, radians
 from mathutils import Matrix
 from bpy.types import Mesh, Object
 from ...f3d.f3d_writer import TriangleConverterInfo, getInfoDict, saveStaticModel
-from .classes.export import CullGroup
+from .classes.export import CullGroup, OOTObjectCategorizer
 from .classes.room import OOTDLGroup, OOTRoomMesh
 
 from ...utility import (
@@ -19,31 +19,32 @@ from ...utility import (
 )
 
 
-def checkUniformScale(scale, obj):
+def checkUniformScale(scale: list[int], obj: Object):
     if abs(scale[0] - scale[1]) > 0.01 or abs(scale[1] - scale[2]) > 0.01 or abs(scale[0] - scale[2]) > 0.01:
         raise PluginError("Cull group " + obj.name + " must have a uniform scale.")
 
 
-def getCustomProperty(data, prop):
+def getCustomProperty(data, prop: str):
     value = getattr(data, prop)
     return value if value != "Custom" else getattr(data, prop + str("Custom"))
 
 
-def convertIntTo2sComplement(value, length, signed):
-    return int.from_bytes(int(round(value)).to_bytes(length, "big", signed=signed), "big")
+def convertIntTo2sComplement(value: int, length: int, signed: bool):
+    # is it really required to use ``round`` there?
+    return int.from_bytes(round(value).to_bytes(length, "big", signed=signed), "big")
 
 
-def ootConvertTranslation(translation):
+def ootConvertTranslation(translation: list[int]):
     return [int(round(value)) for value in translation]
 
 
 def ootConvertRotation(rotation):
     # see BINANG_TO_DEGF
-    return [int(round((degrees(value) % 360) / 360 * (2**16))) % (2**16) for value in rotation.to_euler()]
+    return [round((degrees(value) % 360) / 360 * (2**16)) % (2**16) for value in rotation.to_euler()]
 
 
-def getConvertedTransformWithOrientation(transformMatrix: Matrix, sceneObj: Object, obj: Object, orientation):
-    relativeTransform = transformMatrix @ sceneObj.matrix_world.inverted() @ obj.matrix_world
+def getConvertedTransformWithOrientation(transformMatrix: Matrix, sceneObj: Object, obj: Object, orientation: Matrix):
+    relativeTransform: Matrix = transformMatrix @ sceneObj.matrix_world.inverted() @ obj.matrix_world
     blenderTranslation, blenderRotation, scale = relativeTransform.decompose()
     rotation = blenderRotation @ orientation
     convertedTranslation = ootConvertTranslation(blenderTranslation)
@@ -160,7 +161,7 @@ def ootProcessMesh(
             )
 
 
-def addIncludeFilesExtension(objectName, objectPath, assetName, extension):
+def addIncludeFilesExtension(objectName: str, objectPath: str, assetName: str, extension: str):
     include = '#include "' + assetName + "." + extension + '"\n'
     if not p.exists(objectPath):
         raise PluginError(objectPath + " does not exist.")
@@ -174,13 +175,13 @@ def addIncludeFilesExtension(objectName, objectPath, assetName, extension):
     saveDataToFile(path, data)
 
 
-def addIncludeFiles(objectName, objectPath, assetName):
+def addIncludeFiles(objectName: str, objectPath: str, assetName: str):
     addIncludeFilesExtension(objectName, objectPath, assetName, "h")
     addIncludeFilesExtension(objectName, objectPath, assetName, "c")
 
 
 # This also sets all origins relative to the scene object.
-def ootDuplicateHierarchy(obj, ignoreAttr, includeEmpties, objectCategorizer):
+def ootDuplicateHierarchy(obj: Object, ignoreAttr: bool, includeEmpties: bool, objectCategorizer: OOTObjectCategorizer):
     # Duplicate objects to apply scale / modifiers / linked data
     bpy.ops.object.select_all(action="DESELECT")
     ootSelectMeshChildrenOnly(obj, includeEmpties)
@@ -265,7 +266,7 @@ def ootDuplicateHierarchy(obj, ignoreAttr, includeEmpties, objectCategorizer):
         raise Exception(str(e))
 
 
-def ootSelectMeshChildrenOnly(obj, includeEmpties):
+def ootSelectMeshChildrenOnly(obj: Object, includeEmpties: bool):
     isMesh = isinstance(obj.data, bpy.types.Mesh)
     isEmpty = (
         obj.data is None or isinstance(obj.data, bpy.types.Camera) or isinstance(obj.data, bpy.types.Curve)
@@ -277,18 +278,25 @@ def ootSelectMeshChildrenOnly(obj, includeEmpties):
         ootSelectMeshChildrenOnly(child, includeEmpties)
 
 
-def ootCleanupScene(originalSceneObj, allObjs):
+def ootCleanupScene(originalSceneObj: Object, allObjs: list[Object]):
     cleanupDuplicatedObjects(allObjs)
     originalSceneObj.select_set(True)
     bpy.context.view_layer.objects.active = originalSceneObj
 
 
-def checkEmptyName(name):
+def checkEmptyName(name: str):
     if name == "":
         raise PluginError("No name entered for the exporter.")
 
 
-def ootGetPath(exportPath, isCustomExport, subPath, folderName, makeIfNotExists, useFolderForCustom):
+def ootGetPath(
+    exportPath: str,
+    isCustomExport: bool,
+    subPath: str,
+    folderName: str,
+    makeIfNotExists: bool,
+    useFolderForCustom: bool,
+):
     if isCustomExport:
         path = bpy.path.abspath(p.join(exportPath, (folderName if useFolderForCustom else "")))
     else:
