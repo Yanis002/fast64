@@ -2,7 +2,7 @@ from bpy.types import Panel, Curve, Object
 from bpy.utils import register_class, unregister_class
 from bpy.props import PointerProperty
 from .....utility import prop_split
-from ....spline.classes import OOTSplineProperty
+from .classes import OOTSplineProperty
 
 
 class OOTSplinePanel(Panel):

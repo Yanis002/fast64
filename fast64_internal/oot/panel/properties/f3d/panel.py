@@ -1,7 +1,7 @@
 from bpy.types import Panel, Mesh, Armature
 from bpy.utils import register_class, unregister_class
 from .....utility import prop_split
-from ....f3d.draw import drawOOTMaterialProperty
+from .draw import drawOOTMaterialProperty
 
 
 class OOT_DisplayListPanel(Panel):

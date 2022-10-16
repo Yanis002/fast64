@@ -4,7 +4,7 @@ from math import radians, degrees
 from mathutils import Quaternion, Matrix
 from ....f3d.f3d_gbi import DLFormat
 from ....utility import PluginError, unhideAllAndGetHiddenList, hideObjsInList
-from ...collision.classes import OOTCameraPositionProperty
+from ...panel.properties.collision.classes import OOTCameraPositionProperty
 from ..collision import exportCollisionCommon
 from ...model.classes import OOTModel
 from ..utility import getConvertedTransformWithOrientation
@@ -15,7 +15,7 @@ from ..classes.scene import OOTScene, OOTExit, OOTLight, OOTPath
 from ..classes.export import OOTObjectCategorizer
 from .data import decomp_compat_map_CameraSType
 
-from ...scene.classes import (
+from ...panel.properties.general.scene.classes import (
     OOTAlternateSceneHeaderProperty,
     OOTSceneHeaderProperty,
     OOTSceneProperties,

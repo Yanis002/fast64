@@ -1,11 +1,11 @@
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
 from .....utility import prop_split
-from ....collision.draw import drawWaterBoxProperty
-from ....scene.draw import drawSceneHeaderProperty, drawAlternateSceneHeaderProperty
-from ....room.draw import drawRoomHeaderProperty, drawAlternateRoomHeaderProperty
-from ....cutscene.draw import drawCutsceneProperty
-from ....actor.draw import drawActorProperty, drawTransitionActorProperty, drawEntranceProperty, drawActorHeaderProperty
+from ..collision.draw import drawWaterBoxProperty
+from .scene.draw import drawSceneHeaderProperty, drawAlternateSceneHeaderProperty
+from .room.draw import drawRoomHeaderProperty, drawAlternateRoomHeaderProperty
+from .cutscene.draw import drawCutsceneProperty
+from .actor.draw import drawActorProperty, drawTransitionActorProperty, drawEntranceProperty, drawActorHeaderProperty
 
 
 def getSceneObj(obj):

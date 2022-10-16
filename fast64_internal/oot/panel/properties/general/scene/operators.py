@@ -1,8 +1,8 @@
 import bpy
 from bpy.types import Operator
 from bpy.props import EnumProperty, IntProperty, StringProperty
-from ...utility import ootGetSceneOrRoomHeader
-from ..data import ootEnumSceneID
+from ......utility import ootGetSceneOrRoomHeader
+from .....data import ootEnumSceneID
 from .data import ootEnumMusicSeq
 
 

@@ -1,15 +1,15 @@
 from bpy.props import PointerProperty, IntProperty, EnumProperty
 from bpy.types import Object, PropertyGroup
 from bpy.utils import register_class, unregister_class
-from ..utility import gammaInverse
-from .collision.classes import OOTWaterBoxProperty
+from .....utility import gammaInverse
+from ..collision.classes import OOTWaterBoxProperty
 from .actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
 from .scene.operators import OOT_SearchSceneEnumOperator, OOT_SearchMusicSeqEnumOperator
 from .scene.classes import OOTSceneProperties, OOTSceneHeaderProperty, OOTAlternateSceneHeaderProperty
 from .room.operators import OOT_SearchObjectEnumOperator
 from .room.classes import OOTRoomHeaderProperty, OOTAlternateRoomHeaderProperty
 from .cutscene.operators import OOTCSTextboxAdd, OOTCSListAdd
-from .data import ootEnumEmptyType, ootRegisterQueue
+from ....data import ootEnumEmptyType, ootRegisterQueue
 
 from .cutscene.classes import (
     OOTCutsceneProperty,

@@ -2,8 +2,8 @@ from math import radians
 from mathutils import Vector, Matrix, Quaternion
 from bpy.types import Object
 from ....utility import PluginError, checkIdentityRotation, normToSigned8Vector
-from ...room.classes import OOTAlternateRoomHeaderProperty, OOTRoomHeaderProperty
-from ...actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
+from ...panel.properties.general.room.classes import OOTAlternateRoomHeaderProperty, OOTRoomHeaderProperty
+from ...panel.properties.general.actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
 from ..utility import getCustomProperty
 from ..classes.export import CullGroup
 from ..classes.collision import OOTWaterBox

@@ -5,7 +5,7 @@ from ....f3d.f3d_gbi import DLFormat, FMesh
 from ....f3d.f3d_writer import MeshInfo, getInfoDict
 from ....utility import PluginError, getGroupIndexFromname, cleanupDuplicatedObjects
 from ...utility import getSortedChildren, getStartBone
-from ...skeleton.utility import ootDuplicateArmature, getGroupIndices
+from ...panel.properties.skeleton.utility import ootDuplicateArmature, getGroupIndices
 from ...model.classes import OOTModel
 from ..utility import checkEmptyName
 from ..classes.skeleton import OOTSkeleton, OOTLimb

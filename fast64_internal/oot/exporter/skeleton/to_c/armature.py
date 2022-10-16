@@ -5,7 +5,7 @@ from os import path
 from .....f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod
 from ....model.classes import OOTModel, OOTGfxFormatter
 from ....panel.viewport.skeleton.classes import OOTSkeletonExportSettings
-from ....skeleton.utility import ootGetSkeleton, ootGetLimbs, ootGetLimb
+from ....panel.properties.skeleton.utility import ootGetSkeleton, ootGetLimbs, ootGetLimb
 from ...skeleton import convertArmatureToSkel
 from ...utility import addIncludeFiles, ootGetPath
 

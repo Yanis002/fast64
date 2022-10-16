@@ -1,5 +1,5 @@
-from bpy.types import UILayout, Object
-from ..f3d.classes import OOTDynamicMaterialDrawLayerProperty, OOTDynamicMaterialProperty
+from bpy.types import UILayout
+from .classes import OOTDynamicMaterialDrawLayerProperty, OOTDynamicMaterialProperty
 
 
 def drawOOTMaterialProperty(layout: UILayout, matProp: OOTDynamicMaterialProperty, drawLayer: str):

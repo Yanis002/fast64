@@ -1,5 +1,5 @@
 from bpy.types import PropertyGroup
-from ..data import ootRegisterQueue, ootEnumHeaderMenu
+from .....data import ootRegisterQueue, ootEnumHeaderMenu
 
 from bpy.props import (
     PointerProperty,

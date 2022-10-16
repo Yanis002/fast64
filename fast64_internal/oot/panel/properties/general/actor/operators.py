@@ -1,8 +1,8 @@
 import bpy
 from bpy.types import Operator
 from bpy.props import EnumProperty, StringProperty
-from ...utility import PluginError
-from ..data import ootRegisterQueue
+from ......utility import PluginError
+from .....data import ootRegisterQueue
 from .data import ootEnumActorID
 
 

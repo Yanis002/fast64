@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Operator
 from bpy.props import EnumProperty, IntProperty, StringProperty
-from ...utility import ootGetSceneOrRoomHeader
+from ......utility import ootGetSceneOrRoomHeader
 from .data import ootEnumObjectID
 
 

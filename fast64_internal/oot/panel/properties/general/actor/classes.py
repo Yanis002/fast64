@@ -1,6 +1,6 @@
 from bpy.types import PropertyGroup
 from bpy.props import IntProperty, BoolProperty, EnumProperty, StringProperty, CollectionProperty, PointerProperty
-from ..data import ootRegisterQueue
+from .....data import ootRegisterQueue
 from .data import ootEnumActorID, ootEnumCamTransition, ootEnumSceneSetupPreset
 
 

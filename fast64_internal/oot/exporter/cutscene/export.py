@@ -1,6 +1,6 @@
 from bpy.types import Object
-from ...scene.classes import OOTSceneHeaderProperty
-from ...cutscene.classes import OOTCutsceneProperty
+from ...panel.properties.general.scene.classes import OOTSceneHeaderProperty
+from ...panel.properties.general.cutscene.classes import OOTCutsceneProperty
 from ..utility import getCustomProperty
 from ..classes.scene import OOTScene
 

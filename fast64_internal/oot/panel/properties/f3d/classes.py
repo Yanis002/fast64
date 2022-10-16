@@ -1,8 +1,8 @@
 from bpy.props import StringProperty, PointerProperty, BoolProperty, EnumProperty
 from bpy.types import PropertyGroup, Object, World, Material
 from bpy.utils import register_class, unregister_class
-from ...f3d.f3d_parser import ootEnumDrawLayers
-from ..model.classes import OOTDynamicTransformProperty
+from .....f3d.f3d_parser import ootEnumDrawLayers
+from ....model.classes import OOTDynamicTransformProperty
 
 
 class OOTDefaultRenderModesProperty(PropertyGroup):

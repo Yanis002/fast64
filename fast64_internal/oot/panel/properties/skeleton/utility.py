@@ -2,8 +2,8 @@ import bpy
 from re import search, escape, DOTALL
 from bpy.types import Object
 from bpy.ops import pose, object
-from ...f3d.f3d_writer import MeshInfo
-from ...utility import PluginError, attemptModifierApply, cleanupDuplicatedObjects, getGroupNameFromIndex, setOrigin
+from .....f3d.f3d_writer import MeshInfo
+from .....utility import PluginError, attemptModifierApply, cleanupDuplicatedObjects, getGroupNameFromIndex, setOrigin
 from .classes import OOTVertexGroupInfo
 
 

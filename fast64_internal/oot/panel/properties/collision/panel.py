@@ -1,6 +1,6 @@
 from bpy.types import Panel, Camera, Object
 from bpy.utils import register_class, unregister_class
-from ....collision.draw import drawCollisionProperty, drawCameraProperty
+from .draw import drawCollisionProperty, drawCameraProperty
 
 
 class OOT_CameraPosPanel(Panel):
