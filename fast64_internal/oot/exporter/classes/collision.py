@@ -1,6 +1,6 @@
 from ....utility import PluginError
 from ..utility import convertIntTo2sComplement
-from ..classes.export import BoxEmpty
+from ..classes import BoxEmpty
 
 
 class OOTWaterBox(BoxEmpty):

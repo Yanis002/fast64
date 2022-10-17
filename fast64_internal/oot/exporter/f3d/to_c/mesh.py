@@ -5,10 +5,10 @@ from bpy.path import abspath
 from .....utility import CData, writeCData, toAlnum
 from .....f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod
 from .....f3d.f3d_writer import TriangleConverterInfo, removeDL, saveStaticModel, getInfoDict
-from ....panel.viewport.display_list.classes import OOTDLExportSettings
+from ....panel.viewport.display_list import OOTDLExportSettings
 from ....model.classes import OOTModel, OOTGfxFormatter
 from ...utility import addIncludeFiles
-from ...classes.export import OOTObjectCategorizer
+from ...classes import OOTObjectCategorizer
 
 from ...utility import (
     ootDuplicateHierarchy,

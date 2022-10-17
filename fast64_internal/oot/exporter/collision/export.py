@@ -3,15 +3,9 @@ from math import pi
 from bpy.types import Object, Mesh
 from bpy.ops import object
 from ....utility import PluginError
-from ...panel.properties.collision.classes import OOTMaterialCollisionProperty
+from ...panel.properties.collision import OOTMaterialCollisionProperty
+from ..classes import OOTCollision, OOTCollisionVertex, OOTCollisionPolygon, OOTPolygonType
 from ..utility import convertIntTo2sComplement, getCustomProperty
-
-from ..classes.collision import (
-    OOTCollision,
-    OOTCollisionVertex,
-    OOTCollisionPolygon,
-    OOTPolygonType,
-)
 
 
 def getPolygonType(collisionProp: OOTMaterialCollisionProperty):

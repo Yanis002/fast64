@@ -1,8 +1,8 @@
 from .....f3d.f3d_gbi import ScrollMethod, TextureExportSettings
 from .....utility import CData, PluginError
 from ....model.classes import OOTGfxFormatter
+from ...classes import OOTRoom, OOTRoomMeshGroup, OOTRoomMesh
 from ...data import indent
-from ...classes.room import OOTRoom, OOTRoomMeshGroup, OOTRoomMesh
 
 
 def getRoomShapeEntry(meshEntry: OOTRoomMeshGroup, roomShape: str):

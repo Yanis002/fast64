@@ -1,10 +1,10 @@
 from bpy.types import Object
-from ...panel.properties.general.scene.classes import OOTSceneHeaderProperty
-from ...panel.properties.general.cutscene.classes import OOTCutsceneProperty
+from ...panel.properties.general.scene import OOTSceneHeaderProperty
+from ...panel.properties.general.cutscene import OOTCutsceneProperty
 from ..utility import getCustomProperty
-from ..classes.scene import OOTScene
 
-from ..classes.cutscene import (
+from ..classes import (
+    OOTScene,
     OOTCSList,
     OOTCSTextbox,
     OOTCSLighting,

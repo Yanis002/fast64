@@ -4,8 +4,7 @@ from math import degrees, radians
 from mathutils import Matrix
 from bpy.types import Mesh, Object
 from ...f3d.f3d_writer import TriangleConverterInfo, getInfoDict, saveStaticModel
-from .classes.export import CullGroup, OOTObjectCategorizer
-from .classes.room import OOTDLGroup, OOTRoomMesh
+from .classes import CullGroup, OOTObjectCategorizer, OOTDLGroup, OOTRoomMesh
 
 from ...utility import (
     PluginError,

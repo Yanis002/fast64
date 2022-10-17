@@ -1,6 +1,6 @@
 from .....utility import CData
+from ...classes import OOTRoom
 from ...data import indent
-from ...classes.room import OOTRoom
 
 
 def getEchoSettingsCmd(outRoom: OOTRoom):

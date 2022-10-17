@@ -1,11 +1,11 @@
 from bpy.types import Object
 from bpy.path import abspath
 from mathutils import Matrix
-from os import path
+from os import path as p
 from .....f3d.f3d_gbi import DLFormat, TextureExportSettings, ScrollMethod
 from ....model.classes import OOTModel, OOTGfxFormatter
-from ....panel.viewport.skeleton.classes import OOTSkeletonExportSettings
-from ....panel.properties.skeleton.utility import ootGetSkeleton, ootGetLimbs, ootGetLimb
+from ....panel.viewport.skeleton import OOTSkeletonExportSettings
+from ....panel.properties.skeleton import ootGetSkeleton, ootGetLimbs, ootGetLimb
 from ...skeleton import convertArmatureToSkel
 from ...utility import addIncludeFiles, ootGetPath
 
@@ -35,8 +35,8 @@ def convertArmatureToSkelWithMesh(
 
 
 def removeSkeleton(filePath: str, objectName: str, skeletonName: str):
-    headerPath = path.join(filePath, objectName + ".h")
-    sourcePath = path.join(filePath, objectName + ".c")
+    headerPath = p.join(filePath, objectName + ".h")
+    sourcePath = p.join(filePath, objectName + ".c")
 
     skeletonDataC = readFile(sourcePath)
     originalDataC = skeletonDataC

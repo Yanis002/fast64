@@ -1,6 +1,6 @@
 from .....utility import CData, PluginError
+from ...classes import OOTScene
 from ...data import indent
-from ...classes.scene import OOTScene
 
 
 def getSoundSettingsCmd(outScene: OOTScene):

@@ -1,8 +1,7 @@
 from ....utility import PluginError, toAlnum
 from ...model.classes import OOTModel
-from ...panel.properties.general.actor.classes import OOTActorHeaderProperty
-from ..classes.export import CullGroup
-from ..classes import OOTCommonCommands
+from ...panel.properties.general.actor import OOTActorHeaderProperty
+from ..classes import OOTCommonCommands, CullGroup
 from .actor import OOTActor
 
 from ....f3d.f3d_gbi import (

@@ -4,18 +4,16 @@ from math import radians, degrees
 from mathutils import Quaternion, Matrix
 from ....f3d.f3d_gbi import DLFormat
 from ....utility import PluginError, unhideAllAndGetHiddenList, hideObjsInList
-from ...panel.properties.collision.classes import OOTCameraPositionProperty
+from ...panel.properties.collision import OOTCameraPositionProperty
 from ..collision import exportCollisionCommon
 from ...model.classes import OOTModel
 from ..utility import getConvertedTransformWithOrientation
 from ..cutscene import convertCutsceneData, processCutscene
 from ..room import processRoom
-from ..classes.collision import OOTCameraData, OOTCameraPosData
-from ..classes.scene import OOTScene, OOTExit, OOTLight, OOTPath
-from ..classes.export import OOTObjectCategorizer
+from ..classes import OOTScene, OOTExit, OOTLight, OOTPath, OOTObjectCategorizer, OOTCameraData, OOTCameraPosData
 from .data import decomp_compat_map_CameraSType
 
-from ...panel.properties.general.scene.classes import (
+from ...panel.properties.general.scene import (
     OOTAlternateSceneHeaderProperty,
     OOTSceneHeaderProperty,
     OOTSceneProperties,

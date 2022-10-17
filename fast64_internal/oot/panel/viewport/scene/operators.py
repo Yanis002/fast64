@@ -6,7 +6,7 @@ from .....f3d.f3d_gbi import DLFormat
 from .....utility import PluginError, raisePluginError
 from ....exporter.scene_table import modifySceneTable
 from ....exporter.scene_folder import deleteSceneFiles
-from ....exporter.classes.export import ExportInfo
+from ....exporter.classes import ExportInfo
 from ....exporter import exportScene
 from ....exporter.spec import modifySegmentDefinition
 from .utility import sceneNameFromID

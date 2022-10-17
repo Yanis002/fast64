@@ -1,9 +1,7 @@
 import os, re, bpy
 from ...utility import readFile, writeFile
-from .classes.export import ExportInfo
 from .data import indent
-from .classes.scene import OOTScene
-from .classes import OOTSceneC
+from .classes import OOTSceneC, OOTScene, ExportInfo
 from .export import getSceneDirFromLevelName
 
 

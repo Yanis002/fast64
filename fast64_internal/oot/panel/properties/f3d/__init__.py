@@ -1,1 +1,2 @@
 from .panel import oot_dl_writer_panel_register, oot_dl_writer_panel_unregister
+from .classes import oot_dl_writer_register, oot_dl_writer_unregister

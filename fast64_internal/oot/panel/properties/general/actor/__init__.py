@@ -1,1 +1,1 @@
-from .classes import OOTActorProperty
+from .classes import OOTActorProperty, OOTActorHeaderProperty, OOTTransitionActorProperty, OOTEntranceProperty

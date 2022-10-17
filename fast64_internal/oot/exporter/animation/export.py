@@ -4,7 +4,7 @@ from math import radians
 from mathutils import Quaternion, Matrix
 from ....utility import PluginError, toAlnum
 from ...utility import getStartBone, getSortedChildren
-from ..classes.animation import OOTAnimation
+from ..classes import OOTAnimation
 
 from ....utility_anim import (
     ValueFrameData,

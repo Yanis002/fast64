@@ -1,7 +1,7 @@
 from bpy.types import PropertyGroup, Light, Object
 from ......render_settings import on_update_oot_render_settings
 from .....data import ootRegisterQueue, ootEnumHeaderMenu, ootEnumSceneID
-from ..cutscene.classes import OOTCSListProperty
+from ..cutscene import OOTCSListProperty
 
 from bpy.props import (
     BoolProperty,

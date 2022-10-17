@@ -3,7 +3,7 @@ from bpy.props import StringProperty, EnumProperty, BoolProperty, PointerPropert
 from bpy.utils import register_class, unregister_class
 from .....utility import customExportWarning, prop_split
 from ....data import ootEnumSceneID
-from ...properties.general.scene.operators import OOT_SearchSceneEnumOperator
+from ...properties.general.scene import OOT_SearchSceneEnumOperator
 from ....exporter.hackeroot.scene_bootup import OOT_ClearBootupScene, ootSceneBootupRegister, ootSceneBootupUnregister
 from ....utility import getEnumName
 from ...viewport import OOT_Panel

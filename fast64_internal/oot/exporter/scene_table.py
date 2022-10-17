@@ -1,8 +1,7 @@
 import os, bpy
 from ...utility import PluginError, writeFile
 from ..data import ootEnumSceneID
-from .classes.export import ExportInfo
-from .classes.scene import OOTScene
+from .classes import ExportInfo, OOTScene
 
 
 def getDrawConfigList(exportPath: str):

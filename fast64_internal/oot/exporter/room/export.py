@@ -2,15 +2,10 @@ from math import radians
 from mathutils import Vector, Matrix, Quaternion
 from bpy.types import Object
 from ....utility import PluginError, checkIdentityRotation, normToSigned8Vector
-from ...panel.properties.general.room.classes import OOTAlternateRoomHeaderProperty, OOTRoomHeaderProperty
-from ...panel.properties.general.actor.classes import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
-from ..utility import getCustomProperty
-from ..classes.export import CullGroup
-from ..classes.collision import OOTWaterBox
-from ..classes.scene import OOTScene
-from ..classes.room import OOTRoom
-from ..classes.actor import OOTActor, OOTTransitionActor, OOTEntrance
-from ..utility import getConvertedTransformWithOrientation, ootProcessMesh
+from ...panel.properties.general.room import OOTAlternateRoomHeaderProperty, OOTRoomHeaderProperty
+from ...panel.properties.general.actor import OOTActorProperty, OOTTransitionActorProperty, OOTEntranceProperty
+from ..utility import getCustomProperty, getConvertedTransformWithOrientation, ootProcessMesh
+from ..classes import CullGroup, OOTWaterBox, OOTScene, OOTRoom, OOTActor, OOTTransitionActor, OOTEntrance
 
 
 def getConvertedTransform(transformMatrix: Matrix, sceneObj: Object, obj: Object, handleOrientation: bool):

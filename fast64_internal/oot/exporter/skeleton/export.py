@@ -8,7 +8,7 @@ from ...utility import getSortedChildren, getStartBone
 from ...panel.properties.skeleton.utility import ootDuplicateArmature, getGroupIndices
 from ...model.classes import OOTModel
 from ..utility import checkEmptyName
-from ..classes.skeleton import OOTSkeleton, OOTLimb
+from ..classes import OOTSkeleton, OOTLimb
 from ..f3d import ootProcessVertexGroup
 
 

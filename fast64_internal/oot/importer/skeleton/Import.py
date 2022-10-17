@@ -6,8 +6,8 @@ from ....utility import hexOrDecInt, applyRotation
 from ....f3d.f3d_gbi import F3D
 from ....f3d.f3d_parser import getImportData, parseF3D
 from ...model.classes import OOTF3DContext
-from ...panel.viewport.skeleton.classes import OOTSkeletonImportSettings
-from ...panel.properties.skeleton.utility import ootGetLimb, ootGetLimbs, ootGetSkeleton
+from ...panel.viewport.skeleton import OOTSkeletonImportSettings
+from ...panel.properties.skeleton import ootGetLimb, ootGetLimbs, ootGetSkeleton
 from ..classes.skeleton import OOTDLEntry
 
 

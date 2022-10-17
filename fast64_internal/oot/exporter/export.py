@@ -1,5 +1,5 @@
 import bpy
-from os import path
+from os import path as p
 from bpy.types import Object
 from mathutils import Matrix
 from ...f3d.f3d_gbi import ScrollMethod, DLFormat, TextureExportSettings
@@ -13,9 +13,7 @@ from .scene.to_c import convertSceneLayers
 from .cutscene.to_c import convertCutsceneToC, getCutsceneIncludes
 from .scene_table import modifySceneTable
 from .scene import processScene
-from .classes.export import ExportInfo
-from .classes.scene import OOTScene
-from .classes import OOTSceneC
+from .classes import OOTSceneC, OOTScene, ExportInfo
 from .hackeroot.scene_bootup import OOTBootupSceneOptions, setBootupScene
 
 
@@ -149,7 +147,7 @@ def exportScene(
     if bpy.context.scene.ootSceneSingleFile:
         writeCDataSourceOnly(
             ootPreprendSceneIncludes(outScene, ootCombineSceneFiles(sceneC)),
-            path.join(levelPath, outScene.getSceneName() + ".c"),
+            p.join(levelPath, outScene.getSceneName() + ".c"),
         )
 
         for room in outScene.rooms.values():
@@ -158,24 +156,24 @@ def exportScene(
             roomC.append(sceneC.roomMeshInfoC[room.getRoomName()])
             roomC.append(sceneC.roomMeshC[room.getRoomName()])
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, roomC), path.join(levelPath, room.getRoomName() + ".c")
+                ootPreprendSceneIncludes(outScene, roomC), p.join(levelPath, room.getRoomName() + ".c")
             )
     else:
         # Export the scene segment .c files
         writeCDataSourceOnly(
             ootPreprendSceneIncludes(outScene, sceneC.sceneMainC),
-            path.join(levelPath, outScene.getSceneName() + "_main.c"),
+            p.join(levelPath, outScene.getSceneName() + "_main.c"),
         )
 
         if sceneC.sceneTexturesIsUsed():
             writeCDataSourceOnly(
                 ootPreprendSceneIncludes(outScene, sceneC.sceneTexturesC),
-                path.join(levelPath, outScene.getSceneName() + "_tex.c"),
+                p.join(levelPath, outScene.getSceneName() + "_tex.c"),
             )
 
         writeCDataSourceOnly(
             ootPreprendSceneIncludes(outScene, sceneC.sceneCollisionC),
-            path.join(levelPath, outScene.getSceneName() + "_col.c"),
+            p.join(levelPath, outScene.getSceneName() + "_col.c"),
         )
 
         if sceneC.sceneCutscenesIsUsed():
@@ -184,27 +182,27 @@ def exportScene(
                 fileData.append(sceneCs)
                 writeCDataSourceOnly(
                     fileData,
-                    path.join(levelPath, f"{outScene.getSceneName()}_cs_{i}.c"),
+                    p.join(levelPath, f"{outScene.getSceneName()}_cs_{i}.c"),
                 )
 
         # Export the room segment .c files
         for roomName, roomMainC in sceneC.roomMainC.items():
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, roomMainC), path.join(levelPath, f"{roomName}_main.c")
+                ootPreprendSceneIncludes(outScene, roomMainC), p.join(levelPath, f"{roomName}_main.c")
             )
 
         for roomName, roomMeshInfoC in sceneC.roomMeshInfoC.items():
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, roomMeshInfoC), path.join(levelPath, f"{roomName}_model_info.c")
+                ootPreprendSceneIncludes(outScene, roomMeshInfoC), p.join(levelPath, f"{roomName}_model_info.c")
             )
 
         for roomName, roomMeshC in sceneC.roomMeshC.items():
             writeCDataSourceOnly(
-                ootPreprendSceneIncludes(outScene, roomMeshC), path.join(levelPath, f"{roomName}_model.c")
+                ootPreprendSceneIncludes(outScene, roomMeshC), p.join(levelPath, f"{roomName}_model.c")
             )
 
     # Export the scene .h file
-    writeCDataHeaderOnly(ootCreateSceneHeader(sceneC), path.join(levelPath, outScene.getSceneName() + ".h"))
+    writeCDataHeaderOnly(ootCreateSceneHeader(sceneC), p.join(levelPath, outScene.getSceneName() + ".h"))
 
     if not isCustomExport:
         # update scene table, spec and remove extra rooms
@@ -216,9 +214,9 @@ def exportScene(
     # HackerOoT
     if bootToSceneOptions is not None and bootToSceneOptions.bootToScene:
         setBootupScene(
-            path.join(exportPath, "include/config/config_debug.h")
+            p.join(exportPath, "include/config/config_debug.h")
             if not isCustomExport
-            else path.join(levelPath, "config_bootup.h"),
+            else p.join(levelPath, "config_bootup.h"),
             f"ENTR_{sceneName.upper()}_{bootToSceneOptions.spawnIndex}",
             bootToSceneOptions,
         )

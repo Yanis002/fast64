@@ -2,10 +2,17 @@ from mathutils import Matrix
 from os import path as p
 from bpy.types import Object, Context
 from .....utility import CData, hideObjsInList, unhideAllAndGetHiddenList, writeCData
-from ...classes.collision import OOTCameraData, OOTCameraPosData, OOTCollision, OOTCollisionPolygon, OOTWaterBox
 from ...data import indent
 from ..export import exportCollisionCommon
-from ...classes.export import OOTObjectCategorizer
+
+from ...classes import (
+    OOTObjectCategorizer,
+    OOTCameraData,
+    OOTCameraPosData,
+    OOTCollision,
+    OOTCollisionPolygon,
+    OOTWaterBox,
+)
 
 from ...utility import (
     addIncludeFiles,

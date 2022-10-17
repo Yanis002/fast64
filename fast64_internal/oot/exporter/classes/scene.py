@@ -1,11 +1,8 @@
 from ....utility import PluginError, toAlnum, exportColor, ootGetBaseOrCustomLight
 from ...model.classes import OOTModel
-from ...panel.properties.general.actor.classes import OOTActorHeaderProperty
-from ...panel.properties.general.scene.classes import OOTExitProperty, OOTLightProperty
-from ..classes.room import OOTRoom
-from ..classes.cutscene import OOTCutscene, OOTCSList
-from ..classes.collision import OOTCollision
-from ..classes import OOTCommonCommands
+from ...panel.properties.general.actor import OOTActorHeaderProperty
+from ...panel.properties.general.scene import OOTExitProperty, OOTLightProperty
+from ..classes import OOTCommonCommands, OOTRoom, OOTCutscene, OOTCSList, OOTCollision
 from .actor import OOTActor, OOTTransitionActor, OOTEntrance
 
 

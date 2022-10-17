@@ -1,6 +1,6 @@
 from .....utility import CData
+from ...classes import OOTScene
 from ...data import indent
-from ...classes.scene import OOTScene
 from ...room.to_c import convertActorList
 from .room_list import convertRoomList
 from .commands import convertSceneCommands

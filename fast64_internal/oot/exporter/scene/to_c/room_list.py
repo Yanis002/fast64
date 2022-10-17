@@ -1,6 +1,6 @@
 from .....utility import CData
+from ...classes import OOTScene
 from ...data import indent
-from ...classes.scene import OOTScene
 
 
 def convertRoomList(outScene: OOTScene):

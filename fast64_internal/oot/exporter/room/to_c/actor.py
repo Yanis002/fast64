@@ -1,8 +1,6 @@
 from .....utility import CData, PluginError
+from ...classes import OOTScene, OOTRoom, OOTActor
 from ...data import indent
-from ...classes.scene import OOTScene
-from ...classes.room import OOTRoom
-from ...classes.actor import OOTActor
 
 
 def getActorEntry(actor: OOTActor):

@@ -1,7 +1,6 @@
 from .....utility import CData, PluginError
+from ...classes import OOTScene, OOTCutscene
 from ...data import indent
-from ...classes.scene import OOTScene
-from ...classes.cutscene import OOTCutscene
 from .data import ootEnumCSListTypeListC, ootEnumCSListTypeEntryC, ootEnumCSTextboxTypeEntryC
 
 
