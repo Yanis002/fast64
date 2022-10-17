@@ -6,8 +6,6 @@ from mathutils import Matrix
 from .....utility import PluginError, raisePluginError
 from .....f3d.f3d_gbi import DLFormat
 from ...utility import ootGetObjectPath
-from ....importer.skeleton import ootImportSkeletonC
-from ....exporter.skeleton.to_c import ootConvertArmatureToC
 from .classes import OOTSkeletonImportSettings, OOTSkeletonExportSettings
 
 
@@ -20,6 +18,8 @@ class OOT_ImportSkeleton(Operator):
     # Called on demand (i.e. button press, menu item)
     # Can also be called from operator search menu (Spacebar)
     def execute(self, context):
+        from ....importer.skeleton import ootImportSkeletonC  # circular import fix
+
         armatureObj = None
         if context.mode != "OBJECT":
             object.mode_set(mode="OBJECT")
@@ -58,6 +58,8 @@ class OOT_ExportSkeleton(Operator):
     # Called on demand (i.e. button press, menu item)
     # Can also be called from operator search menu (Spacebar)
     def execute(self, context):
+        from ....exporter.skeleton.to_c import ootConvertArmatureToC # circular import fix
+
         armatureObj = None
         if context.mode != "OBJECT":
             object.mode_set(mode="OBJECT")

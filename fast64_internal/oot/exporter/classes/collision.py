@@ -1,6 +1,5 @@
 from ....utility import PluginError
-from ..utility import convertIntTo2sComplement
-from ..classes import BoxEmpty
+from .export import BoxEmpty
 
 
 class OOTWaterBox(BoxEmpty):
@@ -175,6 +174,8 @@ class OOTPolygonType:
         self.ignoreProjectileCollision = None
 
     def convertHigh(self):
+        from ..utility import convertIntTo2sComplement # circular import fix
+
         value = (
             ((1 if self.eponaBlock else 0) << 31)
             | ((1 if self.decreaseHeight else 0) << 30)
@@ -188,6 +189,8 @@ class OOTPolygonType:
         return convertIntTo2sComplement(value, 4, False)
 
     def convertLow(self):
+        from ..utility import convertIntTo2sComplement # circular import fix
+
         value = (
             ((1 if self.isWallDamage else 0) << 27)
             | (self.conveyorRotation << 21)
