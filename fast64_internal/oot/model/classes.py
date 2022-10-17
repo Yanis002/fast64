@@ -1,11 +1,13 @@
 import bpy
-from bpy.types import PropertyGroup
+from bpy.types import PropertyGroup, Object
 from bpy.props import BoolProperty
 from ...f3d.f3d_parser import F3DContext
 from ...f3d.f3d_material import createF3DMat
 from ...utility import CData, hexOrDecInt
 
 from ...f3d.f3d_gbi import (
+    F3D,
+    FMesh,
     FModel,
     GfxMatWriteMethod,
     SPDisplayList,
@@ -15,40 +17,44 @@ from ...f3d.f3d_gbi import (
     SPMatrix,
     GfxFormatter,
     MTX_SIZE,
+    ScrollMethod,
 )
 
 
 class OOTModel(FModel):
-    def __init__(self, f3dType, isHWv1, name, DLFormat, drawLayerOverride):
+    def __init__(self, f3dType: str, isHWv1: bool, name: str, dlFormat: DLFormat, drawLayerOverride: bool):
         self.drawLayerOverride = drawLayerOverride
-        FModel.__init__(self, f3dType, isHWv1, name, DLFormat, GfxMatWriteMethod.WriteAll)
+        FModel.__init__(self, f3dType, isHWv1, name, dlFormat, GfxMatWriteMethod.WriteAll)
 
-    def getDrawLayerV3(self, obj):
+    def getDrawLayerV3(self, obj: Object):
         return obj.ootDrawLayer
 
-    def getRenderMode(self, drawLayer):
+    def getRenderMode(self, drawLayer: str):
         if self.drawLayerOverride:
             drawLayerUsed = self.drawLayerOverride
         else:
             drawLayerUsed = drawLayer
+
         defaultRenderModes = bpy.context.scene.world.ootDefaultRenderModes
         cycle1 = getattr(defaultRenderModes, drawLayerUsed.lower() + "Cycle1")
         cycle2 = getattr(defaultRenderModes, drawLayerUsed.lower() + "Cycle2")
+
         return [cycle1, cycle2]
 
-    def getTextureSuffixFromFormat(self, texFmt):
+    def getTextureSuffixFromFormat(self, texFmt: str):
         if texFmt == "RGBA16":
             return "rgb5a1"
         else:
             return texFmt.lower()
 
-    def onMaterialCommandsBuilt(self, gfxList, revertList, material, drawLayer):
+    def onMaterialCommandsBuilt(self, gfxList: GfxList, revertList, material: GfxList, drawLayer: str):
         matDrawLayer = getattr(material.ootMaterial, drawLayer.lower())
         for i in range(8, 14):
             if getattr(matDrawLayer, "segment" + format(i, "X")):
                 gfxList.commands.append(
                     SPDisplayList(GfxList("0x" + format(i, "X") + "000000", GfxListTag.Material, DLFormat.Static))
                 )
+
         for i in range(0, 2):
             p = "customCall" + str(i)
             if getattr(matDrawLayer, p):
@@ -56,7 +62,7 @@ class OOTModel(FModel):
                     SPDisplayList(GfxList(getattr(matDrawLayer, p + "_seg"), GfxListTag.Material, DLFormat.Static))
                 )
 
-    def onAddMesh(self, fMesh, contextObj):
+    def onAddMesh(self, fMesh: FMesh, contextObj: Object):
         if contextObj is not None and hasattr(contextObj, "ootDynamicTransform"):
             if contextObj.ootDynamicTransform.billboard:
                 fMesh.draw.commands.append(SPMatrix("0x01000000", "G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_MUL"))
@@ -69,7 +75,7 @@ class OOTDynamicMaterialDrawLayer:  # unused?
 
 
 class OOTGfxFormatter(GfxFormatter):
-    def __init__(self, scrollMethod):
+    def __init__(self, scrollMethod: ScrollMethod):
         GfxFormatter.__init__(self, scrollMethod, 64)
 
     # This code is not functional, only used for an example
@@ -110,7 +116,7 @@ class OOTGfxFormatter(GfxFormatter):
 
 
 class OOTF3DContext(F3DContext):
-    def __init__(self, f3d, limbList, basePath):
+    def __init__(self, f3d: F3D, limbList: list[str], basePath: str):
         self.limbList = limbList
         self.dlList = []  # in the order they are rendered
         self.isBillboard = False
@@ -118,13 +124,13 @@ class OOTF3DContext(F3DContext):
         # materialContext.f3d_mat.rdp_settings.g_mdsft_cycletype = "G_CYC_1CYCLE"
         F3DContext.__init__(self, f3d, basePath, materialContext)
 
-    def getLimbName(self, index):
+    def getLimbName(self, index: int):
         return self.limbList[index]
 
-    def getBoneName(self, index):
+    def getBoneName(self, index: int):
         return "bone" + format(index, "03") + "_" + self.getLimbName(index)
 
-    def vertexFormatPatterns(self, data):
+    def vertexFormatPatterns(self, data: str):
         # position, uv, color/normal
         if "VTX" in data:
             return ["VTX\s*\(([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*)\)"]
@@ -132,7 +138,7 @@ class OOTF3DContext(F3DContext):
             return F3DContext.vertexFormatPatterns(self, data)
 
     # For game specific instance, override this to be able to identify which verts belong to which bone.
-    def setCurrentTransform(self, name):
+    def setCurrentTransform(self, name: str):
         if name[:4].lower() == "0x0d":
             self.currentTransformName = self.getLimbName(self.dlList[int(int(name[4:], 16) / MTX_SIZE)].limbIndex)
         else:
@@ -146,7 +152,7 @@ class OOTF3DContext(F3DContext):
                 else:
                     print("Unhandled matrix: " + name)
 
-    def processDLName(self, name):
+    def processDLName(self, name: str):
         # Commands loaded to 0x0C are material related only.
         try:
             pointer = hexOrDecInt(name)
@@ -162,7 +168,7 @@ class OOTF3DContext(F3DContext):
             return None
         return name
 
-    def processTextureName(self, textureName):
+    def processTextureName(self, textureName: str):
         try:
             pointer = hexOrDecInt(textureName)
         except:
@@ -181,7 +187,7 @@ class OOTF3DContext(F3DContext):
         clearOOTMaterialDrawLayerProperty(self.materialContext.ootMaterial.transparent)
 
 
-def clearOOTMaterialDrawLayerProperty(matDrawLayerProp):
+def clearOOTMaterialDrawLayerProperty(matDrawLayerProp):  # type: ``OOTDynamicMaterialDrawLayerProperty``
     for i in range(0x08, 0x0E):
         setattr(matDrawLayerProp, "segment" + format(i, "X"), False)
 

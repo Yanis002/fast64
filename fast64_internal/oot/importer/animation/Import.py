@@ -10,7 +10,7 @@ from ...utility import (
 )
 
 
-def getNextBone(boneStack, armatureObj: Object):
+def getNextBone(boneStack: list[str], armatureObj: Object):
     if len(boneStack) == 0:
         raise PluginError("More bones in animation than on armature.")
 

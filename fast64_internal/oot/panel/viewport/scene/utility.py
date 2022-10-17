@@ -2,7 +2,7 @@ from .....utility import PluginError
 from .data import ootSceneIDToName
 
 
-def sceneNameFromID(sceneID):
+def sceneNameFromID(sceneID: str):
     if sceneID in ootSceneIDToName:
         return ootSceneIDToName[sceneID]
     else:

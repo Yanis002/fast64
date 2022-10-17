@@ -2,7 +2,7 @@ from os import path as p
 from ..exporter.utility import ootGetPath
 
 
-def ootGetObjectPath(isCustomExport, exportPath, folderName):
+def ootGetObjectPath(isCustomExport: bool, exportPath: str, folderName: str):
     if isCustomExport:
         filepath = exportPath
     else:

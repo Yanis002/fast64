@@ -8,6 +8,7 @@ from .classes import OOTVertexGroupInfo
 
 
 def getGroupIndexOfVert(vertex, armatureObj: Object, obj: Object, rootGroupIndex: int):
+    # is ``vertex`` type ``MeshVertex``?
     actualGroups = []
     nonBoneGroups = []
 

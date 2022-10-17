@@ -105,7 +105,7 @@ def getCollection(objName: str, collectionType: str, subIndex: int):
     return collection
 
 
-def getEnumName(enumItems, value):
+def getEnumName(enumItems: list[tuple[str, str, str]], value: str):
     for enumTuple in enumItems:
         if enumTuple[0] == value:
             return enumTuple[1]

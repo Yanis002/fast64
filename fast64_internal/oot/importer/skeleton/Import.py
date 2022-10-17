@@ -1,4 +1,5 @@
 import bpy
+from bpy.types import Object
 from math import radians
 from mathutils import Matrix, Vector
 from ....utility import hexOrDecInt, applyRotation
@@ -118,7 +119,7 @@ def ootBuildSkeleton(
     return isLOD, armatureObj
 
 
-def ootAddBone(armatureObj, boneName, parentBoneName, currentTransform, loadDL):
+def ootAddBone(armatureObj: Object, boneName: str, parentBoneName: str, currentTransform: Matrix, loadDL: bool):
     if bpy.context.mode != "OBJECT":
         bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="DESELECT")
@@ -150,7 +151,14 @@ def ootAddBone(armatureObj, boneName, parentBoneName, currentTransform, loadDL):
 
 
 def ootAddLimbRecursively(
-    limbIndex, skeletonData, obj, armatureObj, parentTransform, parentBoneName, f3dContext, useFarLOD
+    limbIndex: int,
+    skeletonData,
+    obj: Object,
+    armatureObj: Object,
+    parentTransform: Matrix,
+    parentBoneName: str,
+    f3dContext: OOTF3DContext,
+    useFarLOD: bool,
 ):
 
     limbName = f3dContext.getLimbName(limbIndex)
