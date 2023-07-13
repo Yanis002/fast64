@@ -1,0 +1,13 @@
+{
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/.vscode/3.3/"
+    ],
+    "python.linting.pylintArgs": [
+        "--init-hook",
+        "import sys; sys.path.append('${workspaceFolder}/.vscode/3.3/')"
+    ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/.vscode/3.3/"
+    ],
+    "python.formatting.provider": "black",
+}
