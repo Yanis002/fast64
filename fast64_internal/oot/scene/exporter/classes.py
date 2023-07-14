@@ -7,8 +7,8 @@ from typing import Optional
 from bpy.types import Object
 from ....f3d.f3d_gbi import SPDisplayList, SPEndDisplayList, GfxListTag, GfxList
 from ....utility import PluginError, toAlnum, indent
-from ...oot_collision_classes import OOTCollision
 from ...oot_model_classes import OOTModel
+from ...collision.exporter import OOTCollision
 
 
 class OOTCommonCommands:
