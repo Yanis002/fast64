@@ -4,8 +4,8 @@ from ...room.properties import OOTRoomHeaderProperty, OOTAlternateRoomHeaderProp
 from ...oot_constants import ootData
 from ...cutscene.exporter import convertCutsceneObject, readCutsceneData
 from ...oot_spline import ootConvertPath
-from ...oot_collision import OOTCameraData
-from ...oot_collision_classes import OOTCameraPosData, OOTCrawlspaceData, decomp_compat_map_CameraSType
+from ...collision.exporter import OOTCameraData, OOTCameraPosData, OOTCrawlspaceData
+from ...collision.constants import decomp_compat_map_CameraSType
 from .classes import OOTRoom, OOTLight, OOTExit, OOTBGImage
 
 from ....utility import (

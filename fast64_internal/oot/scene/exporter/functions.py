@@ -4,8 +4,7 @@ from ....f3d.f3d_writer import TriangleConverterInfo, saveStaticModel, getInfoDi
 from ...oot_constants import ootData
 from ...oot_spline import assertCurveValid
 from ...oot_model_classes import OOTModel
-from ...oot_collision import exportCollisionCommon
-from ...oot_collision_classes import OOTWaterBox
+from ...collision.exporter import OOTWaterBox, exportCollisionCommon
 from .classes import BoundingBox
 
 from .utility import (
