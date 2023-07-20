@@ -25,8 +25,7 @@ def getColor(value: float) -> float:
 
 def setupCompositorNodes():
     if bpy.app.version < (3, 6, 0):
-        print("ERROR: This version of Blender do not have support for Viewport Compositor Nodes")
-        return None, None
+        return False
 
     if not bpy.context.scene.use_nodes:
         bpy.context.scene.use_nodes = True
@@ -41,78 +40,95 @@ def setupCompositorNodes():
     if space is not None and space.shading.use_compositor != "CAMERA":
         space.shading.use_compositor = "CAMERA"
 
-    nodeTree = bpy.context.scene.node_tree
-
     if bpy.context.scene.ootCSPreviewNodesReady:
-        return nodeTree.nodes["CSTrans_RGB"], nodeTree.nodes["CSTrans_AlphaOver"]
-    
-    nodeRenderLayer = nodeComposite = nodeRGB = nodeAlphaOver = None
+        return True
+
+    nodeTree = bpy.context.scene.node_tree
+    nodeRenderLayer = nodeComposite = nodeMixRGB = nodeRGBTrans = nodeAlphaTrans = nodeRGBMisc = nodeMixRGBMisc = None
     for node in nodeTree.nodes.values():
-        # print(node.type)
         if node.type == "R_LAYERS":
             nodeRenderLayer = node
-
         if node.type == "COMPOSITE":
             nodeComposite = node
-
-        if node.type == "RGB":
-            nodeRGB = node
-
-        if node.type == "ALPHA_OVER":
-            nodeAlphaOver = node
+        if node.label == "CSPreview_MixRGB":
+            nodeMixRGB = node
+        if node.label == "CSTrans_RGB":
+            nodeRGBTrans = node
+        if node.label == "CSMisc_RGB":
+            nodeRGBMisc = node
+        if node.label == "CSTrans_AlphaOver":
+            nodeAlphaTrans = node
+        if node.label == "CSMisc_MixRGB":
+            nodeMixRGBMisc = node
 
     if nodeRenderLayer is None:
         nodeRenderLayer = nodeTree.nodes.new("CompositorNodeRLayers")
     nodeRenderLayer.select = False
-    nodeRenderLayer.name = nodeRenderLayer.label = "CSTrans_RenderLayer"
-    nodeRenderLayer.location = (-330, 0)
+    nodeRenderLayer.name = nodeRenderLayer.label = "CSPreview_RenderLayer"
+    nodeRenderLayer.location = (-500, 0)
+
+    if nodeRGBTrans is None:
+        nodeRGBTrans = nodeTree.nodes.new("CompositorNodeRGB")
+    nodeRGBTrans.select = False
+    nodeRGBTrans.name = nodeRGBTrans.label = "CSTrans_RGB"
+    nodeRGBTrans.location = (-200, 0)
+    bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
+
+    if nodeRGBMisc is None:
+        nodeRGBMisc = nodeTree.nodes.new("CompositorNodeRGB")
+    nodeRGBMisc.select = False
+    nodeRGBMisc.name = nodeRGBMisc.label = "CSMisc_RGB"
+    nodeRGBMisc.location = (-200, -200)
+    bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
+
+    if nodeAlphaTrans is None:
+        nodeAlphaTrans = nodeTree.nodes.new("CompositorNodeAlphaOver")
+    nodeAlphaTrans.select = False
+    nodeAlphaTrans.name = nodeAlphaTrans.label = "CSTrans_AlphaOver"
+    nodeAlphaTrans.location = (0, 0)
+
+    if nodeMixRGBMisc is None:
+        nodeMixRGBMisc = nodeTree.nodes.new("CompositorNodeMixRGB")
+    nodeMixRGBMisc.select = False
+    nodeMixRGBMisc.name = nodeMixRGBMisc.label = "CSMisc_MixRGB"
+    nodeMixRGBMisc.location = (0, -200)
+    nodeMixRGBMisc.use_alpha = True
+    nodeMixRGBMisc.blend_type = "COLOR"
+
+    if nodeMixRGB is None:
+        nodeMixRGB = nodeTree.nodes.new("CompositorNodeMixRGB")
+    nodeMixRGB.select = False
+    nodeMixRGB.name = nodeMixRGB.label = "CSPreview_MixRGB"
+    nodeMixRGB.location = (200, 0)
+    nodeMixRGB.blend_type = "COLOR"
 
     if nodeComposite is None:
         nodeComposite = nodeTree.nodes.new("CompositorNodeComposite")
     nodeComposite.select = True
-    nodeComposite.name = nodeComposite.label = "CSTrans_Composite"
-    nodeComposite.location = (300, 0)
+    nodeComposite.name = nodeComposite.label = "CSPreview_Composite"
+    nodeComposite.location = (400, 0)
 
-    if nodeRGB is None:
-        nodeRGB = nodeTree.nodes.new("CompositorNodeRGB")
-    nodeRGB.select = False
-    nodeRGB.name = nodeRGB.label = "CSTrans_RGB"
-    nodeRGB.location = (-60, 0)
-
-    if nodeAlphaOver is None:
-        nodeAlphaOver = nodeTree.nodes.new("CompositorNodeAlphaOver")
-    nodeAlphaOver.select = False
-    nodeAlphaOver.name = nodeAlphaOver.label = "CSTrans_AlphaOver"
-    nodeAlphaOver.location = (120, 0)
-    nodeAlphaOver.inputs[0].default_value = 1.0
-
-    nodeTree.links.new(nodeAlphaOver.inputs[1], nodeRenderLayer.outputs[0])
-    nodeTree.links.new(nodeComposite.inputs[0], nodeAlphaOver.outputs[0])
-    nodeTree.links.new(nodeAlphaOver.inputs[2], nodeRGB.outputs[0])
+    nodeTree.links.new(nodeAlphaTrans.inputs[1], nodeRenderLayer.outputs[0])
+    nodeTree.links.new(nodeMixRGBMisc.inputs[1], nodeRenderLayer.outputs[0])
+    nodeTree.links.new(nodeAlphaTrans.inputs[2], nodeRGBTrans.outputs[0])
+    nodeTree.links.new(nodeMixRGBMisc.inputs[2], nodeRGBMisc.outputs[0])
+    nodeTree.links.new(nodeMixRGB.inputs[1], nodeAlphaTrans.outputs[0])
+    nodeTree.links.new(nodeMixRGB.inputs[2], nodeMixRGBMisc.outputs[0])
+    nodeTree.links.new(nodeComposite.inputs[0], nodeMixRGB.outputs[0])
 
     bpy.context.scene.ootCSPreviewNodesReady = True
-    return nodeRGB, nodeAlphaOver
+    return True
 
 
 @persistent
 def cutscenePreviewFrameHandler(scene: Scene):
-    csObj = None
-
-    for obj in bpy.data.objects:
-        if obj == bpy.context.scene.camera and obj.parent is not None:
-            csObj = obj.parent
-            break
+    csObj: Object = bpy.context.scene.ootCSPreviewCSObj
 
     if csObj is None or not csObj.type == "EMPTY" and not csObj.ootEmptyType == "Cutscene":
         print("ERROR: Current Object is not a cutscene!")
         return
 
-    nodeRGB, nodeAlphaOver = setupCompositorNodes()
-
-    if not bpy.context.scene.ootCSPreviewNodesReady:
-        print("ERROR: Nodes aren't ready!")
-
-    if nodeRGB is None or nodeAlphaOver is None:
+    if not setupCompositorNodes():
         return
 
     # Simulate cutscene for all frames up to present
@@ -125,6 +141,7 @@ def cutscenePreviewFrameHandler(scene: Scene):
                 color[3] = 1.0
 
             bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
+            bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
             curFrame += 1
 
         for transitionCmd in csObj.ootCutsceneProperty.preview.transitionList:
@@ -160,6 +177,26 @@ def cutscenePreviewFrameHandler(scene: Scene):
 
                 color[3] = alpha
                 bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
+
+        for miscCmd in csObj.ootCutsceneProperty.preview.miscList:
+            startFrame = miscCmd.startFrame
+            endFrame = miscCmd.endFrame
+
+            if curFrame >= startFrame and curFrame <= endFrame:
+                color = [0.0, 0.0, 0.0, 0.0]
+                lerp = getLerp(endFrame, startFrame, curFrame)
+
+                if miscCmd.type in ["CS_MISC_VISMONO_SEPIA", "CS_MISC_VISMONO_BLACK_AND_WHITE"]:
+                    if miscCmd.type == "CS_MISC_VISMONO_SEPIA":
+                        col = [255.0, 180.0, 100.0]
+                    else:
+                        col = [255.0, 255.0, 254.0]
+
+                    for i in range(len(col)):
+                        color[i] = getColor(col[i])
+
+                    color[3] = getColor(255.0) * lerp
+                    bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
 
 
 def cutscene_preview_register():

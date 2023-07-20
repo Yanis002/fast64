@@ -90,6 +90,7 @@ class OOTCSMotionShowCameraPreview(Operator):
                 context.scene.frame_set(context.scene.frame_start)
                 bpy.ops.screen.animation_cancel()
                 bpy.ops.screen.animation_play()
+                bpy.context.scene.ootCSPreviewCSObj = csObj
                 return {"FINISHED"}
         except:
             return {"CANCELLED"}

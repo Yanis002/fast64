@@ -245,6 +245,7 @@ def setupCutscene(csObj: Object):
 
     objFactory = OOTCSMotionObjectFactory()
     context = bpy.context
+    bpy.context.scene.ootCSPreviewCSObj = csObj
     camObj = objFactory.getNewCameraObject(
         f"{csObj.name}.Camera",
         metersToBlend(context, 0.25),

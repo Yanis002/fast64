@@ -14,6 +14,7 @@ from ..constants import (
     ootCSMotionSingleCommands,
     ootCSMotionListAndSingleCommands,
     ootCSMotionTransTypeHexToEnum,
+    ootCSMotionMiscTypeHexToEnum,
 )
 
 from ..io_classes import (
@@ -143,7 +144,10 @@ class OOTCSMotionImportCommands:
     
     def getNewMisc(self, cmdData: str):
         params = self.getCmdParams(cmdData, "CS_MISC", OOTCSMotionMisc.paramNumber)
-        miscType = params[0] if not params[0].startswith("0x") else f"0x{self.getInteger(params[0]):04X}"
+        if params[0].startswith("CS_MISC_"):
+            miscType = params[0] 
+        else: 
+            miscType = ootCSMotionMiscTypeHexToEnum[f"0x{self.getInteger(params[0]):02X}"]
         return OOTCSMotionMisc(self.getInteger(params[1]), self.getInteger(params[2]), miscType)
 
     def getNewMiscList(self, cmdData: str):
@@ -533,8 +537,13 @@ class OOTCSMotionImport(OOTCSMotionImportCommands, OOTCSMotionObjectFactory):
             if len(cutscene.miscList) > 0:
                 for miscList in cutscene.miscList:
                     for miscCmd in miscList.entries:
-                        if miscCmd.type in ["0x000C", "CS_MISC_STOP_CUTSCENE"]:
+                        if miscCmd.type == "CS_MISC_STOP_CUTSCENE":
                             csObj.ootCutsceneProperty.forcedEndFrame = miscCmd.startFrame
+                        else:
+                            miscProp = csObj.ootCutsceneProperty.preview.miscList.add()
+                            miscProp.startFrame = miscCmd.startFrame
+                            miscProp.endFrame = miscCmd.endFrame
+                            miscProp.type = miscCmd.type
 
             if len(cutscene.transitionList) > 0:
                 for transition in cutscene.transitionList:

@@ -227,14 +227,23 @@ class OOTCSListProperty(PropertyGroup):
             addOp.objName = objName
 
 
-class OOTCutsceneTransitionProperty(PropertyGroup):
+class OOTCutsceneCommandBase:
     startFrame: IntProperty(min=0)
     endFrame: IntProperty(min=0)
+
+
+class OOTCutsceneTransitionProperty(OOTCutsceneCommandBase, PropertyGroup):
+    type: StringProperty()
+
+
+class OOTCutsceneMiscProperty(OOTCutsceneCommandBase, PropertyGroup):
     type: StringProperty()
 
 
 class OOTCutscenePreviewProperty(PropertyGroup):
     transitionList: CollectionProperty(type=OOTCutsceneTransitionProperty)
+    miscList: CollectionProperty(type=OOTCutsceneMiscProperty)
+    isFixedCamSet: BoolProperty(default=False)
 
 
 class OOTCutsceneProperty(PropertyGroup):
@@ -286,6 +295,7 @@ classes = (
     OOTCSUnkProperty,
     OOTCSListProperty,
     OOTCutsceneTransitionProperty,
+    OOTCutsceneMiscProperty,
     OOTCutscenePreviewProperty,
     OOTCutsceneProperty,
 )
@@ -297,9 +307,11 @@ def cutscene_props_register():
 
     Object.ootCutsceneProperty = PointerProperty(type=OOTCutsceneProperty)
     Scene.ootCSPreviewNodesReady = BoolProperty(default=False)
+    Scene.ootCSPreviewCSObj = PointerProperty(type=Object)
 
 
 def cutscene_props_unregister():
+    del Scene.ootCSPreviewCSObj
     del Scene.ootCSPreviewNodesReady
     del Object.ootCutsceneProperty
 
