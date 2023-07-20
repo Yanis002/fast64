@@ -23,14 +23,14 @@ def getColor(value: float) -> float:
     return gammaInverse([value / 0xFF, 0.0, 0.0])[0]
 
 
-def setupCompositorNodes(csObj: Object):
+def setupCompositorNodes():
     if bpy.app.version < (3, 6, 0):
         print("ERROR: This version of Blender do not have support for Viewport Compositor Nodes")
         return None, None
 
     if not bpy.context.scene.use_nodes:
         bpy.context.scene.use_nodes = True
-        csObj.ootCutsceneProperty.preview.nodesReady = False
+        bpy.context.scene.ootCSPreviewNodesReady = False
 
     space = None
     for area in bpy.context.screen.areas:
@@ -43,7 +43,7 @@ def setupCompositorNodes(csObj: Object):
 
     nodeTree = bpy.context.scene.node_tree
 
-    if csObj.ootCutsceneProperty.preview.nodesReady:
+    if bpy.context.scene.ootCSPreviewNodesReady:
         return nodeTree.nodes["CSTrans_RGB"], nodeTree.nodes["CSTrans_AlphaOver"]
     
     nodeRenderLayer = nodeComposite = nodeRGB = nodeAlphaOver = None
@@ -90,7 +90,7 @@ def setupCompositorNodes(csObj: Object):
     nodeTree.links.new(nodeComposite.inputs[0], nodeAlphaOver.outputs[0])
     nodeTree.links.new(nodeAlphaOver.inputs[2], nodeRGB.outputs[0])
 
-    csObj.ootCutsceneProperty.preview.nodesReady = True
+    bpy.context.scene.ootCSPreviewNodesReady = True
     return nodeRGB, nodeAlphaOver
 
 
@@ -107,9 +107,9 @@ def cutscenePreviewFrameHandler(scene: Scene):
         print("ERROR: Current Object is not a cutscene!")
         return
 
-    nodeRGB, nodeAlphaOver = setupCompositorNodes(csObj)
+    nodeRGB, nodeAlphaOver = setupCompositorNodes()
 
-    if not csObj.ootCutsceneProperty.preview.nodesReady:
+    if not bpy.context.scene.ootCSPreviewNodesReady:
         print("ERROR: Nodes aren't ready!")
 
     if nodeRGB is None or nodeAlphaOver is None:

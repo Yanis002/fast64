@@ -1,5 +1,5 @@
 import bpy
-from bpy.types import PropertyGroup, Object, UILayout
+from bpy.types import PropertyGroup, Object, UILayout, Scene
 from bpy.props import StringProperty, EnumProperty, IntProperty, BoolProperty, CollectionProperty, PointerProperty
 from bpy.utils import register_class, unregister_class
 from ...utility import PluginError, prop_split
@@ -235,7 +235,6 @@ class OOTCutsceneTransitionProperty(PropertyGroup):
 
 class OOTCutscenePreviewProperty(PropertyGroup):
     transitionList: CollectionProperty(type=OOTCutsceneTransitionProperty)
-    nodesReady: BoolProperty(default=False)
 
 
 class OOTCutsceneProperty(PropertyGroup):
@@ -297,9 +296,11 @@ def cutscene_props_register():
         register_class(cls)
 
     Object.ootCutsceneProperty = PointerProperty(type=OOTCutsceneProperty)
+    Scene.ootCSPreviewNodesReady = BoolProperty(default=False)
 
 
 def cutscene_props_unregister():
+    del Scene.ootCSPreviewNodesReady
     del Object.ootCutsceneProperty
 
     for cls in reversed(classes):
