@@ -227,6 +227,17 @@ class OOTCSListProperty(PropertyGroup):
             addOp.objName = objName
 
 
+class OOTCutsceneTransitionProperty(PropertyGroup):
+    startFrame: IntProperty(min=0)
+    endFrame: IntProperty(min=0)
+    type: StringProperty()
+
+
+class OOTCutscenePreviewProperty(PropertyGroup):
+    transitionList: CollectionProperty(type=OOTCutsceneTransitionProperty)
+    nodesReady: BoolProperty(default=False)
+
+
 class OOTCutsceneProperty(PropertyGroup):
     csEndFrame: IntProperty(name="End Frame", min=0, default=100)
     csWriteTerminator: BoolProperty(name="Write Terminator (Code Execution)")
@@ -234,6 +245,8 @@ class OOTCutsceneProperty(PropertyGroup):
     csTermStart: IntProperty(name="Start Frm", min=0, default=99)
     csTermEnd: IntProperty(name="End Frm", min=0, default=100)
     csLists: CollectionProperty(type=OOTCSListProperty, name="Cutscene Lists")
+
+    preview: PointerProperty(type=OOTCutscenePreviewProperty)
 
     # used for the "stop cutscene" misc command, internal usage only
     forcedEndFrame: IntProperty(default=-1, min=-1)
@@ -273,6 +286,8 @@ classes = (
     OOTCS0x09Property,
     OOTCSUnkProperty,
     OOTCSListProperty,
+    OOTCutsceneTransitionProperty,
+    OOTCutscenePreviewProperty,
     OOTCutsceneProperty,
 )
 

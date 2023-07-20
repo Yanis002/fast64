@@ -203,6 +203,22 @@ ootCSMotionCommandTypeRawToEnum = {
     "0x008F": "CS_CMD_ACTOR_CUE_9_0",
 }
 
+ootCSMotionTransTypeHexToEnum = {
+    "0x01": "CS_TRANS_GRAY_FILL_IN",
+    "0x02": "CS_TRANS_BLUE_FILL_IN",
+    "0x03": "CS_TRANS_RED_FILL_OUT",
+    "0x04": "CS_TRANS_GREEN_FILL_OUT",
+    "0x05": "CS_TRANS_GRAY_FILL_OUT",
+    "0x06": "CS_TRANS_BLUE_FILL_OUT",
+    "0x07": "CS_TRANS_RED_FILL_IN",
+    "0x08": "CS_TRANS_GREEN_FILL_IN",
+    "0x09": "CS_TRANS_TRIGGER_INSTANCE",
+    "0x0A": "CS_TRANS_BLACK_FILL_OUT",
+    "0x0B": "CS_TRANS_BLACK_FILL_IN",
+    "0x0C": "CS_TRANS_BLACK_FILL_OUT_TO_HALF",
+    "0x0D": "CS_TRANS_BLACK_FILL_IN_FROM_HALF",
+}
+
 ootCSMotionLegacyToNewCmdNames = {
     "CS_CAM_POS_LIST": "CS_CAM_EYE_SPLINE",
     "CS_CAM_FOCUS_POINT_LIST": "CS_CAM_AT_SPLINE",
@@ -276,4 +292,6 @@ ootCSMotionSingleCommands = [
     "CS_DESTINATION",
 ]
 
+ootCSMotionListAndSingleCommands = ootCSMotionSingleCommands + ootCSMotionListCommands
+ootCSMotionListAndSingleCommands.remove("CS_BEGIN_CUTSCENE")
 ootCSMotionCSCommands = ootCSMotionSingleCommands + ootCSMotionListCommands + ootCSMotionListEntryCommands
