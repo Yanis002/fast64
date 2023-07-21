@@ -44,20 +44,18 @@ def setupCompositorNodes():
         return True
 
     nodeTree = bpy.context.scene.node_tree
-    nodeRenderLayer = nodeComposite = nodeMixRGB = nodeRGBTrans = nodeAlphaTrans = nodeRGBMisc = nodeMixRGBMisc = None
+    nodeRenderLayer = nodeComposite = nodeRGBTrans = nodeAlphaOver = nodeRGBMisc = nodeMixRGBMisc = None
     for node in nodeTree.nodes.values():
         if node.type == "R_LAYERS":
             nodeRenderLayer = node
         if node.type == "COMPOSITE":
             nodeComposite = node
-        if node.label == "CSPreview_MixRGB":
-            nodeMixRGB = node
         if node.label == "CSTrans_RGB":
             nodeRGBTrans = node
         if node.label == "CSMisc_RGB":
             nodeRGBMisc = node
-        if node.label == "CSTrans_AlphaOver":
-            nodeAlphaTrans = node
+        if node.label == "CSPreview_AlphaOver":
+            nodeAlphaOver = node
         if node.label == "CSMisc_MixRGB":
             nodeMixRGBMisc = node
 
@@ -67,40 +65,33 @@ def setupCompositorNodes():
     nodeRenderLayer.name = nodeRenderLayer.label = "CSPreview_RenderLayer"
     nodeRenderLayer.location = (-500, 0)
 
-    if nodeRGBTrans is None:
-        nodeRGBTrans = nodeTree.nodes.new("CompositorNodeRGB")
-    nodeRGBTrans.select = False
-    nodeRGBTrans.name = nodeRGBTrans.label = "CSTrans_RGB"
-    nodeRGBTrans.location = (-200, 0)
-    bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
-
     if nodeRGBMisc is None:
         nodeRGBMisc = nodeTree.nodes.new("CompositorNodeRGB")
     nodeRGBMisc.select = False
     nodeRGBMisc.name = nodeRGBMisc.label = "CSMisc_RGB"
     nodeRGBMisc.location = (-200, -200)
-    bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
 
-    if nodeAlphaTrans is None:
-        nodeAlphaTrans = nodeTree.nodes.new("CompositorNodeAlphaOver")
-    nodeAlphaTrans.select = False
-    nodeAlphaTrans.name = nodeAlphaTrans.label = "CSTrans_AlphaOver"
-    nodeAlphaTrans.location = (0, 0)
+    bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
+    if nodeRGBTrans is None:
+        nodeRGBTrans = nodeTree.nodes.new("CompositorNodeRGB")
+    nodeRGBTrans.select = False
+    nodeRGBTrans.name = nodeRGBTrans.label = "CSTrans_RGB"
+    nodeRGBTrans.location = (0, -200)
+    bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
 
     if nodeMixRGBMisc is None:
         nodeMixRGBMisc = nodeTree.nodes.new("CompositorNodeMixRGB")
     nodeMixRGBMisc.select = False
     nodeMixRGBMisc.name = nodeMixRGBMisc.label = "CSMisc_MixRGB"
-    nodeMixRGBMisc.location = (0, -200)
+    nodeMixRGBMisc.location = (0, 0)
     nodeMixRGBMisc.use_alpha = True
     nodeMixRGBMisc.blend_type = "COLOR"
 
-    if nodeMixRGB is None:
-        nodeMixRGB = nodeTree.nodes.new("CompositorNodeMixRGB")
-    nodeMixRGB.select = False
-    nodeMixRGB.name = nodeMixRGB.label = "CSPreview_MixRGB"
-    nodeMixRGB.location = (200, 0)
-    nodeMixRGB.blend_type = "COLOR"
+    if nodeAlphaOver is None:
+        nodeAlphaOver = nodeTree.nodes.new("CompositorNodeAlphaOver")
+    nodeAlphaOver.select = False
+    nodeAlphaOver.name = nodeAlphaOver.label = "CSPreview_AlphaOver"
+    nodeAlphaOver.location = (200, 0)
 
     if nodeComposite is None:
         nodeComposite = nodeTree.nodes.new("CompositorNodeComposite")
@@ -108,13 +99,11 @@ def setupCompositorNodes():
     nodeComposite.name = nodeComposite.label = "CSPreview_Composite"
     nodeComposite.location = (400, 0)
 
-    nodeTree.links.new(nodeAlphaTrans.inputs[1], nodeRenderLayer.outputs[0])
     nodeTree.links.new(nodeMixRGBMisc.inputs[1], nodeRenderLayer.outputs[0])
-    nodeTree.links.new(nodeAlphaTrans.inputs[2], nodeRGBTrans.outputs[0])
     nodeTree.links.new(nodeMixRGBMisc.inputs[2], nodeRGBMisc.outputs[0])
-    nodeTree.links.new(nodeMixRGB.inputs[1], nodeAlphaTrans.outputs[0])
-    nodeTree.links.new(nodeMixRGB.inputs[2], nodeMixRGBMisc.outputs[0])
-    nodeTree.links.new(nodeComposite.inputs[0], nodeMixRGB.outputs[0])
+    nodeTree.links.new(nodeAlphaOver.inputs[1], nodeMixRGBMisc.outputs[0])
+    nodeTree.links.new(nodeAlphaOver.inputs[2], nodeRGBTrans.outputs[0])
+    nodeTree.links.new(nodeComposite.inputs[0], nodeAlphaOver.outputs[0])
 
     bpy.context.scene.ootCSPreviewNodesReady = True
     return True
