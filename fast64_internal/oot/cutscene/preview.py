@@ -1,13 +1,13 @@
 import bpy
 
 from math import isclose
-from bpy.types import Scene, Object
+from bpy.types import Scene, Object, Node
 from bpy.app.handlers import persistent
 from ...utility import gammaInverse, hexOrDecInt
 
 
 def getLerp(max: float, min: float, val: float):
-    # from ``Environment_LerpWeight()``
+    # from ``Environment_LerpWeight()`` in decomp
     diff = max - min
     ret = None
 
@@ -21,17 +21,30 @@ def getLerp(max: float, min: float, val: float):
 
 
 def getColor(value: float) -> float:
+    """Returns the value converted in the linear color space"""
     return gammaInverse([value / 0xFF, 0.0, 0.0])[0]
 
 
+def getNode(node: Node, type: str, name: str, location: tuple[float, float]):
+    """Returns a compositor node"""
+    if node is None:
+        node = bpy.context.scene.node_tree.nodes.new(type)
+    node.select = False
+    node.name = node.label = name
+    node.location = location
+    return node
+
+
 def setupCompositorNodes():
+    """Creates or re-setups compositor nodes"""
     if bpy.app.version < (3, 6, 0):
-        return False
+        # Blender 3.6+ is required in order to use Compositor Nodes
+        return
 
     if not bpy.context.scene.use_nodes:
         bpy.context.scene.use_nodes = True
-        bpy.context.scene.ootCSPreviewNodesReady = False
 
+    # sets the compositor render mode to "Camera" 
     space = None
     for area in bpy.context.screen.areas:
         if (area != bpy.context.area) and (area.type == 'VIEW_3D'):
@@ -41,9 +54,11 @@ def setupCompositorNodes():
     if space is not None and space.shading.use_compositor != "CAMERA":
         space.shading.use_compositor = "CAMERA"
 
+    # if everything's fine and nodes are already ready to use stop there
     if bpy.context.scene.ootCSPreviewNodesReady:
-        return True
+        return
 
+    # get the existing nodes
     nodeTree = bpy.context.scene.node_tree
     nodeRenderLayer = nodeComposite = nodeRGBTrans = nodeAlphaOver = nodeRGBMisc = nodeMixRGBMisc = None
     for node in nodeTree.nodes.values():
@@ -60,76 +75,61 @@ def setupCompositorNodes():
         if node.label == "CSMisc_MixRGB":
             nodeMixRGBMisc = node
 
-    if nodeRenderLayer is None:
-        nodeRenderLayer = nodeTree.nodes.new("CompositorNodeRLayers")
-    nodeRenderLayer.select = False
-    nodeRenderLayer.name = nodeRenderLayer.label = "CSPreview_RenderLayer"
-    nodeRenderLayer.location = (-500, 0)
+    # create or set the data of each nodes
+    nodeRenderLayer = getNode(nodeRenderLayer, "CompositorNodeRLayers", "CSPreview_RenderLayer", (-500, 0))
+    nodeRGBMisc = getNode(nodeRGBMisc, "CompositorNodeRGB", "CSMisc_RGB", (-200, -200))
+    nodeRGBTrans = getNode(nodeRGBTrans, "CompositorNodeRGB", "CSTrans_RGB", (0, -200))
+    nodeMixRGBMisc = getNode(nodeMixRGBMisc, "CompositorNodeMixRGB", "CSMisc_MixRGB", (0, 0))
+    nodeAlphaOver = getNode(nodeAlphaOver, "CompositorNodeAlphaOver", "CSPreview_AlphaOver", (200, 0))
+    nodeComposite = getNode(nodeComposite, "CompositorNodeComposite", "CSPreview_Composite", (400, 0))
 
-    if nodeRGBMisc is None:
-        nodeRGBMisc = nodeTree.nodes.new("CompositorNodeRGB")
-    nodeRGBMisc.select = False
-    nodeRGBMisc.name = nodeRGBMisc.label = "CSMisc_RGB"
-    nodeRGBMisc.location = (-200, -200)
-
-    bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
-    if nodeRGBTrans is None:
-        nodeRGBTrans = nodeTree.nodes.new("CompositorNodeRGB")
-    nodeRGBTrans.select = False
-    nodeRGBTrans.name = nodeRGBTrans.label = "CSTrans_RGB"
-    nodeRGBTrans.location = (0, -200)
-    bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = [0.0, 0.0, 0.0, 0.0]
-
-    if nodeMixRGBMisc is None:
-        nodeMixRGBMisc = nodeTree.nodes.new("CompositorNodeMixRGB")
-    nodeMixRGBMisc.select = False
-    nodeMixRGBMisc.name = nodeMixRGBMisc.label = "CSMisc_MixRGB"
-    nodeMixRGBMisc.location = (0, 0)
-    nodeMixRGBMisc.use_alpha = True
-    nodeMixRGBMisc.blend_type = "COLOR"
-
-    if nodeAlphaOver is None:
-        nodeAlphaOver = nodeTree.nodes.new("CompositorNodeAlphaOver")
-    nodeAlphaOver.select = False
-    nodeAlphaOver.name = nodeAlphaOver.label = "CSPreview_AlphaOver"
-    nodeAlphaOver.location = (200, 0)
-
-    if nodeComposite is None:
-        nodeComposite = nodeTree.nodes.new("CompositorNodeComposite")
-    nodeComposite.select = True
-    nodeComposite.name = nodeComposite.label = "CSPreview_Composite"
-    nodeComposite.location = (400, 0)
-
+    # link the nodes together
     nodeTree.links.new(nodeMixRGBMisc.inputs[1], nodeRenderLayer.outputs[0])
     nodeTree.links.new(nodeMixRGBMisc.inputs[2], nodeRGBMisc.outputs[0])
     nodeTree.links.new(nodeAlphaOver.inputs[1], nodeMixRGBMisc.outputs[0])
     nodeTree.links.new(nodeAlphaOver.inputs[2], nodeRGBTrans.outputs[0])
     nodeTree.links.new(nodeComposite.inputs[0], nodeAlphaOver.outputs[0])
 
+    # misc settings
+    nodeMixRGBMisc.use_alpha = True
+    nodeMixRGBMisc.blend_type = "COLOR"
     bpy.context.scene.ootCSPreviewNodesReady = True
-    return True
+
+
+def initFirstFrame(csObj: Object, useNodeFeatures: bool, defaultCam: Object):
+    # set default values for frame 0
+    if useNodeFeatures:
+        color = [0.0, 0.0, 0.0, 0.0]
+        bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
+        bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
+    csObj.ootCutsceneProperty.preview.isFixedCamSet = False
+    if defaultCam is not None:
+        bpy.context.scene.camera = defaultCam
 
 
 def processCurrentFrame(csObj: Object, curFrame: float, useNodeFeatures: bool, cameraObjects: Object):
-    if curFrame == 0:
-        if useNodeFeatures:
-            color = [0.0, 0.0, 0.0, 0.0]
+    """Execute the actions of each command to create the preview for the current frame"""
+    # this function was partially adapted from ``z_demo.c``
 
-            bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
-            bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
-        csObj.ootCutsceneProperty.preview.isFixedCamSet = False
-        if cameraObjects is not None:
-            bpy.context.scene.camera = cameraObjects[1]
-        curFrame += 1
+    if curFrame == 0:
+        initFirstFrame(csObj, useNodeFeatures, cameraObjects[1])
 
     if useNodeFeatures:
         for transitionCmd in csObj.ootCutsceneProperty.preview.transitionList:
             startFrame = transitionCmd.startFrame
             endFrame = transitionCmd.endFrame
+            frameCur = curFrame
 
-            if curFrame >= startFrame and curFrame <= endFrame:
+            if transitionCmd.type == "Unknown":
+                print("ERROR: Unknown command!")
+
+            if frameCur == 0:
+                # makes transitions appear a frame earlier if frame 0
+                frameCur += 1
+
+            if frameCur >= startFrame and frameCur <= endFrame:
                 color = [0.0, 0.0, 0.0, 0.0]
-                lerp = getLerp(endFrame, startFrame, curFrame)
+                lerp = getLerp(endFrame, startFrame, frameCur)
                 linear255 = getColor(255.0)
                 linear160 = getColor(160.0)
                 linear155 = getColor(155.0)
@@ -161,13 +161,18 @@ def processCurrentFrame(csObj: Object, curFrame: float, useNodeFeatures: bool, c
         startFrame = miscCmd.startFrame
         endFrame = miscCmd.endFrame
 
+        if miscCmd.type == "Unknown":
+            print("ERROR: Unknown command!")
+
         if curFrame == startFrame:
             if miscCmd.type == "CS_MISC_SET_LOCKED_VIEWPOINT" and not None in cameraObjects:
                 bpy.context.scene.camera = cameraObjects[int(csObj.ootCutsceneProperty.preview.isFixedCamSet)]
                 csObj.ootCutsceneProperty.preview.isFixedCamSet ^= True
 
             if miscCmd.type == "CS_MISC_STOP_CUTSCENE":
+                # stop the playback and set the frame to 0
                 bpy.ops.screen.animation_cancel()
+                bpy.context.scene.frame_set(bpy.context.scene.frame_start)
 
         if curFrame >= startFrame and (curFrame < endFrame or endFrame == startFrame):
             if useNodeFeatures:
@@ -184,6 +189,7 @@ def processCurrentFrame(csObj: Object, curFrame: float, useNodeFeatures: bool, c
                         color[i] = getColor(col[i])
 
                     color[3] = getColor(255.0) * lerp
+                    bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
 
                 if miscCmd.type == "CS_MISC_RED_PULSATING_LIGHTS":
                     color = bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value
@@ -196,20 +202,18 @@ def processCurrentFrame(csObj: Object, curFrame: float, useNodeFeatures: bool, c
                     else:
                         if color[3] > 0.05:
                             color[3] -= step
-
-                bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
+                    bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
 
 @persistent
 def cutscenePreviewFrameHandler(scene: Scene):
+    """Preview frame handler, executes each frame when the cutscene is played"""
     csObj: Object = bpy.context.scene.ootCSPreviewCSObj
 
     if csObj is None or not csObj.type == "EMPTY" and not csObj.ootEmptyType == "Cutscene":
-        print("ERROR: Current Object is not a cutscene!")
         return
 
-    useNodeFeatures = setupCompositorNodes() 
+    # populate ``cameraObjects`` with the cutscene camera and the first found prerend fixed camera
     cameraObjects = [None, None]
-
     for obj in csObj.children:
         if obj.type == "CAMERA":
             cameraObjects[1] = obj
@@ -234,17 +238,22 @@ def cutscenePreviewFrameHandler(scene: Scene):
 
     if foundObj is not None:
         cameraObjects[0] = foundObj
+
+    # setup nodes
+    bpy.context.scene.ootCSPreviewNodesReady = False
+    setupCompositorNodes()
     
+    # execute the main preview logic
     previewProp = csObj.ootCutsceneProperty.preview
     curFrame = bpy.context.scene.frame_current
-
     if isclose(curFrame, previewProp.prevFrame, abs_tol=1) and isclose(curFrame, previewProp.nextFrame, abs_tol=1):
-        processCurrentFrame(csObj, curFrame, useNodeFeatures, cameraObjects)
+        processCurrentFrame(csObj, curFrame, bpy.context.scene.ootCSPreviewNodesReady, cameraObjects)
     else:
         # Simulate cutscene for all frames up to present
         for i in range(bpy.context.scene.frame_current):
-            processCurrentFrame(csObj, i, useNodeFeatures, cameraObjects)
+            processCurrentFrame(csObj, i, bpy.context.scene.ootCSPreviewNodesReady, cameraObjects)
 
+    # since we reached the end of the function, the current frame becomes the previous one
     previewProp.nextFrame = curFrame + 2 if curFrame > previewProp.prevFrame else curFrame - 2
     previewProp.prevFrame = curFrame
 

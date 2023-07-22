@@ -8,7 +8,7 @@ from .operators import OOTCSTextboxAdd, drawCSListAddOp
 from .constants import ootEnumCSTextboxType, ootEnumCSListType, ootEnumCSTransitionType, ootEnumCSTextboxTypeIcons
 
 from .motion.operators import (
-    OOTCSMotionShowCameraPreview,
+    OOTCSMotionPlayPreview,
     OOTCSMotionCreateCameraShot,
     OOTCSMotionCreatePlayerCueList,
     OOTCSMotionCreateActorCueList,
@@ -233,11 +233,11 @@ class OOTCutsceneCommandBase:
 
 
 class OOTCutsceneTransitionProperty(OOTCutsceneCommandBase, PropertyGroup):
-    type: StringProperty()
+    type: StringProperty(default="Unknown")
 
 
 class OOTCutsceneMiscProperty(OOTCutsceneCommandBase, PropertyGroup):
-    type: StringProperty()
+    type: StringProperty(default="Unknown")
 
 
 class OOTCutscenePreviewProperty(PropertyGroup):
@@ -266,7 +266,7 @@ class OOTCutsceneProperty(PropertyGroup):
 
         split = layout.split(factor=0.5)
         split.operator(OOTCSMotionCreateCameraShot.bl_idname, icon="VIEW_CAMERA")
-        split.operator(OOTCSMotionShowCameraPreview.bl_idname, icon="RESTRICT_VIEW_OFF")
+        split.operator(OOTCSMotionPlayPreview.bl_idname, icon="RESTRICT_VIEW_OFF")
 
         split = layout.split(factor=0.5)
         split.operator(OOTCSMotionCreatePlayerCueList.bl_idname)
