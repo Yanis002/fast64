@@ -84,8 +84,7 @@ class OOTCSMotionShowCameraPreview(Operator):
                     space.region_3d.view_perspective = 'CAMERA'
 
                 # setup frame data and play the animation
-                forcedFrame = csObj.ootCutsceneProperty.forcedEndFrame
-                endFrame = forcedFrame if forcedFrame > -1 else getCutsceneEndFrame(csObj)
+                endFrame = getCutsceneEndFrame(csObj)
                 context.scene.frame_end = endFrame if endFrame > -1 else context.scene.frame_end
                 context.scene.frame_set(context.scene.frame_start)
                 bpy.ops.screen.animation_cancel()

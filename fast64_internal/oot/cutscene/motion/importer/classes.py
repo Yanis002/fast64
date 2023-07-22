@@ -537,13 +537,10 @@ class OOTCSMotionImport(OOTCSMotionImportCommands, OOTCSMotionObjectFactory):
             if len(cutscene.miscList) > 0:
                 for miscList in cutscene.miscList:
                     for miscCmd in miscList.entries:
-                        if miscCmd.type == "CS_MISC_STOP_CUTSCENE":
-                            csObj.ootCutsceneProperty.forcedEndFrame = miscCmd.startFrame
-                        else:
-                            miscProp = csObj.ootCutsceneProperty.preview.miscList.add()
-                            miscProp.startFrame = miscCmd.startFrame
-                            miscProp.endFrame = miscCmd.endFrame
-                            miscProp.type = miscCmd.type
+                        miscProp = csObj.ootCutsceneProperty.preview.miscList.add()
+                        miscProp.startFrame = miscCmd.startFrame
+                        miscProp.endFrame = miscCmd.endFrame
+                        miscProp.type = miscCmd.type
 
             if len(cutscene.transitionList) > 0:
                 for transition in cutscene.transitionList:

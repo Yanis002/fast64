@@ -243,8 +243,8 @@ class OOTCutsceneMiscProperty(OOTCutsceneCommandBase, PropertyGroup):
 class OOTCutscenePreviewProperty(PropertyGroup):
     transitionList: CollectionProperty(type=OOTCutsceneTransitionProperty)
     miscList: CollectionProperty(type=OOTCutsceneMiscProperty)
-    isFixedCamSet: BoolProperty(default=False)
 
+    isFixedCamSet: BoolProperty(default=False)
     prevFrame: IntProperty(default=-1)
     nextFrame: IntProperty(default=1)
 
@@ -258,9 +258,6 @@ class OOTCutsceneProperty(PropertyGroup):
     csLists: CollectionProperty(type=OOTCSListProperty, name="Cutscene Lists")
 
     preview: PointerProperty(type=OOTCutscenePreviewProperty)
-
-    # used for the "stop cutscene" misc command, internal usage only
-    forcedEndFrame: IntProperty(default=-1, min=-1)
 
     def draw_props(self, layout: UILayout, obj: Object):
         split = layout.split(factor=0.5)

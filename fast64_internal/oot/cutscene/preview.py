@@ -166,6 +166,9 @@ def processCurrentFrame(csObj: Object, curFrame: float, useNodeFeatures: bool, c
                 bpy.context.scene.camera = cameraObjects[int(csObj.ootCutsceneProperty.preview.isFixedCamSet)]
                 csObj.ootCutsceneProperty.preview.isFixedCamSet ^= True
 
+            if miscCmd.type == "CS_MISC_STOP_CUTSCENE":
+                bpy.ops.screen.animation_cancel()
+
         if curFrame >= startFrame and (curFrame < endFrame or endFrame == startFrame):
             if useNodeFeatures:
                 color = [0.0, 0.0, 0.0, 0.0]
