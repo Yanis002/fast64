@@ -1,5 +1,6 @@
 import bpy
 
+from math import isclose
 from bpy.types import Scene, Object
 from bpy.app.handlers import persistent
 from ...utility import gammaInverse, hexOrDecInt
@@ -109,6 +110,92 @@ def setupCompositorNodes():
     return True
 
 
+def processCurrentFrame(csObj: Object, curFrame: float, useNodeFeatures: bool, cameraObjects: Object):
+    if curFrame == 0:
+        if useNodeFeatures:
+            color = [0.0, 0.0, 0.0, 0.0]
+
+            bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
+            bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
+        csObj.ootCutsceneProperty.preview.isFixedCamSet = False
+        if cameraObjects is not None:
+            bpy.context.scene.camera = cameraObjects[1]
+        curFrame += 1
+
+    if useNodeFeatures:
+        for transitionCmd in csObj.ootCutsceneProperty.preview.transitionList:
+            startFrame = transitionCmd.startFrame
+            endFrame = transitionCmd.endFrame
+
+            if curFrame >= startFrame and curFrame <= endFrame:
+                color = [0.0, 0.0, 0.0, 0.0]
+                lerp = getLerp(endFrame, startFrame, curFrame)
+                linear255 = getColor(255.0)
+                linear160 = getColor(160.0)
+                linear155 = getColor(155.0)
+
+                if transitionCmd.type.endswith("IN"):
+                    alpha = linear255 * lerp
+                else:
+                    alpha = (1.0 - lerp) * linear255
+
+                if "HALF" in transitionCmd.type:
+                    if "_IN_" in transitionCmd.type:
+                        alpha = linear255 - ((1.0 - lerp) * linear155)
+                    else:
+                        alpha = linear255 - (linear155 * lerp)
+
+                if "_GRAY_" in transitionCmd.type:
+                    color[0] = color[1] = color[2] = linear160 * alpha
+                elif "_RED_" in transitionCmd.type:
+                    color[0] = linear255 * alpha
+                elif "_GREEN_" in transitionCmd.type:
+                    color[1] = linear255 * alpha
+                elif "_BLUE_" in transitionCmd.type:
+                    color[2] = linear255 * alpha
+
+                color[3] = alpha
+                bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
+
+    for miscCmd in csObj.ootCutsceneProperty.preview.miscList:
+        startFrame = miscCmd.startFrame
+        endFrame = miscCmd.endFrame
+
+        if curFrame == startFrame:
+            if miscCmd.type == "CS_MISC_SET_LOCKED_VIEWPOINT" and not None in cameraObjects:
+                bpy.context.scene.camera = cameraObjects[int(csObj.ootCutsceneProperty.preview.isFixedCamSet)]
+                csObj.ootCutsceneProperty.preview.isFixedCamSet ^= True
+
+        if curFrame >= startFrame and (curFrame < endFrame or endFrame == startFrame):
+            if useNodeFeatures:
+                color = [0.0, 0.0, 0.0, 0.0]
+                lerp = getLerp(endFrame - 1, startFrame, curFrame)
+
+                if miscCmd.type in ["CS_MISC_VISMONO_SEPIA", "CS_MISC_VISMONO_BLACK_AND_WHITE"]:
+                    if miscCmd.type == "CS_MISC_VISMONO_SEPIA":
+                        col = [255.0, 180.0, 100.0]
+                    else:
+                        col = [255.0, 255.0, 254.0]
+
+                    for i in range(3):
+                        color[i] = getColor(col[i])
+
+                    color[3] = getColor(255.0) * lerp
+
+                if miscCmd.type == "CS_MISC_RED_PULSATING_LIGHTS":
+                    color = bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value
+                    color[0] = getColor(255.0)
+                    color[1] = color[2] = 0.0
+                    step = 0.05
+                    if curFrame & 8:
+                        if color[3] < 0.20:
+                            color[3] += step
+                    else:
+                        if color[3] > 0.05:
+                            color[3] -= step
+
+                bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
+
 @persistent
 def cutscenePreviewFrameHandler(scene: Scene):
     csObj: Object = bpy.context.scene.ootCSPreviewCSObj
@@ -117,9 +204,9 @@ def cutscenePreviewFrameHandler(scene: Scene):
         print("ERROR: Current Object is not a cutscene!")
         return
 
-    useNodeFeatures = setupCompositorNodes()
-    
+    useNodeFeatures = setupCompositorNodes() 
     cameraObjects = [None, None]
+
     for obj in csObj.children:
         if obj.type == "CAMERA":
             cameraObjects[1] = obj
@@ -144,79 +231,19 @@ def cutscenePreviewFrameHandler(scene: Scene):
 
     if foundObj is not None:
         cameraObjects[0] = foundObj
+    
+    previewProp = csObj.ootCutsceneProperty.preview
+    curFrame = bpy.context.scene.frame_current
 
-    # Simulate cutscene for all frames up to present
-    for curFrame in range(bpy.context.scene.frame_current):
-        if curFrame == 0:
-            if useNodeFeatures:
-                color = [0.0, 0.0, 0.0, 0.0]
+    if isclose(curFrame, previewProp.prevFrame, abs_tol=1) and isclose(curFrame, previewProp.nextFrame, abs_tol=1):
+        processCurrentFrame(csObj, curFrame, useNodeFeatures, cameraObjects)
+    else:
+        # Simulate cutscene for all frames up to present
+        for i in range(bpy.context.scene.frame_current):
+            processCurrentFrame(csObj, i, useNodeFeatures, cameraObjects)
 
-                bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
-                bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
-            csObj.ootCutsceneProperty.preview.isFixedCamSet = False
-            bpy.context.scene.camera = cameraObjects[1]
-            curFrame += 1
-
-        if useNodeFeatures:
-            for transitionCmd in csObj.ootCutsceneProperty.preview.transitionList:
-                startFrame = transitionCmd.startFrame
-                endFrame = transitionCmd.endFrame
-
-                if curFrame >= startFrame and curFrame <= endFrame:
-                    color = [0.0, 0.0, 0.0, 0.0]
-                    lerp = getLerp(endFrame, startFrame, curFrame)
-                    linear255 = getColor(255.0)
-                    linear160 = getColor(160.0)
-                    linear155 = getColor(155.0)
-
-                    if transitionCmd.type.endswith("IN"):
-                        alpha = linear255 * lerp
-                    else:
-                        alpha = (1.0 - lerp) * linear255
-
-                    if "HALF" in transitionCmd.type:
-                        if "_IN_" in transitionCmd.type:
-                            alpha = linear255 - ((1.0 - lerp) * linear155)
-                        else:
-                            alpha = linear255 - (linear155 * lerp)
-
-                    if "_GRAY_" in transitionCmd.type:
-                        color[0] = color[1] = color[2] = linear160 * alpha
-                    elif "_RED_" in transitionCmd.type:
-                        color[0] = linear255 * alpha
-                    elif "_GREEN_" in transitionCmd.type:
-                        color[1] = linear255 * alpha
-                    elif "_BLUE_" in transitionCmd.type:
-                        color[2] = linear255 * alpha
-
-                    color[3] = alpha
-                    bpy.context.scene.node_tree.nodes["CSTrans_RGB"].outputs[0].default_value = color
-
-        for miscCmd in csObj.ootCutsceneProperty.preview.miscList:
-            startFrame = miscCmd.startFrame
-            endFrame = miscCmd.endFrame
-
-            if curFrame == startFrame:
-                if miscCmd.type == "CS_MISC_SET_LOCKED_VIEWPOINT" and not None in cameraObjects:
-                    bpy.context.scene.camera = cameraObjects[int(csObj.ootCutsceneProperty.preview.isFixedCamSet)]
-                    csObj.ootCutsceneProperty.preview.isFixedCamSet ^= True
-
-            if curFrame >= startFrame and curFrame <= endFrame:
-                if useNodeFeatures:
-                    color = [0.0, 0.0, 0.0, 0.0]
-                    lerp = getLerp(endFrame, startFrame, curFrame)
-
-                    if miscCmd.type in ["CS_MISC_VISMONO_SEPIA", "CS_MISC_VISMONO_BLACK_AND_WHITE"]:
-                        if miscCmd.type == "CS_MISC_VISMONO_SEPIA":
-                            col = [255.0, 180.0, 100.0]
-                        else:
-                            col = [255.0, 255.0, 254.0]
-
-                        for i in range(len(col)):
-                            color[i] = getColor(col[i])
-
-                        color[3] = getColor(255.0) * lerp
-                        bpy.context.scene.node_tree.nodes["CSMisc_RGB"].outputs[0].default_value = color
+    previewProp.nextFrame = curFrame + 2 if curFrame > previewProp.prevFrame else curFrame - 2
+    previewProp.prevFrame = curFrame
 
 
 def cutscene_preview_register():

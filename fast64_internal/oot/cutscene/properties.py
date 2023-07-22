@@ -245,6 +245,9 @@ class OOTCutscenePreviewProperty(PropertyGroup):
     miscList: CollectionProperty(type=OOTCutsceneMiscProperty)
     isFixedCamSet: BoolProperty(default=False)
 
+    prevFrame: IntProperty(default=-1)
+    nextFrame: IntProperty(default=1)
+
 
 class OOTCutsceneProperty(PropertyGroup):
     csEndFrame: IntProperty(name="End Frame", min=0, default=100)
