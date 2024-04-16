@@ -64,9 +64,7 @@ class SpecEntry:
             for line in self.original:
                 line = line.strip()
                 dontHaveComments = (
-                    not line.startswith("// ")
-                    and not line.startswith("/* ")
-                    and not line.startswith(" */")
+                    not line.startswith("// ") and not line.startswith("/* ") and not line.startswith(" */")
                 )
 
                 if line != "\n":
