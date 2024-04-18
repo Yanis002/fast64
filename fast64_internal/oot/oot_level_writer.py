@@ -847,6 +847,7 @@ def ootProcessEmpties(scene, room, sceneObj, obj: Object, transformMatrix):
         elif obj.ootEmptyType == "Entrance":
             entranceProp = obj.ootEntranceProperty
             spawnIndex = entranceProp.spawnIndex
+            actorProp = entranceProp.actor
 
             if entranceProp.tiedRoom is not None:
                 roomIndex = entranceProp.tiedRoom.ootRoomHeader.roomIndex
