@@ -766,7 +766,7 @@ def getActorRotation(actorProp: OOTActorProperty, blendRots: list[int]):
         exportRots = overrideRots if actorProp.rotOverride else exportRots
     else:
         for i, rot in enumerate(["X", "Y", "Z"]):
-            if getattr(actorProp, f"isRot{rot}"):
+            if getattr(actorProp, f"isRot{rot}UsedByActor"):
                 exportRots[i] = overrideRots[i]
     return exportRots
 
