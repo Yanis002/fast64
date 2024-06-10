@@ -26,6 +26,8 @@ class CommandType(enum.Enum):
     INCLUDE_DATA_WITH_RODATA = 8
     NUMBER = 9
     PAD_TEXT = 10
+    INCLUDE_DATA_ONLY_WITHIN_RODATA = 11
+    INCLUDE_NO_DATA = 12
 
     @staticmethod
     def from_string(value: str):
