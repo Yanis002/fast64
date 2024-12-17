@@ -1,3 +1,8 @@
+from .data import MM_Data
+
+
+mm_data = MM_Data()
+
 mm_world_defaults = {
     "geometryMode": {
         "zBuffer": True,
