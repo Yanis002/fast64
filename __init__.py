@@ -26,6 +26,8 @@ from .fast64_internal.utility_anim import utility_anim_register, utility_anim_un
 
 from .fast64_internal.mk64 import MK64_Properties, mk64_register, mk64_unregister
 
+from .fast64_internal.mm import MM_Properties, mm_register, mm_unregister, mm_world_defaults
+
 from .fast64_internal.f3d.f3d_material import (
     F3D_MAT_CUR_VERSION,
     mat_register,
@@ -69,6 +71,7 @@ gameEditorEnum = (
     ("SM64", "SM64", "Super Mario 64", 0),
     ("OOT", "OOT", "Ocarina Of Time", 1),
     ("MK64", "MK64", "Mario Kart 64", 3),
+    ("MM", "MM", "Majora's Mask", 4),
     ("Homebrew", "Homebrew", "Homebrew", 2),
 )
 
@@ -236,6 +239,7 @@ class Fast64_Properties(bpy.types.PropertyGroup):
     sm64: bpy.props.PointerProperty(type=SM64_Properties, name="SM64 Properties")
     oot: bpy.props.PointerProperty(type=OOT_Properties, name="OOT Properties")
     mk64: bpy.props.PointerProperty(type=MK64_Properties, name="MK64 Properties")
+    mm: bpy.props.PointerProperty(type=MM_Properties, name="MM Properties")
     settings: bpy.props.PointerProperty(type=Fast64Settings_Properties, name="Fast64 Settings")
     renderSettings: bpy.props.PointerProperty(type=Fast64RenderSettings_Properties, name="Fast64 Render Settings")
 
@@ -386,8 +390,9 @@ def after_load(_a, _b):
         print(exc)
 
 
-def set_game_defaults(scene: bpy.types.Scene, set_ucode=True):
+def set_game_defaults(scene: bpy.types.Scene, set_ucode: bool = True):
     world_defaults = None
+
     if scene.gameEditorMode == "SM64":
         f3d_type = "F3D"
         world_defaults = sm64_world_defaults
@@ -396,12 +401,17 @@ def set_game_defaults(scene: bpy.types.Scene, set_ucode=True):
         world_defaults = oot_world_defaults
     elif scene.gameEditorMode == "MK64":
         f3d_type = "F3DEX/LX"
+    elif scene.gameEditorMode == "MM":
+        f3d_type = "F3DEX2/LX2"
+        world_defaults = mm_world_defaults
     elif scene.gameEditorMode == "Homebrew":
         f3d_type = "F3D"
         world_defaults = {}  # This will set some pretty bad defaults, but trust the user
+
     if set_ucode:
         scene.f3d_type = f3d_type
-    if scene.world is not None:
+
+    if scene.world is not None and world_defaults is not None:
         scene.world.rdp_defaults.from_dict(world_defaults)
 
 
@@ -437,6 +447,7 @@ def register():
     sm64_register(True)
     oot_register(True)
     mk64_register(True)
+    mm_register(True)
 
     repo_settings_operators_register()
 
@@ -484,6 +495,7 @@ def unregister():
     sm64_unregister(True)
     oot_unregister(True)
     mk64_unregister(True)
+    mm_unregister(True)
     mat_unregister()
     bsdf_conv_unregister()
     bsdf_conv_panel_unregsiter()
