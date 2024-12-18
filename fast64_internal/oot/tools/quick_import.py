@@ -4,7 +4,7 @@ import re
 
 import bpy
 
-from ..f3d.properties import OOTDLImportSettings
+from ...z64.f3d.properties import Z64_DLImportSettings
 from ..skeleton.properties import OOTSkeletonImportSettings
 from ..animation.properties import OOTAnimImportSettingsProperty
 from ..cutscene.importer import importCutsceneData
@@ -57,7 +57,7 @@ def quick_import_exec(context: bpy.types.Context, sym_name: str):
 
     sym_def_pattern = re.compile(rf"([^\s]+)\s+{sym_name}\s*(\[[^\]]*\])?\s*=")
 
-    base_dir_p = Path(context.scene.ootDecompPath) / context.scene.fast64.oot.get_extracted_path()
+    base_dir_p = Path(context.scene.z64_decomp_path) / context.scene.fast64.z64.get_extracted_path()
     assets_objects_dir_p = base_dir_p / "assets" / "objects"
     assets_scenes_dir_p = base_dir_p / "assets" / "scenes"
     is_sym_object = True
@@ -116,7 +116,7 @@ def quick_import_exec(context: bpy.types.Context, sym_name: str):
 
     if sym_def_type == "Gfx" and is_array:
         raise_only_from_object("Gfx[]")
-        settings: OOTDLImportSettings = context.scene.fast64.oot.DLImportSettings
+        settings: Z64_DLImportSettings = context.scene.fast64.z64.DLImportSettings
         settings.name = sym_name
         settings.folder = folder_name
         settings.actorOverlayName = ""

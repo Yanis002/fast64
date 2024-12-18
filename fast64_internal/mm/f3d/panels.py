@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Panel, Mesh, Armature
 from bpy.utils import register_class, unregister_class
-from ...panels import OOT_Panel
+from ...panels import MM_Panel
 from ...utility import prop_split
 from ...z64.f3d.operators import OOT_ImportDL, OOT_ExportDL
 from ...z64.f3d.properties import (
@@ -12,9 +12,9 @@ from ...z64.f3d.properties import (
 )
 
 
-class OOT_DisplayListPanel(Panel):
+class MM_DisplayListPanel(Panel):
     bl_label = "Display List Inspector"
-    bl_idname = "OBJECT_PT_OOT_DL_Inspector"
+    bl_idname = "OBJECT_PT_MM_DL_Inspector"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
@@ -22,7 +22,7 @@ class OOT_DisplayListPanel(Panel):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.gameEditorMode == "OOT" and (
+        return context.scene.gameEditorMode == "MM" and (
             context.object is not None and isinstance(context.object.data, Mesh)
         )
 
@@ -31,11 +31,12 @@ class OOT_DisplayListPanel(Panel):
         box.box().label(text="OOT DL Inspector")
         obj = context.object
 
-        # prop_split(box, obj, "ootDrawLayer", "Draw Layer")
         box.prop(obj, "ignore_render")
         box.prop(obj, "ignore_collision")
+
         if bpy.context.scene.f3d_type == "F3DEX3":
             box.prop(obj, "is_occlusion_planes")
+
             if obj.is_occlusion_planes and (not obj.ignore_render or not obj.ignore_collision):
                 box.label(icon="INFO", text="Suggest Ignore Render & Ignore Collision.")
 
@@ -44,13 +45,10 @@ class OOT_DisplayListPanel(Panel):
             prop_split(actorScaleBox, obj, "ootActorScale", "Actor Scale")
             actorScaleBox.label(text="This applies to actor exports only.", icon="INFO")
 
-        # Doesn't work since all static meshes are pre-transformed
-        # box.prop(obj.ootDynamicTransform, "billboard")
 
-
-class OOT_MaterialPanel(Panel):
+class MM_MaterialPanel(Panel):
     bl_label = "OOT Material"
-    bl_idname = "MATERIAL_PT_OOT_Material_Inspector"
+    bl_idname = "MATERIAL_PT_MM_Material_Inspector"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "material"
@@ -58,7 +56,7 @@ class OOT_MaterialPanel(Panel):
 
     @classmethod
     def poll(cls, context):
-        return context.material is not None and context.scene.gameEditorMode == "OOT"
+        return context.material is not None and context.scene.gameEditorMode == "MM"
 
     def draw(self, context):
         layout = self.layout
@@ -81,9 +79,9 @@ class OOT_MaterialPanel(Panel):
         dynMatProps.draw_props(col.box().column(), mat, drawLayer)
 
 
-class OOT_DrawLayersPanel(Panel):
-    bl_label = "OOT Draw Layers"
-    bl_idname = "WORLD_PT_OOT_Draw_Layers_Panel"
+class MM_DrawLayersPanel(Panel):
+    bl_label = "Draw Layers"
+    bl_idname = "WORLD_PT_MM_Draw_Layers_Panel"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "world"
@@ -91,7 +89,7 @@ class OOT_DrawLayersPanel(Panel):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.gameEditorMode == "OOT"
+        return context.scene.gameEditorMode == "MM"
 
     def draw(self, context):
         world = context.scene.world
@@ -101,36 +99,38 @@ class OOT_DrawLayersPanel(Panel):
         ootDefaultRenderModeProp.draw_props(self.layout)
 
 
-class OOT_ExportDLPanel(OOT_Panel):
-    bl_idname = "OOT_PT_export_dl"
-    bl_label = "OOT DL Exporter"
+class MM_ExportDLPanel(MM_Panel):
+    bl_idname = "MM_PT_dl_io"
+    bl_label = "Display Lists"
 
     # called every frame
     def draw(self, context):
         col = self.layout.column()
 
-        col.operator(OOT_ExportDL.bl_idname)
-        exportSettings: Z64_DLExportSettings = context.scene.fast64.z64.DLExportSettings
-        exportSettings.draw_props(col)
+        export_box = col.box()
+        export_settings: Z64_DLExportSettings = context.scene.fast64.z64.DLExportSettings
+        export_settings.draw_props(export_box)
+        export_box.operator(OOT_ExportDL.bl_idname)
 
-        col.operator(OOT_ImportDL.bl_idname)
-        importSettings: Z64_DLImportSettings = context.scene.fast64.z64.DLImportSettings
-        importSettings.draw_props(col)
+        import_box = col.box()
+        import_settings: Z64_DLImportSettings = context.scene.fast64.z64.DLImportSettings
+        import_settings.draw_props(import_box)
+        import_box.operator(OOT_ImportDL.bl_idname)
 
 
-oot_dl_writer_panel_classes = (
-    OOT_DisplayListPanel,
-    OOT_MaterialPanel,
-    OOT_DrawLayersPanel,
-    OOT_ExportDLPanel,
+mm_dl_writer_panel_classes = (
+    MM_DisplayListPanel,
+    MM_MaterialPanel,
+    MM_DrawLayersPanel,
+    MM_ExportDLPanel,
 )
 
 
 def f3d_panels_register():
-    for cls in oot_dl_writer_panel_classes:
+    for cls in mm_dl_writer_panel_classes:
         register_class(cls)
 
 
 def f3d_panels_unregister():
-    for cls in oot_dl_writer_panel_classes:
+    for cls in mm_dl_writer_panel_classes:
         unregister_class(cls)

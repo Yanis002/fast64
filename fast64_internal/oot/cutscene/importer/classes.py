@@ -364,7 +364,7 @@ class CutsceneImport(CutsceneObjectFactory):
     ):
         """Creates the bones from the Camera Point data"""
 
-        scale = bpy.context.scene.ootBlenderScale
+        scale = bpy.context.scene.z64_blender_scale
         for i, (eyePoint, atPoint) in enumerate(boneData, 1):
             # we need the edit mode to be able to change the bone's location
             bpy.ops.object.mode_set(mode="EDIT")

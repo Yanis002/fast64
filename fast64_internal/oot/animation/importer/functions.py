@@ -57,7 +57,7 @@ def getJointIndices(filepath, animData, jointIndicesName):
 def ootImportNonLinkAnimationC(armatureObj, filepath, animName, actorScale, isCustomImport: bool):
     animData = getImportData([filepath])
     if not isCustomImport:
-        basePath = bpy.path.abspath(bpy.context.scene.ootDecompPath)
+        basePath = bpy.path.abspath(bpy.context.scene.z64_decomp_path)
         animData = ootGetIncludedAssetData(basePath, [filepath], animData) + animData
 
     matchResult = re.search(
@@ -165,7 +165,7 @@ def ootImportLinkAnimationC(
     animHeaderData = getImportData([animHeaderFilepath])
     animData = getImportData([animFilepath])
     if not isCustomImport:
-        basePath = bpy.path.abspath(bpy.context.scene.ootDecompPath)
+        basePath = bpy.path.abspath(bpy.context.scene.z64_decomp_path)
         animHeaderData = ootGetIncludedAssetData(basePath, [animHeaderFilepath], animHeaderData) + animHeaderData
         animData = ootGetIncludedAssetData(basePath, [animFilepath], animData) + animData
 

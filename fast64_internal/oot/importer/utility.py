@@ -28,7 +28,7 @@ def unsetAllHeadersExceptSpecified(headerSettings: OOTActorHeaderProperty, heade
 def createEmptyWithTransform(positionValues: list[float], rotationValues: list[float]) -> bpy.types.Object:
     position = (
         yUpToZUp
-        @ mathutils.Matrix.Scale(1 / bpy.context.scene.ootBlenderScale, 4)
+        @ mathutils.Matrix.Scale(1 / bpy.context.scene.z64_blender_scale, 4)
         @ mathutils.Vector([hexOrDecInt(value) for value in positionValues])
     )
     rotation = yUpToZUp @ mathutils.Vector(ootParseRotation(rotationValues))
@@ -95,7 +95,7 @@ def createCurveFromPoints(points: list[tuple[float, float, float]], name: str):
     # new spline has 1 point by default
     spline.points.add(len(points) - 1)
     for i in range(len(points)):
-        position = yUpToZUp @ mathutils.Vector([value / bpy.context.scene.ootBlenderScale for value in points[i]])
+        position = yUpToZUp @ mathutils.Vector([value / bpy.context.scene.z64_blender_scale for value in points[i]])
 
         # Set the origin to the first point so that we can display name next to it.
         if objLocation is None:

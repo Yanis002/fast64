@@ -13,13 +13,7 @@ class MM_FileSettingsPanel(MM_Panel):
 
     # called every frame
     def draw(self, context):
-        col = self.layout.column()
-        col.scale_y = 1.1  # extra padding, makes it easier to see these main settings
-
-        prop_split(col, context.scene, "mm_blender_scale", "MM Scene Scale")
-        prop_split(col, context.scene, "mm_decomp_path", "Decomp Path")
-
-        context.scene.fast64.mm.draw(context, col)
+        pass
 
 
 mm_classes = (MM_FileSettingsPanel,)

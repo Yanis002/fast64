@@ -96,7 +96,7 @@ def parseMeshList(
             transparentDL = entryMatch.group(6).strip()
             position = yUpToZUp @ mathutils.Vector(
                 [
-                    hexOrDecInt(entryMatch.group(value).strip()) / bpy.context.scene.ootBlenderScale
+                    hexOrDecInt(entryMatch.group(value).strip()) / bpy.context.scene.z64_blender_scale
                     for value in range(1, 4)
                 ]
             )
@@ -110,7 +110,7 @@ def parseMeshList(
                 cullProp.sizeControlsCull = False
                 cullProp.manualRadius = hexOrDecInt(entryMatch.group(4).strip())
                 cullObj.show_name = True
-                # cullObj.empty_display_size = hexOrDecInt(entryMatch.group(4).strip()) / bpy.context.scene.ootBlenderScale
+                # cullObj.empty_display_size = hexOrDecInt(entryMatch.group(4).strip()) / bpy.context.scene.z64_blender_scale
                 parentObject(roomObj, cullObj)
                 parentObj = cullObj
             else:
@@ -130,7 +130,14 @@ def parseMeshList(
         for displayList, drawLayer in [(opaqueDL, "Opaque"), (transparentDL, "Transparent")]:
             if displayList != "0" and displayList != "NULL":
                 meshObj = importMeshC(
-                    sceneData, displayList, bpy.context.scene.ootBlenderScale, True, True, drawLayer, f3dContext, False
+                    sceneData,
+                    displayList,
+                    bpy.context.scene.z64_blender_scale,
+                    True,
+                    True,
+                    drawLayer,
+                    f3dContext,
+                    False,
                 )
                 meshObj.location = [0, 0, 0]
                 meshObj.ignore_collision = True

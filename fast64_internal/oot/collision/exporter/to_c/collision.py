@@ -16,13 +16,13 @@ from .....utility import (
     toAlnum,
 )
 
-from ....oot_utility import (
+from .....z64.utility import (
     OOTObjectCategorizer,
+    get_path,
+    get_object_path,
     addIncludeFiles,
-    ootDuplicateHierarchy,
     ootCleanupScene,
-    ootGetPath,
-    ootGetObjectPath,
+    ootDuplicateHierarchy,
 )
 
 
@@ -273,7 +273,7 @@ def exportCollisionToC(
     name = toAlnum(originalObj.name)
     isCustomExport = exportSettings.customExport
     folderName = exportSettings.folder
-    exportPath = ootGetObjectPath(isCustomExport, bpy.path.abspath(exportSettings.exportPath), folderName, False)
+    exportPath = get_object_path(isCustomExport, bpy.path.abspath(exportSettings.exportPath), folderName, False)
 
     collision = OOTCollision(name)
     collision.cameraData = OOTCameraData(name)
@@ -308,7 +308,7 @@ def exportCollisionToC(
             )
 
             # write file
-            path = ootGetPath(exportPath, isCustomExport, "assets/objects/", folderName, False, True)
+            path = get_path(exportPath, isCustomExport, "assets/objects/", folderName, False, True)
             filename = exportSettings.filename if exportSettings.isCustomFilename else f"{name}_collision"
             writeCData(colData, os.path.join(path, f"{filename}.h"), os.path.join(path, f"{filename}.c"))
             if not isCustomExport:

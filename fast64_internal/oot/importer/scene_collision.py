@@ -91,7 +91,7 @@ def parseCamPosData(setting: str, sceneData: str, posDataName: str, index: int, 
 
     posData = camPosList[index : index + 3]
     position = yUpToZUp @ mathutils.Vector(
-        [hexOrDecInt(value.strip()) / bpy.context.scene.ootBlenderScale for value in posData[0].split(",")]
+        [hexOrDecInt(value.strip()) / bpy.context.scene.z64_blender_scale for value in posData[0].split(",")]
     )
 
     # camera faces opposite direction
@@ -136,12 +136,12 @@ def parseWaterBoxes(
         objName = f"{sceneObj.name}_waterBox_{format(orderIndex, '03')}"
         params = [value.strip() for value in waterBoxData.split(",")]
         topCorner = yUpToZUp @ mathutils.Vector(
-            [hexOrDecInt(value) / bpy.context.scene.ootBlenderScale for value in params[0:3]]
+            [hexOrDecInt(value) / bpy.context.scene.z64_blender_scale for value in params[0:3]]
         )
-        dimensions = [hexOrDecInt(value) / bpy.context.scene.ootBlenderScale for value in params[3:5]]
+        dimensions = [hexOrDecInt(value) / bpy.context.scene.z64_blender_scale for value in params[3:5]]
         properties = hexOrDecInt(params[5])
 
-        height = 1000 / bpy.context.scene.ootBlenderScale  # just to add volume
+        height = 1000 / bpy.context.scene.z64_blender_scale  # just to add volume
 
         location = mathutils.Vector([0, 0, 0])
         scale = [dimensions[0] / 2, dimensions[1] / 2, height / 2]
@@ -217,7 +217,7 @@ def parseSurfaces(surfaceList: list[str]):
 def parseVertices(vertexList: list[str]):
     vertices = []
     for vertexData in vertexList:
-        vertex = [hexOrDecInt(value.strip()) / bpy.context.scene.ootBlenderScale for value in vertexData.split(",")]
+        vertex = [hexOrDecInt(value.strip()) / bpy.context.scene.z64_blender_scale for value in vertexData.split(",")]
         position = yUpToZUp @ mathutils.Vector(vertex)
         vertices.append(position)
 

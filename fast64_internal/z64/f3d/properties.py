@@ -1,5 +1,3 @@
-import bpy
-
 from bpy.types import PropertyGroup, Object, World, Material, UILayout
 from bpy.props import PointerProperty, StringProperty, BoolProperty, EnumProperty, IntProperty, FloatProperty
 from bpy.utils import register_class, unregister_class
@@ -8,7 +6,7 @@ from ...f3d.f3d_parser import ootEnumDrawLayers
 from ...utility import prop_split
 
 
-class OOTDLExportSettings(PropertyGroup):
+class Z64_DLExportSettings(PropertyGroup):
     isCustomFilename: BoolProperty(
         name="Use Custom Filename", description="Override filename instead of basing it off of the Blender name"
     )
@@ -30,27 +28,36 @@ class OOTDLExportSettings(PropertyGroup):
     )
 
     def draw_props(self, layout: UILayout):
-        layout.label(text="Object name used for export.", icon="INFO")
-        layout.prop(self, "isCustomFilename")
+        layout.box().label(text="DL Exporter")
+
+        filename_box = layout.box().column()
+        filename_box.label(text="Object name used for export.", icon="INFO")
+        filename_box.prop(self, "isCustomFilename")
+
         if self.isCustomFilename:
-            prop_split(layout, self, "filename", "Filename")
-        prop_split(layout, self, "folder", "Object" if not self.isCustom else "Folder")
+            prop_split(filename_box, self, "filename", "Filename")
+
+        box = layout.box().column()
+        box.prop(self, "isCustom")
+        prop_split(box, self, "folder", "Object" if not self.isCustom else "Folder")
+
         if self.isCustom:
-            prop_split(layout, self, "customAssetIncludeDir", "Asset Include Path")
-            prop_split(layout, self, "customPath", "Path")
+            prop_split(box, self, "customAssetIncludeDir", "Asset Include Path")
+            prop_split(box, self, "customPath", "Path")
         else:
-            prop_split(layout, self, "actorOverlayName", "Overlay (Optional)")
-            layout.prop(self, "flipbookUses2DArray")
+            prop_split(box, self, "actorOverlayName", "Overlay (Optional)")
+
+            flipbook_box = box.box().column()
+            flipbook_box.prop(self, "flipbookUses2DArray")
+
             if self.flipbookUses2DArray:
-                box = layout.box().column()
-                prop_split(box, self, "flipbookArrayIndex2D", "Flipbook Index")
+                prop_split(flipbook_box, self, "flipbookArrayIndex2D", "Flipbook Index")
 
         prop_split(layout, self, "drawLayer", "Export Draw Layer")
-        layout.prop(self, "isCustom")
         layout.prop(self, "removeVanillaData")
 
 
-class OOTDLImportSettings(PropertyGroup):
+class Z64_DLImportSettings(PropertyGroup):
     name: StringProperty(name="DL Name", default="gBoulderFragmentsDL")
     folder: StringProperty(name="DL Folder", default="gameplay_keep")
     customPath: StringProperty(name="Custom DL Path", subtype="FILE_PATH")
@@ -65,22 +72,33 @@ class OOTDLImportSettings(PropertyGroup):
     actorScale: FloatProperty(name="Actor Scale", min=0, default=100)
 
     def draw_props(self, layout: UILayout):
-        prop_split(layout, self, "name", "DL")
+        layout.box().label(text="DL Importer")
+
+        prop_split(layout, self, "name", "DL Name")
+
+        box = layout.box().column()
+        box.prop(self, "isCustom")
+
         if self.isCustom:
-            prop_split(layout, self, "customPath", "File")
+            prop_split(box, self, "customPath", "File")
         else:
-            prop_split(layout, self, "folder", "Object")
-            prop_split(layout, self, "actorOverlayName", "Overlay (Optional)")
-            layout.prop(self, "autoDetectActorScale")
+            prop_split(box, self, "folder", "Object Name")
+            prop_split(box, self, "actorOverlayName", "Overlay (Optional)")
+
+            scale_box = box.box().column()
+            scale_box.prop(self, "autoDetectActorScale")
+
             if not self.autoDetectActorScale:
-                prop_split(layout, self, "actorScale", "Actor Scale")
-            layout.prop(self, "flipbookUses2DArray")
+                prop_split(scale_box, self, "actorScale", "Actor Scale")
+
+            flipbook_box = box.box().column()
+            flipbook_box.prop(self, "flipbookUses2DArray")
+
             if self.flipbookUses2DArray:
-                box = layout.box().column()
-                prop_split(box, self, "flipbookArrayIndex2D", "Flipbook Index")
+                prop_split(flipbook_box, self, "flipbookArrayIndex2D", "Flipbook Index")
+
         prop_split(layout, self, "drawLayer", "Import Draw Layer")
 
-        layout.prop(self, "isCustom")
         layout.prop(self, "removeDoubles")
         layout.prop(self, "importNormals")
 
@@ -177,8 +195,8 @@ class OOTDefaultRenderModesProperty(PropertyGroup):
 
 
 oot_dl_writer_classes = (
-    OOTDLExportSettings,
-    OOTDLImportSettings,
+    Z64_DLExportSettings,
+    Z64_DLImportSettings,
     OOTDynamicMaterialDrawLayerProperty,
     OOTDynamicMaterialProperty,
     OOTDefaultRenderModesProperty,

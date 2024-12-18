@@ -4,24 +4,27 @@ from bpy.ops import object
 from bpy.path import abspath
 from bpy.utils import register_class, unregister_class
 from mathutils import Matrix
+from pathlib import Path
 from ...utility import CData, PluginError, raisePluginError, writeCData, toAlnum
 from ...f3d.f3d_parser import importMeshC, getImportData
 from ...f3d.f3d_gbi import DLFormat, F3D, TextureExportSettings, ScrollMethod, get_F3D_GBI
 from ...f3d.f3d_writer import TriangleConverterInfo, removeDL, saveStaticModel, getInfoDict
-from ..oot_utility import ootGetObjectPath, getOOTScale
-from ..oot_model_classes import OOTF3DContext, ootGetIncludedAssetData
-from ..oot_texture_array import ootReadTextureArrays
-from ..oot_model_classes import OOTModel, OOTGfxFormatter
-from ..oot_f3d_writer import ootReadActorScale, writeTextureArraysNew, writeTextureArraysExisting
-from .properties import OOTDLImportSettings, OOTDLExportSettings
+from .properties import Z64_DLImportSettings, Z64_DLExportSettings
 
-from ..oot_utility import (
+# TODO: cleanup
+from ...oot.oot_model_classes import OOTF3DContext, ootGetIncludedAssetData
+from ...oot.oot_texture_array import ootReadTextureArrays
+from ...oot.oot_model_classes import OOTModel, OOTGfxFormatter
+from ...oot.oot_f3d_writer import ootReadActorScale, writeTextureArraysNew, writeTextureArraysExisting
+
+from ...z64.utility import (
     OOTObjectCategorizer,
-    ootDuplicateHierarchy,
-    ootCleanupScene,
-    ootGetPath,
+    get_path,
+    get_object_path,
+    get_z64_scale,
     addIncludeFiles,
-    getOOTScale,
+    ootCleanupScene,
+    ootDuplicateHierarchy,
 )
 
 
@@ -30,7 +33,7 @@ def ootConvertMeshToC(
     finalTransform: mathutils.Matrix,
     DLFormat: DLFormat,
     saveTextures: bool,
-    settings: OOTDLExportSettings,
+    settings: Z64_DLExportSettings,
 ):
     folderName = settings.folder
     exportPath = bpy.path.abspath(settings.customPath)
@@ -68,7 +71,7 @@ def ootConvertMeshToC(
     else:
         data.source += "\n"
 
-    path = ootGetPath(exportPath, isCustomExport, "assets/objects/", folderName, False, True)
+    path = get_path(exportPath, isCustomExport, "assets/objects/", folderName, False, True)
     includeDir = settings.customAssetIncludeDir if settings.isCustom else f"assets/objects/{folderName}"
     exportData = fModel.to_c(
         TextureExportSettings(False, saveTextures, includeDir, path), OOTGfxFormatter(ScrollMethod.Vertex)
@@ -84,7 +87,7 @@ def ootConvertMeshToC(
     writeCData(data, os.path.join(path, filename + ".h"), os.path.join(path, filename + ".c"))
 
     if not isCustomExport:
-        writeTextureArraysExisting(bpy.context.scene.ootDecompPath, overlayName, False, flipbookArrayIndex2D, fModel)
+        writeTextureArraysExisting(bpy.context.scene.z64_decomp_path, overlayName, False, flipbookArrayIndex2D, fModel)
         addIncludeFiles(folderName, path, name)
         if removeVanillaData:
             headerPath = os.path.join(path, folderName + ".h")
@@ -106,12 +109,14 @@ class OOT_ImportDL(Operator):
             object.mode_set(mode="OBJECT")
 
         try:
-            settings: OOTDLImportSettings = context.scene.fast64.oot.DLImportSettings
+            settings: Z64_DLImportSettings = context.scene.fast64.z64.DLImportSettings
             name = settings.name
             folderName = settings.folder
-            importPath = abspath(settings.customPath)
+            importPath = Path(settings.customPath).resolve()
             isCustomImport = settings.isCustom
-            basePath = abspath(context.scene.ootDecompPath) if not isCustomImport else os.path.dirname(importPath)
+            basePath = (
+                Path(bpy.context.scene.z64_decomp_path).resolve() if not isCustomImport else os.path.dirname(importPath)
+            )
             removeDoubles = settings.removeDoubles
             importNormals = settings.importNormals
             drawLayer = settings.drawLayer
@@ -119,11 +124,11 @@ class OOT_ImportDL(Operator):
             flipbookUses2DArray = settings.flipbookUses2DArray
             flipbookArrayIndex2D = settings.flipbookArrayIndex2D if flipbookUses2DArray else None
 
-            paths = [ootGetObjectPath(isCustomImport, importPath, folderName, True)]
+            paths = [get_object_path(isCustomImport, importPath, folderName, True)]
             filedata = getImportData(paths)
             f3dContext = OOTF3DContext(get_F3D_GBI(), [name], basePath)
 
-            scale = getOOTScale(settings.actorScale)
+            scale = get_z64_scale(settings.actorScale)
             if not isCustomImport:
                 filedata = ootGetIncludedAssetData(basePath, paths, filedata) + filedata
 
@@ -141,7 +146,7 @@ class OOT_ImportDL(Operator):
                 drawLayer,
                 f3dContext,
             )
-            obj.ootActorScale = scale / context.scene.ootBlenderScale
+            obj.ootActorScale = scale / context.scene.z64_blender_scale
 
             self.report({"INFO"}, "Success!")
             return {"FINISHED"}
@@ -171,7 +176,7 @@ class OOT_ExportDL(Operator):
         if obj.type != "MESH":
             raise PluginError("Mesh not selected.")
 
-        finalTransform = Matrix.Scale(getOOTScale(obj.ootActorScale), 4)
+        finalTransform = Matrix.Scale(get_z64_scale(obj.ootActorScale), 4)
 
         try:
             # exportPath, levelName = getPathAndLevel(context.scene.geoCustomExport,
@@ -179,7 +184,7 @@ class OOT_ExportDL(Operator):
             # 	context.scene.geoLevelOption)
 
             saveTextures = context.scene.saveTextures
-            exportSettings = context.scene.fast64.oot.DLExportSettings
+            exportSettings = context.scene.fast64.z64.DLExportSettings
 
             ootConvertMeshToC(
                 obj,

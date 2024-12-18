@@ -21,12 +21,10 @@ from ...utility import (
 
 from ..oot_utility import (
     ExportInfo,
-    OOTObjectCategorizer,
-    ootDuplicateHierarchy,
-    ootCleanupScene,
     getSceneDirFromLevelName,
-    ootGetPath,
 )
+
+from ...z64.utility import OOTObjectCategorizer, get_path, ootCleanupScene, ootDuplicateHierarchy
 
 
 def writeTextureArraysExistingScene(fModel: OOTModel, exportPath: str, sceneInclude: str):
@@ -107,7 +105,7 @@ class SceneExport:
             exportSubdir = os.path.dirname(getSceneDirFromLevelName(sceneName))
 
         sceneInclude = exportSubdir + "/" + sceneName + "/"
-        path = ootGetPath(exportPath, isCustomExport, exportSubdir, sceneName, True, True)
+        path = get_path(exportPath, isCustomExport, exportSubdir, sceneName, True, True)
         textureExportSettings = TextureExportSettings(False, exportInfo.saveTexturesAsPNG, sceneInclude, path)
 
         sceneFile = scene.getNewSceneFile(path, exportInfo.isSingleFile, textureExportSettings)

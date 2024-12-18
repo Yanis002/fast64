@@ -69,3 +69,14 @@ class MM_Panel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return context.scene.gameEditorMode == "MM"
+
+
+class Z64_Panel(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Zelda 64"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.gameEditorMode in {"OOT", "MM"}

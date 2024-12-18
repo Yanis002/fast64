@@ -27,6 +27,7 @@ from .fast64_internal.utility_anim import utility_anim_register, utility_anim_un
 from .fast64_internal.mk64 import MK64_Properties, mk64_register, mk64_unregister
 
 from .fast64_internal.mm import MM_Properties, mm_register, mm_unregister, mm_world_defaults
+from .fast64_internal.z64 import Z64_Properties, z64_register, z64_unregister
 
 from .fast64_internal.f3d.f3d_material import (
     F3D_MAT_CUR_VERSION,
@@ -240,6 +241,7 @@ class Fast64_Properties(bpy.types.PropertyGroup):
     oot: bpy.props.PointerProperty(type=OOT_Properties, name="OOT Properties")
     mk64: bpy.props.PointerProperty(type=MK64_Properties, name="MK64 Properties")
     mm: bpy.props.PointerProperty(type=MM_Properties, name="MM Properties")
+    z64: bpy.props.PointerProperty(type=Z64_Properties, name="Zelda64 Properties")
     settings: bpy.props.PointerProperty(type=Fast64Settings_Properties, name="Fast64 Settings")
     renderSettings: bpy.props.PointerProperty(type=Fast64RenderSettings_Properties, name="Fast64 Render Settings")
 
@@ -445,6 +447,7 @@ def register():
     render_engine_register()
     bsdf_conv_register()
     sm64_register(True)
+    z64_register(True)
     oot_register(True)
     mk64_register(True)
     mm_register(True)
@@ -496,6 +499,7 @@ def unregister():
     oot_unregister(True)
     mk64_unregister(True)
     mm_unregister(True)
+    z64_unregister(True)
     mat_unregister()
     bsdf_conv_unregister()
     bsdf_conv_panel_unregsiter()

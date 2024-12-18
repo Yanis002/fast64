@@ -130,7 +130,7 @@ class CutsceneData:
     def getOoTPosition(self, pos):
         """Returns the converted Blender position"""
 
-        scale = bpy.context.scene.ootBlenderScale
+        scale = bpy.context.scene.z64_blender_scale
 
         x = round(pos[0] * scale)
         y = round(pos[2] * scale)

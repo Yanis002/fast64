@@ -742,8 +742,8 @@ def ootProcessLOD(
         childDLEntry.terminate_dls()
 
         # Add lod AFTER processing hierarchy, so that DLs will be built by then
-        opaqueLOD.add_lod(childDLEntry.opaque, childObj.f3d_lod_z * bpy.context.scene.ootBlenderScale)
-        transparentLOD.add_lod(childDLEntry.transparent, childObj.f3d_lod_z * bpy.context.scene.ootBlenderScale)
+        opaqueLOD.add_lod(childDLEntry.opaque, childObj.f3d_lod_z * bpy.context.scene.z64_blender_scale)
+        transparentLOD.add_lod(childDLEntry.transparent, childObj.f3d_lod_z * bpy.context.scene.z64_blender_scale)
 
     opaqueLOD.create_data()
     transparentLOD.create_data()

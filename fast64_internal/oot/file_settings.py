@@ -15,13 +15,6 @@ class OOT_FileSettingsPanel(OOT_Panel):
     def draw(self, context):
         col = self.layout.column()
         col.scale_y = 1.1  # extra padding, makes it easier to see these main settings
-        prop_split(col, context.scene, "ootBlenderScale", "OOT Scene Scale")
-
-        prop_split(col, context.scene, "ootDecompPath", "Decomp Path")
-
-        prop_split(col, context.scene.fast64.oot, "oot_version", "OoT Version")
-        if context.scene.fast64.oot.oot_version == "Custom":
-            prop_split(col, context.scene.fast64.oot, "oot_version_custom", "Custom Version")
 
         col.prop(context.scene.fast64.oot, "headerTabAffectsVisibility")
         col.prop(context.scene.fast64.oot, "hackerFeaturesEnabled")
@@ -38,13 +31,7 @@ def file_register():
     for cls in oot_classes:
         register_class(cls)
 
-    Scene.ootBlenderScale = FloatProperty(name="Blender To OOT Scale", default=10, update=on_update_render_settings)
-    Scene.ootDecompPath = StringProperty(name="Decomp Folder", subtype="FILE_PATH")
-
 
 def file_unregister():
     for cls in reversed(oot_classes):
         unregister_class(cls)
-
-    del Scene.ootBlenderScale
-    del Scene.ootDecompPath

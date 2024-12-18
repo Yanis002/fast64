@@ -3,7 +3,7 @@ from bpy.utils import register_class, unregister_class
 from bpy.ops import object
 from mathutils import Matrix
 from ...utility import PluginError, raisePluginError
-from ..oot_utility import getOOTScale
+from ...z64.utility import get_z64_scale
 from ..collision.exporter.to_c import exportCollisionToC
 from .properties import OOTCollisionExportSettings
 
@@ -24,7 +24,7 @@ class OOT_ExportCollision(Operator):
         if obj.type != "MESH":
             raise PluginError("No mesh object selected.")
 
-        finalTransform = Matrix.Scale(getOOTScale(obj.ootActorScale), 4)
+        finalTransform = Matrix.Scale(get_z64_scale(obj.ootActorScale), 4)
 
         try:
             exportSettings: OOTCollisionExportSettings = context.scene.fast64.oot.collisionExportSettings

@@ -22,9 +22,9 @@ from ...oot_utility import (
     checkForStartBone,
     getStartBone,
     getSortedChildren,
-    ootGetPath,
-    addIncludeFiles,
 )
+
+from ....z64.utility import get_path, addIncludeFiles
 
 
 def ootProcessBone(
@@ -280,7 +280,7 @@ def ootConvertArmatureToC(
     else:
         data.source += "\n"
 
-    path = ootGetPath(exportPath, isCustomExport, "assets/objects/", folderName, True, True)
+    path = get_path(exportPath, isCustomExport, "assets/objects/", folderName, True, True)
     includeDir = settings.customAssetIncludeDir if settings.isCustom else f"assets/objects/{folderName}"
     exportData = fModel.to_c(
         TextureExportSettings(False, savePNG, includeDir, path), OOTGfxFormatter(ScrollMethod.Vertex)
@@ -297,7 +297,7 @@ def ootConvertArmatureToC(
     writeCData(data, os.path.join(path, filename + ".h"), os.path.join(path, filename + ".c"))
 
     if not isCustomExport:
-        writeTextureArraysExisting(bpy.context.scene.ootDecompPath, overlayName, isLink, flipbookArrayIndex2D, fModel)
+        writeTextureArraysExisting(bpy.context.scene.z64_decomp_path, overlayName, isLink, flipbookArrayIndex2D, fModel)
         addIncludeFiles(folderName, path, filename)
         if removeVanillaData:
             ootRemoveSkeleton(path, folderName, skeletonName)

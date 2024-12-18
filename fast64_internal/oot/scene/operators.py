@@ -93,7 +93,7 @@ class OOT_ClearBootupScene(Operator):
     bl_options = {"REGISTER", "UNDO", "PRESET"}
 
     def execute(self, context):
-        Config.clearBootupScene(os.path.join(abspath(context.scene.ootDecompPath), "include/config/config_debug.h"))
+        Config.clearBootupScene(os.path.join(abspath(context.scene.z64_decomp_path), "include/config/config_debug.h"))
         self.report({"INFO"}, "Success!")
         return {"FINISHED"}
 
@@ -143,7 +143,7 @@ class OOT_ExportScene(Operator):
             elif obj.type != "EMPTY" or obj.ootEmptyType != "Scene":
                 raise PluginError("The input object is not an empty with the Scene type.")
 
-            scaleValue = context.scene.ootBlenderScale
+            scaleValue = context.scene.z64_blender_scale
             finalTransform = Matrix.Diagonal(Vector((scaleValue, scaleValue, scaleValue))).to_4x4()
 
         except Exception as e:
@@ -168,7 +168,7 @@ class OOT_ExportScene(Operator):
                     levelName = sceneNameFromID(option)
                     customSubPath = None
                 isCustomExport = False
-                exportPath = bpy.path.abspath(context.scene.ootDecompPath)
+                exportPath = bpy.path.abspath(context.scene.z64_decomp_path)
 
             exportInfo = ExportInfo(
                 isCustomExport,
@@ -236,7 +236,7 @@ class OOT_RemoveScene(Operator):
             subfolder = None
 
         # the scene files will be removed from `assets` if it's present
-        Files.remove_scene(RemoveInfo(abspath(context.scene.ootDecompPath), subfolder, levelName))
+        Files.remove_scene(RemoveInfo(abspath(context.scene.z64_decomp_path), subfolder, levelName))
 
         self.report({"INFO"}, "Success!")
         return {"FINISHED"}

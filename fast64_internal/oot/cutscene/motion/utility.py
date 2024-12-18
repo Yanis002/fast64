@@ -176,7 +176,7 @@ def getNameInformations(csObj: Object, target: str, index: int):
 
 
 def metersToBlend(context: Context, value: float):
-    return value * 56.0 / context.scene.ootBlenderScale
+    return value * 56.0 / context.scene.z64_blender_scale
 
 
 def setupActorCuePreview(csObj: Object, actorOrPlayer: str, selectObject: bool, cueList: Object):

@@ -556,7 +556,7 @@ class CutsceneObjectFactory:
         isPlayer = not isDummy and not "Actor" in name
 
         newActorCueObj = self.getNewEmptyObject(name, False, parentObj)
-        newActorCueObj.location = getBlenderPosition(location, bpy.context.scene.ootBlenderScale)
+        newActorCueObj.location = getBlenderPosition(location, bpy.context.scene.z64_blender_scale)
         newActorCueObj.empty_display_type = "ARROWS"
         newActorCueObj.rotation_mode = "XZY"
         newActorCueObj.rotation_euler = getBlenderRotation(rot)

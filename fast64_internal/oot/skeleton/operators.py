@@ -5,10 +5,11 @@ from bpy.path import abspath
 from mathutils import Matrix
 from ...f3d.f3d_gbi import DLFormat
 from ...utility import PluginError, raisePluginError
-from ..oot_utility import getStartBone, getNextBone, getOOTScale
+from ..oot_utility import getStartBone, getNextBone
 from .exporter import ootConvertArmatureToC
 from .importer import ootImportSkeletonC
 from .properties import OOTSkeletonImportSettings, OOTSkeletonExportSettings
+from ...z64.utility import get_z64_scale
 
 
 # Copy data from console into python file
@@ -71,7 +72,7 @@ class OOT_ImportSkeleton(Operator):
 
         try:
             importSettings: OOTSkeletonImportSettings = context.scene.fast64.oot.skeletonImportSettings
-            decompPath = abspath(context.scene.ootDecompPath)
+            decompPath = abspath(context.scene.z64_decomp_path)
 
             ootImportSkeletonC(decompPath, importSettings)
 
@@ -107,7 +108,7 @@ class OOT_ExportSkeleton(Operator):
             raise PluginError("Armature does not have any mesh children, or " + "has a non-mesh child.")
 
         obj = armatureObj.children[0]
-        finalTransform = Matrix.Scale(getOOTScale(armatureObj.ootActorScale), 4)
+        finalTransform = Matrix.Scale(get_z64_scale(armatureObj.ootActorScale), 4)
 
         # Rotation must be applied before exporting skeleton.
         # For some reason this does not work if done on the duplicate generated later, so we have to do it before then.

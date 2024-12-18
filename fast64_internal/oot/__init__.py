@@ -17,8 +17,8 @@ from .room.properties import room_props_register, room_props_unregister
 from .actor.operators import actor_ops_register, actor_ops_unregister
 from .actor.properties import actor_props_register, actor_props_unregister
 
-from .f3d.operators import f3d_ops_register, f3d_ops_unregister
-from .f3d.properties import OOTDLExportSettings, OOTDLImportSettings, f3d_props_register, f3d_props_unregister
+from ..z64.f3d.operators import f3d_ops_register, f3d_ops_unregister
+from ..z64.f3d.properties import Z64_DLExportSettings, Z64_DLImportSettings, f3d_props_register, f3d_props_unregister
 from .f3d.panels import f3d_panels_register, f3d_panels_unregister
 
 from .collision.operators import collision_ops_register, collision_ops_unregister
@@ -58,20 +58,6 @@ from .tools import (
     oot_operator_unregister,
 )
 
-oot_versions_items = [
-    ("Custom", "Custom", "Custom"),
-    ("gc-jp", "gc-jp", "gc-jp"),
-    ("gc-jp-mq", "gc-jp-mq", "gc-jp-mq"),
-    ("gc-jp-ce", "gc-jp-ce", "gc-jp-ce"),
-    ("gc-us", "gc-us", "gc-us"),
-    ("gc-us-mq", "gc-us-mq", "gc-us-mq"),
-    ("gc-eu", "gc-eu", "gc-eu"),
-    ("gc-eu-mq", "gc-eu-mq", "gc-eu-mq"),
-    ("gc-eu-mq-dbg", "gc-eu-mq-dbg", "gc-eu-mq-dbg"),
-    ("hackeroot-mq", "HackerOoT", "hackeroot-mq"),  # TODO: force this value if HackerOoT features are enabled?
-    ("legacy", "Legacy", "Older Decomp Version"),
-]
-
 
 class OOT_Properties(bpy.types.PropertyGroup):
     """Global OOT Scene Properties found under scene.fast64.oot"""
@@ -82,21 +68,15 @@ class OOT_Properties(bpy.types.PropertyGroup):
         default=False, name="Header Sets Actor Visibility", update=setAllActorsVisibility
     )
     bootupSceneOptions: bpy.props.PointerProperty(type=OOTBootupSceneOptions)
-    DLExportSettings: bpy.props.PointerProperty(type=OOTDLExportSettings)
-    DLImportSettings: bpy.props.PointerProperty(type=OOTDLImportSettings)
+    DLExportSettings: bpy.props.PointerProperty(type=Z64_DLExportSettings)
+    DLImportSettings: bpy.props.PointerProperty(type=Z64_DLImportSettings)
     skeletonExportSettings: bpy.props.PointerProperty(type=OOTSkeletonExportSettings)
     skeletonImportSettings: bpy.props.PointerProperty(type=OOTSkeletonImportSettings)
     animExportSettings: bpy.props.PointerProperty(type=OOTAnimExportSettingsProperty)
     animImportSettings: bpy.props.PointerProperty(type=OOTAnimImportSettingsProperty)
     collisionExportSettings: bpy.props.PointerProperty(type=OOTCollisionExportSettings)
-    oot_version: bpy.props.EnumProperty(name="OoT Version", items=oot_versions_items, default="gc-eu-mq-dbg")
-    oot_version_custom: bpy.props.StringProperty(name="Custom Version")
 
-    def get_extracted_path(self):
-        if self.oot_version == "legacy":
-            return "."
-        else:
-            return f"extracted/{self.oot_version if self.oot_version != 'Custom' else self.oot_version_custom}"
+    oot_version_custom: bpy.props.StringProperty(name="Custom Version")
 
     useDecompFeatures: bpy.props.BoolProperty(
         name="Use decomp for export", description="Use names and macros from decomp when exporting", default=True
@@ -153,12 +133,10 @@ def oot_register(registerPanels):
     actor_props_register()
     oot_obj_register()
     spline_props_register()
-    f3d_props_register()
     anim_ops_register()
     skeleton_ops_register()
     skeleton_props_register()
     cutscene_ops_register()
-    f3d_ops_register()
     file_register()
     anim_props_register()
 
@@ -192,12 +170,10 @@ def oot_unregister(unregisterPanels):
     actor_ops_unregister()
     actor_props_unregister()
     spline_props_unregister()
-    f3d_props_unregister()
     anim_ops_unregister()
     skeleton_ops_unregister()
     skeleton_props_unregister()
     cutscene_ops_unregister()
-    f3d_ops_unregister()
     file_unregister()
     anim_props_unregister()
 

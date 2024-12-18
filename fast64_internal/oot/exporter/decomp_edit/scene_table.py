@@ -253,7 +253,7 @@ class SceneTableUtility:
     def get_draw_config(scene_name: str):
         """Read draw config from scene table"""
         scene_table = SceneTable.new(
-            os.path.join(bpy.path.abspath(bpy.context.scene.ootDecompPath), "include/tables/scene_table.h")
+            os.path.join(bpy.path.abspath(bpy.context.scene.z64_decomp_path), "include/tables/scene_table.h")
         )
 
         spec_dict = {entry.spec_name: entry for entry in scene_table.get_entries_flattened()}

@@ -45,14 +45,14 @@ skeletonNames = list(
 
 # Setup Fast64 settings
 bpy.context.scene.gameEditorMode = "OOT"
-bpy.context.scene.ootDecompPath = abspath(decompPath)
+bpy.context.scene.z64_decomp_path = abspath(decompPath)
 bpy.context.scene.fast64.oot.animImportSettings.folderName = objectName
 
 # These aren't used by the script, but we may as well set them to reasonable values
 # in case someone is going to work out of the output blend file
 bpy.context.scene.fast64.oot.skeletonExportSettings.folder = objectName
 bpy.context.scene.fast64.oot.animExportSettings.folderName = objectName
-bpy.context.scene.fast64.oot.DLExportSettings.folder = objectName
+bpy.context.scene.fast64.z64.DLExportSettings.folder = objectName
 bpy.context.scene.fast64.oot.collisionExportSettings.folder = objectName
 
 # Import all skeletons from the file

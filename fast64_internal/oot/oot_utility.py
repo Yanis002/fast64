@@ -11,6 +11,7 @@ from bpy.types import Object
 from typing import Callable, Optional, TYPE_CHECKING, List
 from .oot_constants import ootSceneIDToName
 from dataclasses import dataclass
+from ..z64.utility import get_path
 
 from ..utility import (
     PluginError,
@@ -180,10 +181,6 @@ def sceneNameFromID(sceneID):
         raise PluginError("Cannot find scene ID " + str(sceneID))
 
 
-def getOOTScale(actorScale: float) -> float:
-    return bpy.context.scene.ootBlenderScale * actorScale
-
-
 @dataclass
 class OOTEnum:
     """
@@ -221,35 +218,8 @@ def ootGetEnums(code: str) -> List["OOTEnum"]:
     ]
 
 
-def replaceMatchContent(data: str, newContent: str, match: re.Match, index: int) -> str:
-    return data[: match.start(index)] + newContent + data[match.end(index) :]
-
-
-def addIncludeFiles(objectName, objectPath, assetName):
-    addIncludeFilesExtension(objectName, objectPath, assetName, "h")
-    addIncludeFilesExtension(objectName, objectPath, assetName, "c")
-
-
-def addIncludeFilesExtension(objectName, objectPath, assetName, extension):
-    include = '#include "' + assetName + "." + extension + '"\n'
-    if not os.path.exists(objectPath):
-        raise PluginError(objectPath + " does not exist.")
-    path = os.path.join(objectPath, objectName + "." + extension)
-    if not os.path.exists(path):
-        # workaround for exporting to an object that doesn't exist in assets/
-        data = ""
-    else:
-        data = getDataFromFile(path)
-
-    if include not in data:
-        data += "\n" + include
-
-    # Save this regardless of modification so it will be recompiled.
-    saveDataToFile(path, data)
-
-
 def getSceneDirFromLevelName(name: str, include_extracted: bool = False):
-    extracted = bpy.context.scene.fast64.oot.get_extracted_path() if include_extracted else "."
+    extracted = bpy.context.scene.fast64.z64.get_extracted_path() if include_extracted else "."
     for sceneDir, dirLevels in ootSceneDirs.items():
         if name in dirLevels:
             return f"{extracted}/" + sceneDir + name
@@ -310,137 +280,6 @@ class RemoveInfo:
     """The name of the level to remove"""
 
 
-class OOTObjectCategorizer:
-    def __init__(self):
-        self.sceneObj = None
-        self.roomObjs = []
-        self.actors = []
-        self.transitionActors = []
-        self.meshes = []
-        self.entrances = []
-        self.waterBoxes = []
-
-    def sortObjects(self, allObjs):
-        for obj in allObjs:
-            if obj.type == "EMPTY":
-                if obj.ootEmptyType == "Actor":
-                    self.actors.append(obj)
-                elif obj.ootEmptyType == "Transition Actor":
-                    self.transitionActors.append(obj)
-                elif obj.ootEmptyType == "Entrance":
-                    self.entrances.append(obj)
-                elif obj.ootEmptyType == "Water Box":
-                    self.waterBoxes.append(obj)
-                elif obj.ootEmptyType == "Room":
-                    self.roomObjs.append(obj)
-                elif obj.ootEmptyType == "Scene":
-                    self.sceneObj = obj
-            elif obj.type == "MESH":
-                self.meshes.append(obj)
-
-
-# This also sets all origins relative to the scene object.
-def ootDuplicateHierarchy(obj, ignoreAttr, includeEmpties, objectCategorizer) -> tuple[Object, list[Object]]:
-    # Duplicate objects to apply scale / modifiers / linked data
-    bpy.ops.object.select_all(action="DESELECT")
-    ootSelectMeshChildrenOnly(obj, includeEmpties)
-    obj.select_set(True)
-    bpy.context.view_layer.objects.active = obj
-    bpy.ops.object.duplicate()
-    try:
-        tempObj = bpy.context.view_layer.objects.active
-        allObjs = bpy.context.selected_objects
-        bpy.ops.object.make_single_user(obdata=True)
-
-        objectCategorizer.sortObjects(allObjs)
-        meshObjs = objectCategorizer.meshes
-        bpy.ops.object.select_all(action="DESELECT")
-        for selectedObj in meshObjs:
-            selectedObj.select_set(True)
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True, properties=False)
-
-        for selectedObj in meshObjs:
-            bpy.ops.object.select_all(action="DESELECT")
-            selectedObj.select_set(True)
-            bpy.context.view_layer.objects.active = selectedObj
-            for modifier in selectedObj.modifiers:
-                attemptModifierApply(modifier)
-        for selectedObj in meshObjs:
-            setOrigin(obj, selectedObj)
-        if ignoreAttr is not None:
-            for selectedObj in meshObjs:
-                if getattr(selectedObj, ignoreAttr):
-                    for child in selectedObj.children:
-                        bpy.ops.object.select_all(action="DESELECT")
-                        child.select_set(True)
-                        bpy.ops.object.parent_clear(type="CLEAR_KEEP_TRANSFORM")
-                        selectedObj.parent.select_set(True)
-                        bpy.ops.object.parent_set(keep_transform=True)
-                    selectedObj.parent = None
-
-        # Assume objects with these types of constraints are parented, and are
-        # intended to be parented in-game, i.e. rendered as an extra DL alongside
-        # a skeletal mesh, e.g. for a character to be wearing or holding it.
-        # In this case we purely want the transformation of the object relative
-        # to whatever it's parented to. Getting rid of the constraint and then
-        # doing transform_apply() sets up this transformation.
-        hasConstraint = False
-        for constraint in tempObj.constraints:
-            if (
-                constraint.type
-                in {
-                    "COPY_LOCATION",
-                    "COPY_ROTATION",
-                    "COPY_SCALE",
-                    "COPY_TRANSFORMS",
-                    "TRANSFORM",
-                    "CHILD_OF",
-                    "CLAMP_TO",
-                    "DAMPED_TRACK",
-                    "LOCKED_TRACK",
-                    "TRACK_TO",
-                }
-                and not constraint.mute
-            ):
-                hasConstraint = True
-                tempObj.constraints.remove(constraint)
-        if not hasConstraint:
-            # For normal objects, the game's coordinate system is 90 degrees
-            # away from Blender's.
-            applyRotation([tempObj], math.radians(90), "X")
-        else:
-            # This is a relative transform we care about so the 90 degrees
-            # doesn't matter (since they're both right-handed).
-            print("Applying transform")
-            bpy.ops.object.select_all(action="DESELECT")
-            tempObj.select_set(True)
-            bpy.context.view_layer.objects.active = tempObj
-            bpy.ops.object.transform_apply()
-
-        return tempObj, allObjs
-    except Exception as e:
-        cleanupDuplicatedObjects(allObjs)
-        obj.select_set(True)
-        bpy.context.view_layer.objects.active = obj
-        raise Exception(str(e))
-
-
-def ootSelectMeshChildrenOnly(obj, includeEmpties):
-    isMesh = obj.type == "MESH"
-    isEmpty = (obj.type == "EMPTY" or obj.type == "CAMERA" or obj.type == "CURVE") and includeEmpties
-    if isMesh or isEmpty:
-        obj.select_set(True)
-        obj.original_name = obj.name
-    for child in obj.children:
-        ootSelectMeshChildrenOnly(child, includeEmpties)
-
-
-def ootCleanupScene(originalSceneObj, allObjs):
-    cleanupDuplicatedObjects(allObjs)
-    originalSceneObj.select_set(True)
-    bpy.context.view_layer.objects.active = originalSceneObj
-
-
 def getSceneObj(obj):
     while not (obj is None or (obj is not None and obj.type == "EMPTY" and obj.ootEmptyType == "Scene")):
         obj = obj.parent
@@ -464,53 +303,16 @@ def checkEmptyName(name):
         raise PluginError("No name entered for the exporter.")
 
 
-def ootGetObjectPath(isCustomExport: bool, exportPath: str, folderName: str, include_extracted: bool) -> str:
-    extracted = bpy.context.scene.fast64.oot.get_extracted_path() if include_extracted else "."
-
-    if isCustomExport:
-        filepath = exportPath
-    else:
-        filepath = os.path.join(
-            ootGetPath(
-                exportPath,
-                isCustomExport,
-                f"{extracted}/assets/objects/",
-                folderName,
-                False,
-                False,
-            ),
-            folderName + ".c",
-        )
-    return filepath
-
-
 def ootGetObjectHeaderPath(isCustomExport: bool, exportPath: str, folderName: str, include_extracted: bool) -> str:
-    extracted = bpy.context.scene.fast64.oot.get_extracted_path() if include_extracted else "."
+    extracted = bpy.context.scene.fast64.z64.get_extracted_path() if include_extracted else "."
     if isCustomExport:
         filepath = exportPath
     else:
         filepath = os.path.join(
-            ootGetPath(exportPath, isCustomExport, f"{extracted}/assets/objects/", folderName, False, False),
+            get_path(exportPath, isCustomExport, f"{extracted}/assets/objects/", folderName, False, False),
             folderName + ".h",
         )
     return filepath
-
-
-def ootGetPath(exportPath, isCustomExport, subPath, folderName, makeIfNotExists, useFolderForCustom):
-    if isCustomExport:
-        path = bpy.path.abspath(os.path.join(exportPath, (folderName if useFolderForCustom else "")))
-    else:
-        if bpy.context.scene.ootDecompPath == "":
-            raise PluginError("Decomp base path is empty.")
-        path = bpy.path.abspath(os.path.join(os.path.join(bpy.context.scene.ootDecompPath, subPath), folderName))
-
-    if not os.path.exists(path):
-        if isCustomExport or makeIfNotExists:
-            os.makedirs(path)
-        else:
-            raise PluginError(path + " does not exist.")
-
-    return path
 
 
 def getSortedChildren(armatureObj, bone):
@@ -1007,12 +809,12 @@ def getNewPath(type: str, isClosedShape: bool):
     newSpline = newCurve.splines.new("NURBS")  # comes with 1 point
 
     # generate shape based on 'type' parameter
-    scaleDivBy2 = bpy.context.scene.ootBlenderScale / 2
+    scaleDivBy2 = bpy.context.scene.z64_blender_scale / 2
     match type:
         case "Line":
             newSpline.points.add(1)
             for i, point in enumerate(newSpline.points):
-                point.co.x = i * bpy.context.scene.ootBlenderScale
+                point.co.x = i * bpy.context.scene.z64_blender_scale
                 point.co.w = 1
         case "Triangle":
             newSpline.points.add(2)

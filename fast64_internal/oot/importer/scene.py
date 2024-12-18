@@ -19,9 +19,10 @@ from ..oot_utility import (
     getSceneDirFromLevelName,
     setCustomProperty,
     sceneNameFromID,
-    ootGetPath,
     setAllActorsVisibility,
 )
+
+from ...z64.utility import get_path
 
 
 def parseDrawConfig(drawConfigName: str, sceneData: str, drawConfigData: str, f3dContext: OOTF3DContext):
@@ -84,11 +85,11 @@ def parseScene(
         subfolder = None
     else:
         if option == "Custom":
-            subfolder = f"{bpy.context.scene.fast64.oot.get_extracted_path()}/assets/scenes/{settings.subFolder}/"
+            subfolder = f"{bpy.context.scene.fast64.z64.get_extracted_path()}/assets/scenes/{settings.subFolder}/"
         else:
             sceneName = sceneNameFromID(option)
             subfolder = None
-        importPath = bpy.path.abspath(bpy.context.scene.ootDecompPath)
+        importPath = bpy.path.abspath(bpy.context.scene.z64_decomp_path)
 
     importSubdir = ""
     if settings.isCustomDest is not None:
@@ -96,8 +97,8 @@ def parseScene(
     if not settings.isCustomDest and subfolder is None:
         importSubdir = os.path.dirname(getSceneDirFromLevelName(sceneName, True)) + "/"
 
-    sceneFolderPath = ootGetPath(
-        importPath if settings.isCustomDest else f"{importPath}/{bpy.context.scene.fast64.oot.get_extracted_path()}/",
+    sceneFolderPath = get_path(
+        importPath if settings.isCustomDest else f"{importPath}/{bpy.context.scene.fast64.z64.get_extracted_path()}/",
         settings.isCustomDest,
         importSubdir,
         sceneName,
@@ -120,12 +121,12 @@ def parseScene(
         bpy.context.mode = "OBJECT"
 
     # set scene default registers (see sDefaultDisplayList)
-    f3dContext = OOTF3DContext(get_F3D_GBI(), [], bpy.path.abspath(bpy.context.scene.ootDecompPath))
+    f3dContext = OOTF3DContext(get_F3D_GBI(), [], bpy.path.abspath(bpy.context.scene.z64_decomp_path))
     f3dContext.mat().prim_color = (0.5, 0.5, 0.5, 0.5)
     f3dContext.mat().env_color = (0.5, 0.5, 0.5, 0.5)
 
-    parseMatrices(sceneData, f3dContext, 1 / bpy.context.scene.ootBlenderScale)
-    f3dContext.addMatrix("&gMtxClear", mathutils.Matrix.Scale(1 / bpy.context.scene.ootBlenderScale, 4))
+    parseMatrices(sceneData, f3dContext, 1 / bpy.context.scene.z64_blender_scale)
+    f3dContext.addMatrix("&gMtxClear", mathutils.Matrix.Scale(1 / bpy.context.scene.z64_blender_scale, 4))
 
     if not settings.isCustomDest:
         drawConfigName = SceneTableUtility.get_draw_config(sceneName)

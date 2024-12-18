@@ -2,7 +2,7 @@ import bpy, os, re
 from ..utility import CData, getGroupIndexFromname, readFile, writeFile
 from ..f3d.flipbook import flipbook_to_c, flipbook_2d_to_c, flipbook_data_to_c
 from ..f3d.f3d_material import createF3DMat, F3DMaterial_UpdateLock, update_preset_manual
-from .oot_utility import replaceMatchContent, getOOTScale
+from ..z64.utility import get_z64_scale, replace_match_content
 from .oot_texture_array import TextureFlipbook
 
 from ..f3d.f3d_writer import (
@@ -307,7 +307,7 @@ def writeTextureArraysExisting2D(data: str, flipbook: TextureFlipbook, flipbookA
             arrayMatchData[flipbookArrayIndex2D] = newArrayData
 
         newArray2DData = ",\n".join([item for item in arrayMatchData])
-        newData = replaceMatchContent(newData, newArray2DData, array2DMatch, 2)
+        newData = replace_match_content(newData, newArray2DData, array2DMatch, 2)
 
         # otherwise, add to end of asset includes
     else:
@@ -338,13 +338,13 @@ def ootReadActorScale(basePath: str, overlayName: str, isLink: bool) -> float:
         scale = chainInitMatch.group(1).strip()
         if scale[-1] == "f":
             scale = scale[:-1]
-        return getOOTScale(1 / (float(scale) / 1000))
+        return get_z64_scale(1 / (float(scale) / 1000))
 
     actorScaleMatch = re.search(r"Actor\_SetScale\s*\(.*?,\s*(.*?)\s*\)", actorData, re.DOTALL)
     if actorScaleMatch is not None:
         scale = actorScaleMatch.group(1).strip()
         if scale[-1] == "f":
             scale = scale[:-1]
-        return getOOTScale(1 / float(scale))
+        return get_z64_scale(1 / float(scale))
 
-    return getOOTScale(100)
+    return get_z64_scale(100)

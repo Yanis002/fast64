@@ -6,11 +6,13 @@ from ....f3d.f3d_parser import getImportData, parseF3D
 from ....utility import hexOrDecInt, applyRotation, PluginError
 from ...oot_f3d_writer import ootReadActorScale
 from ...oot_model_classes import OOTF3DContext, ootGetIncludedAssetData
-from ...oot_utility import OOTEnum, ootGetObjectPath, getOOTScale, ootGetObjectHeaderPath, ootGetEnums, ootStripComments
+from ...oot_utility import OOTEnum, ootGetObjectHeaderPath, ootGetEnums, ootStripComments
 from ...oot_texture_array import ootReadTextureArrays
 from ..constants import ootSkeletonImportDict
 from ..properties import OOTSkeletonImportSettings
 from ..utility import ootGetLimb, ootGetLimbs, ootGetSkeleton, applySkeletonRestPose
+
+from ....z64.utility import get_object_path, get_z64_scale
 
 
 class OOTDLEntry:
@@ -230,7 +232,7 @@ def ootBuildSkeleton(
     bpy.ops.object.parent_set(type="ARMATURE")
 
     applyRotation([armatureObj], math.radians(-90), "X")
-    armatureObj.ootActorScale = actorScale / bpy.context.scene.ootBlenderScale
+    armatureObj.ootActorScale = actorScale / bpy.context.scene.z64_blender_scale
 
     return isLOD, armatureObj
 
@@ -258,7 +260,7 @@ def ootImportSkeletonC(basePath: str, importSettings: OOTSkeletonImportSettings)
         restPoseData = None
 
     filepaths = [
-        ootGetObjectPath(isCustomImport, importPath, folderName, True),
+        get_object_path(isCustomImport, importPath, folderName, True),
         ootGetObjectHeaderPath(isCustomImport, importPath, folderName, True),
     ]
 
@@ -283,7 +285,7 @@ def ootImportSkeletonC(basePath: str, importSettings: OOTSkeletonImportSettings)
     if overlayName is not None and importSettings.autoDetectActorScale:
         actorScale = ootReadActorScale(basePath, overlayName, isLink)
     else:
-        actorScale = getOOTScale(importSettings.actorScale)
+        actorScale = get_z64_scale(importSettings.actorScale)
 
     # print(limbList)
     isLOD, armatureObj = ootBuildSkeleton(
