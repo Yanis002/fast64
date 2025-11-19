@@ -8,7 +8,7 @@ from ...game_data import game_data
 from ..collection_utility import drawCollectionOps, drawAddButton
 from ..utility import onMenuTabChange, onHeaderMenuTabChange, drawEnumWithCustom
 from ..upgrade import upgradeRoomHeaders
-from .operators import OOT_SearchObjectEnumOperator
+from .operators import OOT_SearchRoomObjectEnumOperator
 
 from bpy.props import (
     EnumProperty,
@@ -59,7 +59,7 @@ class OOTObjectProperty(PropertyGroup):
         row = objItemBox.row()
         row.label(text=f"{objectName}")
         buttons = row.row(align=True)
-        objSearch = buttons.operator(OOT_SearchObjectEnumOperator.bl_idname, icon="VIEWZOOM", text="Select")
+        objSearch = buttons.operator(OOT_SearchRoomObjectEnumOperator.bl_idname, icon="VIEWZOOM", text="Select")
         drawCollectionOps(buttons, index, "Object", headerIndex, objName, compact=True)
         objSearch.objName = objName
         objSearch.headerIndex = headerIndex if headerIndex is not None else 0

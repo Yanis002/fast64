@@ -921,7 +921,7 @@ class Z64_Data:
             "blur_type": self.enums.enum_cs_motion_blur_type,
             "credits_scene_type": self.enums.enum_cs_credits_scene_type,
             "mod_seq_type": self.enums.enum_cs_modify_seq_type,
-            "objectKey": self.objects.ootEnumObjectKey,
+            "object_key": self.objects.ootEnumObjectKey,
             "actor_id": self.actors.ootEnumActorID,
             "chest_content": self.actors.ootEnumChestContent,
             "navi_msg_id": self.actors.ootEnumNaviMessageData,

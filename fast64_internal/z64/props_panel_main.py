@@ -25,6 +25,7 @@ ootEnumEmptyType = [
     ("Scene", "Scene", "Scene"),
     ("Room", "Room", "Room"),
     ("Actor", "Actor", "Actor"),
+    ("Object", "Object", "Object"),
     ("Transition Actor", "Transition Actor", "Transition Actor"),
     ("Entrance", "Entrance", "Entrance"),
     ("Water Box", "Water Box", "Water Box"),
@@ -140,6 +141,11 @@ class OOTObjectPanel(bpy.types.Panel):
         if obj.ootEmptyType == "Actor":
             actorProp: OOTActorProperty = obj.ootActorProperty
             actorProp.draw_props(box, altRoomProp, obj)
+
+        elif obj.ootEmptyType == "Object":
+            object_box = box.box().column()
+            object_box.label(text="Anything parented to this will be", icon="QUESTION")
+            object_box.label(text="considered part of the same game object.")
 
         elif obj.ootEmptyType == "Transition Actor":
             transActorProp: OOTTransitionActorProperty = obj.ootTransitionActorProperty

@@ -70,6 +70,15 @@ from .hackeroot.operators import hackeroot_ops_register, hackeroot_ops_unregiste
 from .hackeroot.properties import HackerOoTSettings, hackeroot_props_register, hackeroot_props_unregister
 from .hackeroot.panels import hackeroot_panels_register, hackeroot_panels_unregister
 
+from .object.operators import object_ops_register, object_ops_unregister
+from .object.properties import (
+    Z64_ObjectExportSettings,
+    Z64_ObjectImportSettings,
+    object_props_register,
+    object_props_unregister,
+)
+from .object.panels import object_panels_register, object_panels_unregister
+
 from .tools import (
     oot_operator_panel_register,
     oot_operator_panel_unregister,
@@ -127,6 +136,8 @@ class OOT_Properties(bpy.types.PropertyGroup):
     hackeroot_settings: bpy.props.PointerProperty(type=HackerOoTSettings)
     anim_mats_export_settings: bpy.props.PointerProperty(type=Z64_AnimatedMaterialExportSettings)
     anim_mats_import_settings: bpy.props.PointerProperty(type=Z64_AnimatedMaterialImportSettings)
+    object_export_settings: bpy.props.PointerProperty(type=Z64_ObjectExportSettings)
+    object_import_settings: bpy.props.PointerProperty(type=Z64_ObjectImportSettings)
 
     def get_extracted_path(self):
         version = self.oot_version if game_data.z64.is_oot() else self.mm_version
@@ -183,6 +194,7 @@ def oot_panel_register():
     anim_panels_register()
     skeleton_panels_register()
     animated_mats_panels_register()
+    object_panels_register()
 
 
 def oot_panel_unregister():
@@ -197,6 +209,7 @@ def oot_panel_unregister():
     anim_panels_unregister()
     skeleton_panels_unregister()
     animated_mats_panels_unregister()
+    object_panels_unregister()
 
 
 def oot_register(registerPanels):
@@ -209,6 +222,8 @@ def oot_register(registerPanels):
     animated_mats_props_register()
     scene_ops_register()
     scene_props_register()
+    object_props_register()
+    object_ops_register()
     room_ops_register()
     room_props_register()
     actor_ops_register()
@@ -270,6 +285,8 @@ def oot_unregister(unregisterPanels):
     actor_ops_unregister()
     room_props_unregister()
     room_ops_unregister()
+    object_props_unregister()
+    object_ops_unregister()
     scene_props_unregister()
     scene_ops_unregister()
     animated_mats_props_unregister()

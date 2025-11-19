@@ -6,8 +6,8 @@ from ...utility import ootGetSceneOrRoomHeader
 from ...game_data import game_data
 
 
-class OOT_SearchObjectEnumOperator(Operator):
-    bl_idname = "object.oot_search_object_enum_operator"
+class OOT_SearchRoomObjectEnumOperator(Operator):
+    bl_idname = "object.oot_search_room_object_enum_operator"
     bl_label = "Search Object ID"
     bl_property = "objectKey"
     bl_options = {"REGISTER", "UNDO"}
@@ -29,7 +29,7 @@ class OOT_SearchObjectEnumOperator(Operator):
         return {"RUNNING_MODAL"}
 
 
-classes = (OOT_SearchObjectEnumOperator,)
+classes = (OOT_SearchRoomObjectEnumOperator,)
 
 
 def room_ops_register():

@@ -7,6 +7,9 @@ Documentation on this file's format:
 - Name: display name
 - Index: corresponds to the index of the object in the old object list, used for compatibility with blends
 -->
+  <Object Index="380" ID="OBJECT_GAMEPLAY_KEEP" Key="gameplay_keep" Name="Gameplay Keep"/>
+  <Object Index="381" ID="OBJECT_GAMEPLAY_FIELD_KEEP" Key="gameplay_field_keep" Name="Gameplay Field Keep"/>
+  <Object Index="382" ID="OBJECT_GAMEPLAY_DANGEON_KEEP" Key="gameplay_dangeon_keep" Name="Gameplay Dungeon Keep"/>
   <Object Index="1" ID="OBJECT_HUMAN" Key="obj_human" Name="Aria"/>
   <Object Index="2" ID="OBJECT_OKUTA" Key="obj_okuta" Name="Octorok"/>
   <Object Index="3" ID="OBJECT_CROW" Key="obj_crow" Name="Guay"/>

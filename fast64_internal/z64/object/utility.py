@@ -1,7 +1,7 @@
 from bpy.types import Object
-from ..utility import ootGetSceneOrRoomHeader
-from ..game_data import game_data
-from .exporter.room.header import RoomHeader
+from ...utility import ootGetSceneOrRoomHeader
+from ...game_data import game_data
+from ..exporter.room.header import RoomHeader
 
 
 def addMissingObjectToProp(roomObj: Object, headerIndex: int, objectKey: str):

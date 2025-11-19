@@ -145,6 +145,7 @@ class OOT_ImportDL(Operator):
 
             filedata = getImportData(paths)
             f3dContext = OOTF3DContext(get_F3D_GBI(), [name], basePath)
+            f3dContext.ignore_tlut = not context.scene.fast64.oot.is_globalh_present()
 
             scale = None
             if not isCustomImport:

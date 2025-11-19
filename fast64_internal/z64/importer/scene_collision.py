@@ -4,6 +4,7 @@ import bpy
 import mathutils
 
 from random import random
+from typing import Optional
 from bpy.types import Material
 
 from ...game_data import game_data
@@ -324,22 +325,23 @@ def parsePolygon(polygonData: list[str], sharedSceneData: SharedSceneData):
 
 
 def parseCollisionHeader(
-    sceneObj: bpy.types.Object,
+    sceneObj: Optional[bpy.types.Object],
     roomObjs: list[bpy.types.Object],
-    sceneData: str,
+    filedata: str,
     collisionHeaderName: str,
     sharedSceneData: SharedSceneData,
+    obj_name: Optional[str] = None,
 ):
     match = re.search(
         rf"CollisionHeader\s*{re.escape(collisionHeaderName)}\s*=\s*\{{\s*\{{(.*?)\}}\s*,\s*\{{(.*?)\}}\s*,(.*?)\}}\s*;",
-        sceneData,
+        filedata,
         flags=re.DOTALL,
     )
 
     if not match:
         match = re.search(
             rf"CollisionHeader\s*{re.escape(collisionHeaderName)}\s*=\s*\{{(.*?)\}}\s*;",
-            sceneData,
+            filedata,
             flags=re.DOTALL,
         )
         if not match:
@@ -361,26 +363,29 @@ def parseCollisionHeader(
     waterBoxListName = stripName(otherParams[7])
 
     if sharedSceneData.includeCollision:
-        parseCollision(sceneObj, vertexListName, polygonListName, surfaceTypeListName, sceneData, sharedSceneData)
+        parseCollision(
+            sceneObj, vertexListName, polygonListName, surfaceTypeListName, filedata, sharedSceneData, obj_name
+        )
     if sharedSceneData.includeCameras and camDataListName != "NULL" and camDataListName != "0":
-        parseCamDataList(sceneObj, camDataListName, sceneData)
+        parseCamDataList(sceneObj, camDataListName, filedata)
     if sharedSceneData.includeWaterBoxes and waterBoxListName != "NULL" and waterBoxListName != "0":
-        parseWaterBoxes(sceneObj, roomObjs, sceneData, waterBoxListName, sharedSceneData)
+        parseWaterBoxes(sceneObj, roomObjs, filedata, waterBoxListName, sharedSceneData)
 
 
 def parseCollision(
-    sceneObj: bpy.types.Object,
+    sceneObj: Optional[bpy.types.Object],
     vertexListName: str,
     polygonListName: str,
     surfaceTypeListName: str,
-    sceneData: str,
+    filedata: str,
     sharedSceneData: SharedSceneData,
+    obj_name: Optional[str] = None,
 ):
-    vertMatchData = getDataMatch(sceneData, vertexListName, "Vec3s", "vertex list", strip=True)
-    polyMatchData = getDataMatch(sceneData, polygonListName, "CollisionPoly", "polygon list", strip=True)
+    vertMatchData = getDataMatch(filedata, vertexListName, "Vec3s", "vertex list", strip=True)
+    polyMatchData = getDataMatch(filedata, polygonListName, "CollisionPoly", "polygon list", strip=True)
 
     surfMatchData = (
-        getDataMatch(sceneData, surfaceTypeListName, "SurfaceType", "surface type list")
+        getDataMatch(filedata, surfaceTypeListName, "SurfaceType", "surface type list")
         .replace("\n", "")
         .replace(" ", "")
     )
@@ -413,7 +418,7 @@ def parseCollision(
 
         collision_list.append(collision_poly)
 
-    collisionName = f"{sceneObj.name}_collision"
+    collisionName = obj_name if obj_name is not None else f"{sceneObj.name}_collision"
     mesh = bpy.data.meshes.new(collisionName)
     obj = bpy.data.objects.new(collisionName, mesh)
     bpy.context.scene.collection.objects.link(obj)
@@ -447,4 +452,5 @@ def parseCollision(
 
     obj.ignore_render = True
 
-    parentObject(sceneObj, obj)
+    if sceneObj is not None:
+        parentObject(sceneObj, obj)
