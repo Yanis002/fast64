@@ -1,6 +1,8 @@
 import bpy
+import os
 
 from pathlib import Path
+from typing import Optional
 from bpy.utils import register_class, unregister_class
 
 from ..game_data import game_data
@@ -146,8 +148,16 @@ class OOT_Properties(bpy.types.PropertyGroup):
         else:
             return f"extracted/{version if version != 'Custom' else self.oot_version_custom}"
 
-    def is_include_present(self, include_file: str):
+    def get_decomp_path(self):
         decomp_path = Path(bpy.context.scene.ootDecompPath).resolve()
+
+        if not decomp_path.exists():
+            raise PluginError(f"ERROR: invalid decomp path ('{decomp_path}').")
+
+        return decomp_path
+
+    def is_include_present(self, include_file: str):
+        decomp_path = self.get_decomp_path()
 
         if not decomp_path.exists():
             raise PluginError(f"ERROR: invalid decomp path ('{decomp_path}').")
@@ -160,6 +170,55 @@ class OOT_Properties(bpy.types.PropertyGroup):
 
     def is_z64sceneh_present(self):
         return self.is_include_present("z64scene.h")
+
+    def get_assets_path(
+        self,
+        folder_name: str,
+        expected_folder: Optional[str],
+        check_extracted: bool = True,
+        check_file: bool = False,
+        with_decomp_path: bool = False,
+    ):
+        decomp_path = self.get_decomp_path()
+        extracted_path = self.get_extracted_path()
+
+        def try_path(path: Path, base_name: str, folder_name: str):
+            for dirpath, dirnames, _ in os.walk(path):
+                if folder_name in dirnames:
+                    name = Path(dirpath).name
+
+                    if expected_folder is None or expected_folder == name:
+                        result = f"{base_name}/{name}/{folder_name}"
+
+                        if not (decomp_path / result).exists():
+                            break
+
+                        return result
+
+            return None
+
+        result = try_path(decomp_path / "assets", "assets", folder_name)
+        is_extracted = False
+
+        if check_extracted and result is None:
+            result = try_path(decomp_path / extracted_path / "assets", f"{extracted_path}/assets", folder_name)
+            is_extracted = True
+
+        assert result is not None, "ERROR: path not found"
+
+        if check_file and not is_extracted:
+            path = Path(result) / f"{folder_name}.c"
+
+            if not (decomp_path / path).exists():
+                path = extracted_path / Path(result) / f"{folder_name}.c"
+
+            assert (decomp_path / path).exists(), "ERROR: extracted path not found"
+            result = str(path)
+
+        if with_decomp_path:
+            return str(decomp_path / result)
+
+        return result
 
     useDecompFeatures: bpy.props.BoolProperty(
         name="Use decomp for export", description="Use names and macros from decomp when exporting", default=True

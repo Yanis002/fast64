@@ -268,8 +268,8 @@ def ootImportSkeletonC(basePath: str, importSettings: OOTSkeletonImportSettings)
         restPoseData = None
 
     filepaths = [
-        ootGetObjectPath(isCustomImport, importPath, folderName, True),
-        ootGetObjectHeaderPath(isCustomImport, importPath, folderName, True),
+        ootGetObjectPath(isCustomImport, importPath, folderName, True, True, is_import=True),
+        ootGetObjectHeaderPath(isCustomImport, importPath, folderName, True, is_import=True),
     ]
 
     if isLink:

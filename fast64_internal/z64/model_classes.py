@@ -41,20 +41,26 @@ from .utility import is_hackeroot
 
 
 # read included asset data
-def ootGetIncludedAssetData(basePath: str, currentPaths: list[str], data: str) -> str:
+def ootGetIncludedAssetData(basePath: str, currentPaths: list[str], data: str, include_header: bool = False) -> str:
     includeData = ""
     searchedPaths = currentPaths[:]
 
     print("Included paths:")
 
     # search assets
-    for includeMatch in re.finditer(r"\#include\s*\"(assets/objects/(.*?))\.h\"", data):
-        path = os.path.join(basePath, includeMatch.group(1) + ".c")
+    for includeMatch in re.finditer(r"\#include\s*\"(assets\/objects\/(.*?)\/(.*?))\.h\"", data):
+        path = bpy.context.scene.fast64.oot.get_assets_path(
+            includeMatch.group(2), "objects", check_file=True, with_decomp_path=True
+        )
         if path in searchedPaths:
             continue
         searchedPaths.append(path)
         subIncludeData = getImportData([path]) + "\n"
         includeData += subIncludeData
+
+        if include_header:
+            includeData += getImportData([path.replace(".c", ".h")]) + "\n"
+
         print(path)
 
         for subIncludeMatch in re.finditer(r"\#include\s*\"(((?![/\"]).)*)\.c\"", subIncludeData):
@@ -64,6 +70,9 @@ def ootGetIncludedAssetData(basePath: str, currentPaths: list[str], data: str) -
             searchedPaths.append(subPath)
             print(subPath)
             includeData += getImportData([subPath]) + "\n"
+
+            if include_header:
+                includeData += getImportData([subPath.replace(".c", ".h")]) + "\n"
 
     # search same directory c includes, both in current path and in included object files
     # these are usually fast64 exported files

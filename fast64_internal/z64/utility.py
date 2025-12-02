@@ -253,10 +253,14 @@ def addIncludeFilesExtension(objectName, objectPath, assetName, extension):
 
 
 def getSceneDirFromLevelName(name: str, include_extracted: bool = False):
-    extracted = bpy.context.scene.fast64.oot.get_extracted_path() if include_extracted else "."
     for sceneDir, dirLevels in ootSceneDirs.items():
         if name in dirLevels:
-            return f"{extracted}/" + sceneDir + name
+            return (
+                bpy.context.scene.fast64.oot.get_assets_path(sceneDir.split("/")[2], "scenes", include_extracted)
+                + "/"
+                + name
+            )
+
     return None
 
 
@@ -469,9 +473,7 @@ def checkEmptyName(name):
         raise PluginError("No name entered for the exporter.")
 
 
-def ootGetObjectPath(isCustomExport: bool, exportPath: str, folderName: str, include_extracted: bool) -> str:
-    extracted = bpy.context.scene.fast64.oot.get_extracted_path() if include_extracted else "."
-
+def ootGetObjectPath(isCustomExport: bool, exportPath: str, folderName: str, include_extracted: bool, useFolderForCustom: bool = False, is_import: bool = False) -> str:
     if isCustomExport:
         filepath = exportPath
     else:
@@ -479,37 +481,40 @@ def ootGetObjectPath(isCustomExport: bool, exportPath: str, folderName: str, inc
             ootGetPath(
                 exportPath,
                 isCustomExport,
-                f"{extracted}/assets/objects/",
+                bpy.context.scene.fast64.oot.get_assets_path(folderName, "objects", include_extracted),
                 folderName,
                 False,
-                False,
+                useFolderForCustom,
+                is_import,
             ),
             folderName + ".c",
         )
+
     return filepath
 
 
-def ootGetObjectHeaderPath(isCustomExport: bool, exportPath: str, folderName: str, include_extracted: bool) -> str:
-    extracted = bpy.context.scene.fast64.oot.get_extracted_path() if include_extracted else "."
+def ootGetObjectHeaderPath(isCustomExport: bool, exportPath: str, folderName: str, include_extracted: bool, is_import: bool = False) -> str:
     if isCustomExport:
         filepath = exportPath
     else:
+        real_path = bpy.context.scene.fast64.oot.get_assets_path(folderName, "objects", include_extracted)
         filepath = os.path.join(
-            ootGetPath(exportPath, isCustomExport, f"{extracted}/assets/objects/", folderName, False, False),
+            ootGetPath(exportPath, isCustomExport, real_path, folderName, False, False, is_import),
             folderName + ".h",
         )
+
     return filepath
 
 
 def ootGetPath(
     exportPath, isCustomExport, subPath, folderName, makeIfNotExists, useFolderForCustom, is_import: bool = False
 ):
+    folder_name = (folderName if useFolderForCustom else "")
+
     if isCustomExport:
-        path = bpy.path.abspath(os.path.join(exportPath, (folderName if useFolderForCustom else "")))
+        path = bpy.path.abspath(os.path.join(exportPath, folder_name))
     else:
-        if bpy.context.scene.ootDecompPath == "":
-            raise PluginError("Decomp base path is empty.")
-        path = bpy.path.abspath(os.path.join(os.path.join(bpy.context.scene.ootDecompPath, subPath), folderName))
+        path = str(bpy.context.scene.fast64.oot.get_decomp_path() / subPath) + f"/{folder_name}"
 
     if not os.path.exists(path):
         if not is_import and isCustomExport or makeIfNotExists:

@@ -93,11 +93,11 @@ def ootImportAnimationC(
             basePath = bpy.path.abspath(bpy.context.scene.ootDecompPath)
             animFilepath = os.path.join(
                 basePath,
-                f"{bpy.context.scene.fast64.oot.get_extracted_path()}/assets/misc/link_animetion/link_animetion.c",
+                f"{bpy.context.scene.fast64.oot.get_assets_path('link_animetion', 'misc')}/link_animetion.c",
             )
             animHeaderFilepath = os.path.join(
                 basePath,
-                f"{bpy.context.scene.fast64.oot.get_extracted_path()}/assets/objects/gameplay_keep/gameplay_keep.c",
+                f"{bpy.context.scene.fast64.oot.get_assets_path('gameplay_keep', 'objects')}/gameplay_keep.c",
             )
         else:
             animFilepath = filepath

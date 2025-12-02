@@ -86,7 +86,7 @@ def parseScene(
         subfolder = None
     else:
         if option == "Custom":
-            subfolder = f"{bpy.context.scene.fast64.oot.get_extracted_path()}/assets/scenes/{settings.subFolder}/"
+            subfolder = bpy.context.scene.fast64.oot.get_assets_path(settings.subFolder, "scenes")
         else:
             sceneName = sceneNameFromID(option)
             subfolder = None
@@ -119,7 +119,7 @@ def parseScene(
         is_single_file = False
 
     if not file_path.exists():
-        raise PluginError("ERROR: scene not found!")
+        raise PluginError(f"ERROR: scene not found! (path: {repr(file_path)})")
 
     sceneData = file_path.read_text()
 
@@ -180,10 +180,14 @@ def parseScene(
     f3dContext.addMatrix("&gIdentityMtx", mathutils.Matrix.Scale(1 / bpy.context.scene.ootBlenderScale, 4))
 
     if not settings.isCustomDest:
-        drawConfigName = SceneTableUtility.get_draw_config(sceneName)
-        filename = "z_scene_table" if game_data.z64.is_oot() else "z_scene_proc"
-        drawConfigData = readFile(os.path.join(importPath, f"src/code/{filename}.c"))
-        parseDrawConfig(drawConfigName, sceneData, drawConfigData, f3dContext)
+        # TODO: fix the scene table parser for HackerOoT
+        try:
+            drawConfigName = SceneTableUtility.get_draw_config(sceneName)
+            filename = "z_scene_table" if game_data.z64.is_oot() else "z_scene_proc"
+            drawConfigData = readFile(os.path.join(importPath, f"src/code/{filename}.c"))
+            parseDrawConfig(drawConfigName, sceneData, drawConfigData, f3dContext)
+        except:
+            pass
 
     bpy.context.space_data.overlay.show_relationship_lines = False
     bpy.context.space_data.overlay.show_curve_normals = True
@@ -196,12 +200,16 @@ def parseScene(
     bpy.context.scene.ootSceneExportObj = sceneObj
 
     if not settings.isCustomDest:
-        setCustomProperty(
-            sceneObj.ootSceneHeader.sceneTableEntry,
-            "drawConfig",
-            SceneTableUtility.get_draw_config(sceneName),
-            game_data.z64.get_enum("drawConfig"),
-        )
+        # TODO: fix the scene table parser for HackerOoT
+        try:
+            setCustomProperty(
+                sceneObj.ootSceneHeader.sceneTableEntry,
+                "drawConfig",
+                SceneTableUtility.get_draw_config(sceneName),
+                game_data.z64.get_enum("drawConfig"),
+            )
+        except:
+            pass
 
     if bpy.context.scene.fast64.oot.headerTabAffectsVisibility:
         setAllActorsVisibility(sceneObj, bpy.context)
