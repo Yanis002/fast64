@@ -2,6 +2,9 @@ import mathutils
 import bpy
 import re
 import math
+
+from bpy.types import Action, Object
+
 from ....utility import PluginError, hexOrDecInt, get_include_data, removeComments
 from ....f3d.f3d_parser import getImportData
 from ...model_classes import ootGetIncludedAssetData
@@ -16,6 +19,9 @@ from ...utility import (
     getStartBone,
     getNextBone,
 )
+
+if bpy.app.version >= (5, 0, 0):
+    import bpy_extras.anim_utils as anim_utils
 
 
 def ootTranslationValue(value, actorScale):
@@ -60,6 +66,34 @@ def getJointIndices(filepath, animData, jointIndicesName):
     ]
 
     return jointIndicesData
+
+
+def get_fcurves(armature_obj: Object, anim: Action, start_bone_name: str, data_name: str, channelbag=None):
+    if bpy.app.version >= (5, 0, 0):
+        if channelbag is None:
+            new_slot = anim.slots.new(armature_obj.id_type, start_bone_name)
+            channelbag = anim_utils.action_ensure_channelbag_for_slot(anim, new_slot)
+
+        fcurves = []
+        for propertyIndex in range(3):
+            fcurves.append(
+                channelbag.fcurves.new(
+                    data_path=f'pose.bones["{start_bone_name}"].{data_name}',
+                    index=propertyIndex,
+                    group_name=start_bone_name,
+                )
+            )
+    else:
+        fcurves = [
+            anim.fcurves.new(
+                data_path=f'pose.bones["{start_bone_name}"].{data_name}',
+                index=propertyIndex,
+                action_group=start_bone_name,
+            )
+            for propertyIndex in range(3)
+        ]
+
+    return fcurves
 
 
 def ootImportNonLinkAnimationC(armatureObj, filepath, animName, actorScale, isCustomImport: bool):
@@ -112,14 +146,7 @@ def ootImportNonLinkAnimationC(armatureObj, filepath, animName, actorScale, isCu
     # property index = 0,1,2 (aka x,y,z)
     for jointIndex in jointIndices:
         if isRootTranslation:
-            fcurves = [
-                anim.fcurves.new(
-                    data_path='pose.bones["' + startBoneName + '"].location',
-                    index=propertyIndex,
-                    action_group=startBoneName,
-                )
-                for propertyIndex in range(3)
-            ]
+            fcurves = get_fcurves(armatureObj, anim, startBoneName, "location")
             for frame in range(frameCount):
                 rawTranslation = mathutils.Vector((0, 0, 0))
                 for propertyIndex in range(3):
@@ -140,15 +167,7 @@ def ootImportNonLinkAnimationC(armatureObj, filepath, animName, actorScale, isCu
             # WARNING: This assumes the order bones are processed are in alphabetical order.
             # If this changes in the future, then this won't work.
             bone, boneStack = getNextBone(boneStack, armatureObj)
-
-            fcurves = [
-                anim.fcurves.new(
-                    data_path='pose.bones["' + bone.name + '"].rotation_euler',
-                    index=propertyIndex,
-                    action_group=bone.name,
-                )
-                for propertyIndex in range(3)
-            ]
+            fcurves = get_fcurves(armatureObj, anim, bone.name, "rotation_euler")
 
             for frame in range(frameCount):
                 rawRotation = mathutils.Euler((0, 0, 0), "XYZ")
@@ -237,14 +256,28 @@ def ootImportLinkAnimationC(
     boneCurveTranslation = None
     boneStack = [startBoneName]
 
-    eyesCurve = anim.fcurves.new(
-        data_path="ootLinkTextureAnim.eyes",
-        action_group="Texture Animations",
-    )
-    mouthCurve = anim.fcurves.new(
-        data_path="ootLinkTextureAnim.mouth",
-        action_group="Texture Animations",
-    )
+    channelbag = None
+    if bpy.app.version >= (5, 0, 0):
+        new_slot = anim.slots.new(armatureObj.id_type, "ootLinkTextureAnim")
+        channelbag = anim_utils.action_ensure_channelbag_for_slot(anim, new_slot)
+
+        eyesCurve = channelbag.fcurves.new(
+            data_path="ootLinkTextureAnim.eyes",
+            group_name="Texture Animations",
+        )
+        mouthCurve = channelbag.fcurves.new(
+            data_path="ootLinkTextureAnim.mouth",
+            group_name="Texture Animations",
+        )
+    else:
+        eyesCurve = anim.fcurves.new(
+            data_path="ootLinkTextureAnim.eyes",
+            action_group="Texture Animations",
+        )
+        mouthCurve = anim.fcurves.new(
+            data_path="ootLinkTextureAnim.mouth",
+            action_group="Texture Animations",
+        )
 
     # create all necessary fcurves
     while len(boneStack) > 0:
@@ -252,25 +285,9 @@ def ootImportLinkAnimationC(
         boneList.append(bone)
 
         if boneCurveTranslation is None:
-            boneCurveTranslation = [
-                anim.fcurves.new(
-                    data_path='pose.bones["' + bone.name + '"].location',
-                    index=propertyIndex,
-                    action_group=startBoneName,
-                )
-                for propertyIndex in range(3)
-            ]
+            boneCurveTranslation = get_fcurves(armatureObj, anim, bone.name, "location", channelbag)
 
-        boneCurvesRotation.append(
-            [
-                anim.fcurves.new(
-                    data_path='pose.bones["' + bone.name + '"].rotation_euler',
-                    index=propertyIndex,
-                    action_group=bone.name,
-                )
-                for propertyIndex in range(3)
-            ]
-        )
+        boneCurvesRotation.append(get_fcurves(armatureObj, anim, bone.name, "rotation_euler", channelbag))
 
     # vec3 = 3x s16 values
     # padding = u8, tex anim = u8
