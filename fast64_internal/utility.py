@@ -2166,3 +2166,34 @@ class ExportUtils:
             print("\nExecution type:", exc_type)
             print("\nExecution value:", exc_value)
             print("\nTraceback:", traceback)
+
+
+def get_upgrade_data(data_holder: Any, prop_name: Optional[str] = None):
+    data = data_holder
+
+    if bpy.app.version >= (5, 0, 0):
+        # note: this will only list the properties that were updated
+        # this means if a property is missing it should be on the default value
+        data = data_holder.bl_system_properties_get()
+
+    if prop_name is not None:
+        return data[prop_name]
+
+    return data
+
+
+def can_upgrade(old_data: Any, old_prop: str):
+    if bpy.app.version >= (5, 0, 0):
+        try:
+            old_data[old_prop]
+            return True
+        except KeyError:
+            return False
+
+    return old_prop in old_data
+
+
+def upgrade_prop(old_data: Any, old_prop: str, new_data: Any, new_prop: str, value: Optional[Any] = None):
+    if can_upgrade(old_data, old_prop):
+        setattr(new_data, new_prop, value if value is not None else old_data[old_prop])
+        old_data.property_unset(old_prop)

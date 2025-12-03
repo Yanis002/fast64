@@ -2,9 +2,8 @@ import bpy
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-import bpy
 from bpy.types import Object, CollectionProperty
-from ..utility import PluginError
+from ..utility import PluginError, upgrade_prop, get_upgrade_data, can_upgrade
 from ..data import Z64_ObjectData
 from .utility import getEvalParams, get_actor_prop_from_obj
 from ..game_data import game_data
@@ -24,16 +23,20 @@ def upgradeObjectList(objList: CollectionProperty, objData: Z64_ObjectData):
         # we look for the ``objectID`` property, which has been removed in the current version.
         # If we find ``objectID`` it means that it's an old blend and needs be updated.
         # Finally, after the update we remove this property to tell Fast64 the object property is now up-to-date.
-        if "objectID" in obj:
+
+        if can_upgrade(obj, "objectID"):
+            data = get_upgrade_data(obj)
+
             # ``obj["objectID"]`` returns the index inside ``ootEnumObjectIDLegacy``
             # since Blender saves the index of the element of the EnumProperty
-            objectID = objData.ootEnumObjectIDLegacy[obj["objectID"]][0]
-            if objectID == "Custom":
-                obj.objectKey = objectID
-            else:
-                obj.objectKey = objData.objects_by_id[objectID].key
+            objectID = objData.ootEnumObjectIDLegacy[data["objectID"]][0]
 
-            del obj["objectID"]
+            if objectID == "Custom":
+                value = objectID
+            else:
+                value = objData.objects_by_id[objectID].key
+
+            upgrade_prop(data, "objectID", obj, "objectKey", value)
 
 
 def upgradeRoomHeaders(roomObj: Object, objData: Z64_ObjectData):
@@ -61,11 +64,13 @@ class Cutscene_UpgradeData:
     enumData: list[tuple[str, str, str]]  # this is the list used for enum properties
 
 
-def transferOldDataToNew(data, oldDataToNewData: dict[str, str]):
+def transferOldDataToNew(data_holder, oldDataToNewData: dict[str, str]):
     # conversion to the same prop type
     # simply transfer the old data to the new one
     for oldName, newName in oldDataToNewData.items():
-        if oldName in data:
+        data = get_upgrade_data(data_holder)
+
+        if can_upgrade(data, oldName):
             if newName is not None:
                 value = data[oldName]
 
@@ -78,15 +83,17 @@ def transferOldDataToNew(data, oldDataToNewData: dict[str, str]):
 
                 data[newName] = value
 
-            del data[oldName]
+            data.property_unset(oldName)
 
 
-def convertOldDataToEnumData(data, oldDataToEnumData: list[Cutscene_UpgradeData]):
+def convertOldDataToEnumData(data_holder, oldDataToEnumData: list[Cutscene_UpgradeData]):
+    data = get_upgrade_data(data_holder)
+
     # conversion to another prop type
     for csUpgradeData in oldDataToEnumData:
         if csUpgradeData.oldPropName in data:
             # get the old data
-            oldData = data[csUpgradeData.oldPropName]
+            oldData = get_upgrade_data(data, csUpgradeData.oldPropName)
             isUpgraded = False
 
             # if anything goes wrong there set the value to custom to avoid any data loss
@@ -141,7 +148,7 @@ def convertOldDataToEnumData(data, oldDataToEnumData: list[Cutscene_UpgradeData]
                 isUpgraded = True
 
             if isUpgraded:
-                del data[csUpgradeData.oldPropName]
+                data.property_unset(csUpgradeData.oldPropName)
             else:
                 raise PluginError(f"ERROR: ``{csUpgradeData.newPropName}`` did not upgrade properly!")
 
@@ -233,13 +240,14 @@ def upgradeCutsceneMotion(csMotionObj: Object):
 
     if csMotionObj.type == "EMPTY":
         csMotionProp = csMotionObj.ootCSMotionProperty
+        data = get_upgrade_data(csMotionObj)
 
-        if "zc_alist" in csMotionObj and ("Preview." in objName or "ActionList." in objName):
-            legacyData = csMotionObj["zc_alist"]
+        if can_upgrade(data, "zc_alist") and ("Preview." in objName or "ActionList." in objName):
+            legacyData = get_upgrade_data(csMotionObj, "zc_alist")
             emptyTypeSuffix = "List" if "ActionList." in objName else "Preview"
             csMotionObj.ootEmptyType = f"CS {'Player' if 'Link' in objName else 'Actor'} Cue {emptyTypeSuffix}"
 
-            if "actor_id" in legacyData:
+            if can_upgrade(legacyData, "actor_id"):
                 index = legacyData["actor_id"]
                 if index >= 0:
                     cmdEnum = game_data.z64.enums.enumByKey["cs_cmd"]
@@ -249,20 +257,18 @@ def upgradeCutsceneMotion(csMotionObj: Object):
                     else:
                         csMotionProp.actorCueListProp.commandType = "Custom"
                         csMotionProp.actorCueListProp.commandTypeCustom = f"0x{index:04X}"
-                del legacyData["actor_id"]
+                legacyData.property_unset("actor_id")
 
-            del csMotionObj["zc_alist"]
+            data.property_unset("zc_alist")
 
-        if "zc_apoint" in csMotionObj and "Point." in objName:
+        if can_upgrade(data, "zc_apoint") and "Point." in objName:
             isPlayer = "Link" in csMotionObj.parent.name
-            legacyData = csMotionObj["zc_apoint"]
+            legacyData = get_upgrade_data(csMotionObj, "zc_apoint")
             csMotionObj.ootEmptyType = f"CS {'Player' if isPlayer else 'Actor'} Cue"
 
-            if "start_frame" in legacyData:
-                csMotionProp.actorCueProp.cueStartFrame = legacyData["start_frame"]
-                del legacyData["start_frame"]
+            upgrade_prop(legacyData, "start_frame", csMotionProp.actorCueProp, "cueStartFrame")
 
-            if "action_id" in legacyData:
+            if can_upgrade(legacyData, "action_id"):
                 playerEnum = game_data.z64.enums.enumByKey["cs_player_cue_id"]
                 item = None
                 if isPlayer:
@@ -272,35 +278,25 @@ def upgradeCutsceneMotion(csMotionObj: Object):
                     csMotionProp.actorCueProp.playerCueID = item.key
                 else:
                     csMotionProp.actorCueProp.cueActionID = legacyData["action_id"]
-                del legacyData["action_id"]
+                data.property_unset("action_id")
 
-            del csMotionObj["zc_apoint"]
+            data.property_unset("zc_apoint")
 
     if csMotionObj.type == "ARMATURE":
         camShotProp = csMotionObj.data.ootCamShotProp
+        armature_data = get_upgrade_data(csMotionObj.data)
+        upgrade_prop(armature_data, "start_frame", camShotProp, "shotStartFrame")
 
-        if "start_frame" in csMotionObj.data:
-            camShotProp.shotStartFrame = csMotionObj.data["start_frame"]
-            del csMotionObj.data["start_frame"]
-
-        if "cam_mode" in csMotionObj.data:
-            camShotProp.shotCamMode = ootEnumCSMotionCamMode[csMotionObj.data["cam_mode"]][0]
-            del csMotionObj.data["cam_mode"]
+        if can_upgrade(armature_data, "cam_mode"):
+            value = ootEnumCSMotionCamMode[armature_data["cam_mode"]][0]
+            upgrade_prop(armature_data, "cam_mode", camShotProp, "shotCamMode", value)
 
         for bone in csMotionObj.data.bones:
             camShotPointProp = bone.ootCamShotPointProp
-
-            if "frames" in bone:
-                camShotPointProp.shotPointFrame = bone["frames"]
-                del bone["frames"]
-
-            if "fov" in bone:
-                camShotPointProp.shotPointViewAngle = bone["fov"]
-                del bone["fov"]
-
-            if "camroll" in bone:
-                camShotPointProp.shotPointRoll = bone["camroll"]
-                del bone["camroll"]
+            bone_data = get_upgrade_data(bone)
+            upgrade_prop(bone_data, "frames", camShotPointProp, "shotPointFrame")
+            upgrade_prop(bone_data, "fov", camShotPointProp, "shotPointViewAngle")
+            upgrade_prop(bone_data, "camroll", camShotPointProp, "shotPointRoll")
 
 
 #####################################
@@ -308,58 +304,52 @@ def upgradeCutsceneMotion(csMotionObj: Object):
 #####################################
 def upgradeActors(actorObj: Object):
     # parameters
-    actorProp = get_actor_prop_from_obj(actorObj)
+    props = get_actor_prop_from_obj(actorObj)
+    actorProp = get_upgrade_data(props)
     isCustom = False
 
     if actorObj.ootEmptyType == "Entrance":
         isCustom = actorObj.ootEntranceProperty.customActor
     else:
-        if "actorID" in actorProp:
-            actorProp.actor_id = game_data.z64.actors.ootEnumActorID[actorProp["actorID"]][0]
-            del actorProp["actorID"]
+        value = game_data.z64.actors.ootEnumActorID[actorProp["actorID"]][0]
+        upgrade_prop(actorProp, "actorID", props, "actor_id", value)
+        upgrade_prop(actorProp, "actorIDCustom", props, "actor_id_custom")
+        isCustom = props.actor_id == "Custom"
 
-        if "actorIDCustom" in actorProp:
-            actorProp.actor_id_custom = actorProp["actorIDCustom"]
-            del actorProp["actorIDCustom"]
-
-        isCustom = actorProp.actor_id == "Custom"
-
-    if "actorParam" in actorProp:
+    if can_upgrade(actorProp, "actorParam"):
         if not isCustom:
             prop_name = "params"
 
             if getEvalParams(actorProp["actorParam"]) is None:
-                actorProp.actor_id_custom = actorProp.actor_id
-                actorProp.actor_id = "Custom"
+                props.actor_id_custom = props.actor_id
+                props.actor_id = "Custom"
                 prop_name = "params_custom"
         else:
             prop_name = "params_custom"
 
-        setattr(actorProp, prop_name, actorProp["actorParam"])
-        del actorProp["actorParam"]
+        setattr(props, prop_name, actorProp["actorParam"])
+        actorProp.property_unset("actorParam")
 
     if actorObj.ootEmptyType == "Actor":
         custom = "_custom" if actorProp.actor_id == "Custom" else ""
 
         if isCustom:
-            if "rotOverride" in actorProp:
-                actorProp.rot_override = actorProp["rotOverride"]
-                del actorProp["rotOverride"]
+            upgrade_prop(actorProp, "rotOverride", props, "rot_override")
 
         for rot in {"X", "Y", "Z"}:
             if actorProp.actor_id == "Custom" or actorProp.is_rotation_used(f"{rot}Rot"):
-                if f"rotOverride{rot}" in actorProp:
+                if can_upgrade(actorProp, f"rotOverride{rot}"):
                     if getEvalParams(actorProp[f"rotOverride{rot}"]) is None:
                         custom = "_custom"
 
-                        if actorProp.actor_id != "Custom":
-                            actorProp.actor_id_custom = actorProp.actor_id
-                            actorProp.params_custom = actorProp.params
-                            actorProp.actor_id = "Custom"
-                            actorProp.rot_override = True
+                        if props.actor_id != "Custom":
+                            props.actor_id_custom = props.actor_id
+                            props.params_custom = props.params
+                            props.actor_id = "Custom"
+                            props.rot_override = True
 
                     setattr(actorProp, f"rot_{rot.lower()}{custom}", actorProp[f"rotOverride{rot}"])
-                    del actorProp[f"rotOverride{rot}"]
+                    actorProp.property_unset(f"rotOverride{rot}")
 
     # room stuff
     if actorObj.ootEmptyType == "Entrance":
@@ -384,16 +374,17 @@ def upgradeActors(actorObj: Object):
             return
 
         transActorProp = actorObj.ootTransitionActorProperty
-        if "dontTransition" in transActorProp or "roomIndex" in transActorProp:
+        data = get_upgrade_data(actorObj, "ootTransitionActorProperty")
+        if can_upgrade(data, "dontTransition") or can_upgrade(data, "roomIndex"):
             # look for old data since we don't want to overwrite newer existing data
             transActorProp.fromRoom = roomParent
 
         # upgrade old props if present
-        if "dontTransition" in transActorProp:
-            transActorProp.isRoomTransition = transActorProp["dontTransition"] == False
-            del transActorProp["dontTransition"]
+        upgrade_prop(
+            data, "dontTransition", transActorProp, "isRoomTransition", transActorProp["dontTransition"] == False
+        )
 
-        if "roomIndex" in transActorProp:
+        if can_upgrade(data, "roomIndex"):
             for obj in bpy.data.objects:
                 if (
                     obj != transActorProp.fromRoom
@@ -402,5 +393,5 @@ def upgradeActors(actorObj: Object):
                     and obj.ootRoomHeader.roomIndex == transActorProp["roomIndex"]
                 ):
                     transActorProp.toRoom = obj
-                    del transActorProp["roomIndex"]
+                    transActorProp.property_unset("roomIndex")
                     break
