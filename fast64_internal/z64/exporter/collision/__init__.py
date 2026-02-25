@@ -150,9 +150,6 @@ class CollisionUtility:
                             f"degenerate triangle detected on mesh object '{meshObj.name}' (material name is '{material.name}')"
                         )
 
-                    if normal[0] == 0 and normal[2] == 0:
-                        raise PluginError("unexpected degenerate triangle")
-
                     indices: list[int] = []
                     for pos in [(x1, y1, z1), (x2, y2, z2), (x3, y3, z3)]:
                         vertexIndex = CollisionUtility.getVertexIndex(pos, vertexList)
