@@ -1762,15 +1762,17 @@ class F3D:
         nVal = self.numLights[n]
         return ((nVal) * 24) if self.F3DEX_GBI_2 else (((nVal) + 1) * 32 + 0x80000000)
 
-    def getLightMWO_a(self, n):
-        if n.startswith("G_MWO_aLIGHT_") and hasattr(self, n):
-            return getattr(self, n)
+    def getLightMWO_a(self, n: str):
+        mwo_value = f"G_MWO_a{n}"
+        if hasattr(self, mwo_value):
+            return getattr(self, mwo_value)
         else:
             raise PluginError("Invalid G_MWO_a value for lights: " + n)
 
-    def getLightMWO_b(self, n):
-        if n.startswith("G_MWO_bLIGHT_") and hasattr(self, n):
-            return getattr(self, n)
+    def getLightMWO_b(self, n: str):
+        mwo_value = f"G_MWO_b{n}"
+        if hasattr(self, mwo_value):
+            return getattr(self, mwo_value)
         else:
             raise PluginError("Invalid G_MWO_b value for lights: " + n)
 
@@ -2450,9 +2452,10 @@ class FModel:
     def addMesh(self, name, namePrefix, drawLayer, isSkinned, contextObj, dedup=False):
         final_name = getFMeshName(name, namePrefix, drawLayer, isSkinned)
         if dedup:
+            base_name = final_name
             for i in range(1, len(self.meshes) + 2):
                 if final_name in self.meshes:
-                    final_name = f"{name}_{i:03}"
+                    final_name = f"{base_name}_{i:03}"
         checkUniqueBoneNames(self, final_name, name)
         self.meshes[final_name] = mesh = FMesh(final_name, self.DLFormat)
         self.onAddMesh(mesh, contextObj)
@@ -4082,7 +4085,7 @@ class SPLightColor(GbiMacro):
 
     def to_binary(self, f3d, segments):
         return gsMoveWd(f3d.G_MW_LIGHTCOL, f3d.getLightMWO_a(self.n), self.color_to_int(), f3d) + gsMoveWd(
-            f3d.G_MW_LIGHTCOL, f3d.getLightMWO_b(self.n), self.col, f3d
+            f3d.G_MW_LIGHTCOL, f3d.getLightMWO_b(self.n), self.color_to_int(), f3d
         )
 
     def to_c(self, static=True):
