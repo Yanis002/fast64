@@ -1006,8 +1006,8 @@ class PathUtils:
         if self.is_custom:
             return self.get_path(mkdir=custom_mkdir)
 
-        decomp_path = bpy.context.scene.fast64.oot.get_decomp_path()
-        extracted_path = bpy.context.scene.fast64.oot.get_extracted_path()
+        decomp_path: Path = bpy.context.scene.fast64.oot.get_decomp_path()
+        extracted_path: Path = bpy.context.scene.fast64.oot.get_extracted_path()
 
         def try_path(path: Path, base_name: str, folder_name: str):
             for dirpath, dirnames, _ in os.walk(path):
@@ -1027,13 +1027,16 @@ class PathUtils:
         result = try_path(decomp_path / "assets" / sub_folder, f"assets/{sub_folder}", self.folder_name)
         is_extracted = False
 
-        if check_extracted and result is None:
-            result = try_path(
-                decomp_path / extracted_path / "assets" / sub_folder,
-                f"{extracted_path}/assets/{sub_folder}",
-                self.folder_name,
-            )
-            is_extracted = True
+        if result is None:
+            if check_extracted:
+                result = try_path(
+                    decomp_path / extracted_path / "assets" / sub_folder,
+                    f"{extracted_path}/assets/{sub_folder}",
+                    self.folder_name,
+                )
+                is_extracted = True
+            else:
+                result = self.get_path(mkdir=True)
 
         assert result is not None, "ERROR: path not found"
 
@@ -1060,7 +1063,7 @@ class PathUtils:
 
         if not path.exists():
             if mkdir:
-                path.mkdir(parents=True)
+                path.mkdir(parents=True, exist_ok=True)
             else:
                 raise PluginError(f"{path} does not exist.")
 
@@ -1070,8 +1073,8 @@ class PathUtils:
         path = self.get_assets_path(with_decomp_path=True, custom_mkdir=False)
         return path / f"{self.folder_name}.h"
 
-    def get_object_source_path(self):
-        path = self.get_assets_path(with_decomp_path=True, custom_mkdir=False)
+    def get_object_source_path(self, check_extracted: bool = True):
+        path = self.get_assets_path(check_extracted=check_extracted, with_decomp_path=True, custom_mkdir=False)
         return path / f"{self.folder_name}.c"
 
     def mkdir(self, path: Path):
@@ -1090,14 +1093,17 @@ class PathUtils:
     def set_folder_name(self, folder_name: str):
         self.folder_name = folder_name
 
-    def add_include_files(self, assetName: str):
+    def add_include_files(self, assetName: str, check_extracted: bool = False):
         self.add_include_file(assetName, "h")
         self.add_include_file(assetName, "c")
 
-    def add_include_file(self, assetName: str, extension: str):
+    def add_include_file(self, assetName: str, extension: str, check_extracted: bool = False):
         include = '#include "' + assetName + "." + extension + '"\n'
 
-        path = self.get_assets_path(with_decomp_path=True) / f"{self.folder_name}.{extension}"
+        path = (
+            self.get_assets_path(check_extracted=check_extracted, with_decomp_path=True)
+            / f"{self.folder_name}.{extension}"
+        )
         if not path.exists():
             # workaround for exporting to an object that doesn't exist in assets/
             data = ""

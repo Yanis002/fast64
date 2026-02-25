@@ -87,7 +87,7 @@ def ootConvertMeshToC(
         data.header += "\n"
 
     with PathUtils(False, export_path, "assets/objects/", folderName, isCustomExport) as path_utils:
-        path = path_utils.get_assets_path(with_decomp_path=True)
+        path = path_utils.get_assets_path(check_extracted=False, with_decomp_path=True)
         path_utils.set_base_path(path)
 
         includeDir = settings.customAssetIncludeDir if settings.isCustom else f"assets/objects/{folderName}"

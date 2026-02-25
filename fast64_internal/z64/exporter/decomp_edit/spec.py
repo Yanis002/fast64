@@ -18,6 +18,9 @@ def get_spec_path(export_path: Path):
 
     version: str = bpy.context.scene.fast64.oot.oot_version
 
+    if "spec" not in str(export_path):
+        export_path = export_path / "spec"
+
     if version == "legacy":
         return export_path
     elif version.startswith("gc-") or version.startswith("ique-"):

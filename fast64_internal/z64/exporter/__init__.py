@@ -110,7 +110,7 @@ class SceneExport:
         sceneInclude = exportSubdir + "/" + sceneName + "/"
 
         with PathUtils(False, exportPath, exportSubdir, sceneName, isCustomExport) as path_utils:
-            path = path_utils.get_assets_path(with_decomp_path=True)
+            path = path_utils.get_assets_path(check_extracted=False, with_decomp_path=True)
 
         textureExportSettings = TextureExportSettings(False, exportInfo.saveTexturesAsPNG, sceneInclude, path)
 

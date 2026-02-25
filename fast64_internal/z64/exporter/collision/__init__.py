@@ -248,10 +248,10 @@ class CollisionHeader:
             else bpy.context.scene.fast64.oot.get_decomp_path()
         )
         with PathUtils(False, path, "assets/objects/", settings.folder, settings.customExport) as path_utils:
-            exportPath = path_utils.get_object_source_path()
+            exportPath = path_utils.get_object_source_path(check_extracted=False)
 
             path_utils.set_base_path(exportPath)
-            base_path = path_utils.get_assets_path(with_decomp_path=True)
+            base_path = path_utils.get_assets_path(check_extracted=False, with_decomp_path=True)
 
         if bpy.context.scene.exportHiddenGeometry:
             hiddenState = unhideAllAndGetHiddenState(bpy.context.scene)
