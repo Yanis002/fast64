@@ -1,5 +1,6 @@
 import bpy
 import ctypes
+import math
 
 from pathlib import Path
 from dataclasses import dataclass
