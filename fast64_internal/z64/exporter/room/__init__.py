@@ -203,6 +203,9 @@ class Room:
         """Returns the C data of the room model"""
         roomModel = CData()
 
+        for ref in self.roomShape.model.reference_to_extern:
+            roomModel.source += f"extern u64 {ref}[];\n\n"
+
         for i, entry in enumerate(self.roomShape.dl_entries):
             if entry.opaque is not None:
                 roomModel.append(entry.opaque.to_c(self.roomShape.model.f3d))

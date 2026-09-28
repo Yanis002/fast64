@@ -2450,6 +2450,8 @@ class FModel:
         self.global_data: FGlobalData = FGlobalData()
         self.texturesSavedLastExport: int = 0  # hacky
 
+        self.reference_to_extern: list[str] = []
+
     def processTexRefNonCITextures(self, fMaterial: FMaterial, material: bpy.types.Material, index: int):
         """
         For non CI textures that use a texture reference, process additional textures that will possibly be loaded here.

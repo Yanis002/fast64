@@ -814,12 +814,12 @@ class MultitexManager:
                 or (  # reference
                     self.ti0.isTexRef
                     and self.ti0.texProp.tex_reference == self.ti1.texProp.tex_reference
-                    and self.ti0.texProp.tex_reference_size == self.ti1.texProp.tex_reference_size
+                    and list(self.ti0.texProp.tex_reference_size) == list(self.ti1.texProp.tex_reference_size)
                     and (  # ci format reference
                         not self.isCI
                         or (
                             self.ti0.texProp.pal_reference == self.ti1.texProp.pal_reference
-                            and self.ti0.texProp.pal_reference_size == self.ti1.texProp.pal_reference_size
+                            and list(self.ti0.texProp.pal_reference_size) == list(self.ti1.texProp.pal_reference_size)
                         )
                     )
                 )

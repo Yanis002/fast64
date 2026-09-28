@@ -456,6 +456,24 @@ def saveStaticModel(
     for material_index, faces in faces_by_mat.items():
         material = obj.material_slots[material_index].material
 
+        if (
+            material.f3d_mat.tex0.tex_set
+            and material.f3d_mat.tex0.use_tex_reference
+            and material.f3d_mat.tex0.extern_refs
+            and len(material.f3d_mat.tex0.tex_reference) > 0
+            and not material.f3d_mat.tex0.tex_reference.startswith("0x")
+        ):
+            fModel.reference_to_extern.append(material.f3d_mat.tex0.tex_reference)
+
+        if (
+            material.f3d_mat.tex1.tex_set
+            and material.f3d_mat.tex1.use_tex_reference
+            and material.f3d_mat.tex1.extern_refs
+            and len(material.f3d_mat.tex1.tex_reference) > 0
+            and not material.f3d_mat.tex1.tex_reference.startswith("0x")
+        ):
+            fModel.reference_to_extern.append(material.f3d_mat.tex1.tex_reference)
+
         if drawLayerField is not None and material.mat_ver > 3:
             drawLayer = getattr(material.f3d_mat.draw_layer, drawLayerField)
             drawLayerName = drawLayer
