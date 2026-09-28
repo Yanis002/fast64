@@ -2851,6 +2851,15 @@ class FModel:
     def freePalettes(self):
         pass
 
+    def add_refs_externs(self, data: CData):
+        for ref in self.reference_to_extern:
+            extern = f"extern u64 {ref}[];\n"
+
+            if extern not in data.source:
+                data.source += extern
+
+        if len(self.reference_to_extern) > 0:
+            data.source += "\n"
 
 class FTexRect(FModel):
     def __init__(self, name, matWriteMethod):

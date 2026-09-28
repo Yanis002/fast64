@@ -468,6 +468,7 @@ def saveStaticModel(
 
         try_append_refs(material.f3d_mat.tex0)
         try_append_refs(material.f3d_mat.tex1)
+        fModel.reference_to_extern = list(set(fModel.reference_to_extern)) # remove duplicates
 
         if drawLayerField is not None and material.mat_ver > 3:
             drawLayer = getattr(material.f3d_mat.draw_layer, drawLayerField)
