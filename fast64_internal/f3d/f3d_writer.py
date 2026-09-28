@@ -261,7 +261,9 @@ def fixLargeUVs(obj):
 
         # ignore materials using texture references (avoids getTexDimensions throwing an error)
         # TODO: find a better way
-        if material.f3d_mat.tex0.use_tex_reference and material.f3d_mat.tex1.use_tex_reference:
+        if (material.f3d_mat.tex0.tex_set and material.f3d_mat.tex0.use_tex_reference) or (
+            material.f3d_mat.tex1.tex_set and material.f3d_mat.tex1.use_tex_reference
+        ):
             continue
 
         if material not in texSizeDict:
