@@ -69,7 +69,7 @@ def ootConvertMeshToC(
     try:
         obj, allObjs = ootDuplicateHierarchy(originalObj, None, False, OOTObjectCategorizer())
 
-        fModel = OOTModel(obj_name, DLFormat, None)
+        fModel = OOTModel(obj_name, DLFormat, None, context="dl")
         triConverterInfo = TriangleConverterInfo(obj, None, fModel.f3d, finalTransform, getInfoDict(obj))
         fMeshes = saveStaticModel(
             triConverterInfo, fModel, obj, finalTransform, fModel.name, not saveTextures, False, "oot"
@@ -171,7 +171,7 @@ class OOT_ImportDL(Operator):
                 ]
 
             filedata = getImportData(paths)
-            f3dContext = OOTF3DContext(get_F3D_GBI(), [name], basePath)
+            f3dContext = OOTF3DContext(get_F3D_GBI(), [name], basePath, context="dl")
 
             # Test for "new" (post-ZAPD) assets system.
             is_2025_assets_system = "{\n#include" in filedata
