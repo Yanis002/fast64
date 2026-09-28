@@ -108,6 +108,9 @@ def ootConvertMeshToC(
         OOTF3DGfxFormatter(ScrollMethod.Vertex, use_draw_layer_suffix=use_draw_layer_suffix),
     )
 
+    for ref in fModel.reference_to_extern:
+        data.source += f"extern u64 {ref}[];\n\n"
+
     data.append(exportData.all())
 
     if isCustomExport:

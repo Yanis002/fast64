@@ -326,6 +326,9 @@ def ootConvertArmatureToC(
     )
     skeletonC = skeleton.toC()
 
+    for ref in fModel.reference_to_extern:
+        data.source += f"extern u64 {ref}[];\n\n"
+
     data.append(exportData.all())
     data.append(skeletonC)
 
