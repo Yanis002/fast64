@@ -259,6 +259,11 @@ def fixLargeUVs(obj):
                 " that are assigned to an empty material slot."
             )
 
+        # ignore materials using texture references (avoids getTexDimensions throwing an error)
+        # TODO: find a better way
+        if material.f3d_mat.tex0.use_tex_reference and material.f3d_mat.tex1.use_tex_reference:
+            continue
+
         if material not in texSizeDict:
             texSizeDict[material] = getTexDimensions(material)
         if material.f3d_mat.use_large_textures:
