@@ -204,7 +204,10 @@ class Room:
         roomModel = CData()
 
         for ref in self.roomShape.model.reference_to_extern:
-            roomModel.source += f"extern u64 {ref}[];\n\n"
+            roomModel.source += f"extern u64 {ref}[];\n"
+
+        if len(self.roomShape.model.reference_to_extern) > 0:
+            roomModel.source += "\n"
 
         for i, entry in enumerate(self.roomShape.dl_entries):
             if entry.opaque is not None:

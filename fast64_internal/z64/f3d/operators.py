@@ -109,7 +109,10 @@ def ootConvertMeshToC(
     )
 
     for ref in fModel.reference_to_extern:
-        data.source += f"extern u64 {ref}[];\n\n"
+        data.source += f"extern u64 {ref}[];\n"
+
+    if len(fModel.reference_to_extern) > 0:
+        data.source += "\n"
 
     data.append(exportData.all())
 
