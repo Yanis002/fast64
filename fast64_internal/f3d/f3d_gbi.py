@@ -2861,6 +2861,7 @@ class FModel:
         if len(self.reference_to_extern) > 0:
             data.source += "\n"
 
+
 class FTexRect(FModel):
     def __init__(self, name, matWriteMethod):
         self.draw = GfxList(name, GfxListTag.Draw, DLFormat.Dynamic)

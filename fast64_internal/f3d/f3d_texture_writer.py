@@ -645,12 +645,12 @@ class MultitexManager:
                     else self.ti0.texProp.tex_reference == self.ti1.texProp.tex_reference
                 )
 
-                size_1 = (
-                    list(self.ti0.texProp.pal_reference_size) if is_pal else list(self.ti0.texProp.tex_reference_size)
-                )
-                size_2 = (
-                    list(self.ti1.texProp.pal_reference_size) if is_pal else list(self.ti1.texProp.tex_reference_size)
-                )
+                data_1 = self.ti0.texProp.pal_reference_size if is_pal else self.ti0.texProp.tex_reference_size
+                size_1 = list(data_1) if not isinstance(data_1, int) else [data_1]
+
+                data_2 = self.ti1.texProp.pal_reference_size if is_pal else self.ti1.texProp.tex_reference_size
+                size_2 = list(data_2) if not isinstance(data_2, int) else [data_2]
+
                 is_same_size = size_1[0] == size_2[0] and size_1[0] == size_2[0]
 
                 if self.ti0.isTexRef and self.ti1.isTexRef and is_ref_enabled and not is_same_size:
@@ -825,6 +825,7 @@ class MultitexManager:
                 )
             )
         )
+
         useLargeTextures = material.mat_ver > 3 and f3dMat.use_large_textures
         tmemSize = 256 if self.isCI else 512
         self.ti1.texAddr = None  # must be set whenever tex 1 used (and loaded or tiled)
