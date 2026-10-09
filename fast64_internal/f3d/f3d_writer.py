@@ -460,10 +460,10 @@ def saveStaticModel(
 
         def try_append_refs(tex):
             if tex.tex_set and tex.use_tex_reference and tex.extern_refs:
-                if len(tex.tex_reference) > 0 and not tex.tex_reference.startswith("0x"):
+                if len(tex.tex_reference) > 0 and not tex.tex_reference.lower().startswith("0x"):
                     fModel.reference_to_extern.append(tex.tex_reference)
 
-                if len(tex.pal_reference) > 0 and not tex.pal_reference.startswith("0x"):
+                if len(tex.pal_reference) > 0 and not tex.pal_reference.lower().startswith("0x"):
                     fModel.reference_to_extern.append(tex.pal_reference)
 
         try_append_refs(material.f3d_mat.tex0)

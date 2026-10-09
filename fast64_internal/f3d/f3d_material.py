@@ -3149,17 +3149,16 @@ def ui_image(
         prop_input.prop(textureProp, "use_tex_reference")
         if textureProp.use_tex_reference:
             flipbook = getattr(material.flipbookGroup, "flipbook" + texIndex)
-            can_pal_ref = flipbook is None or not flipbook.enable
 
-            if (len(textureProp.tex_reference) > 0 and not textureProp.tex_reference.startswith("0x")) or (
-                can_pal_ref and len(textureProp.pal_reference) > 0 and not textureProp.pal_reference.startswith("0x")
+            if (len(textureProp.tex_reference) > 0 and not textureProp.tex_reference.lower().startswith("0x")) or (
+                not flipbook.enable and len(textureProp.pal_reference) > 0 and not textureProp.pal_reference.lower().startswith("0x")
             ):
                 prop_input.prop(textureProp, "extern_refs")
 
             prop_split(prop_input, textureProp, "tex_reference", "Texture Reference")
             prop_split(prop_input, textureProp, "tex_reference_size", "Texture Size")
 
-            if textureProp.tex_format[:2] == "CI" and can_pal_ref:
+            if textureProp.tex_format[:2] == "CI" and not flipbook.enable:
                 prop_split(prop_input, textureProp, "pal_reference", "Palette Reference")
                 prop_split(prop_input, textureProp, "pal_reference_size", "Palette Size")
 
